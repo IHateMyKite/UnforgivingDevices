@@ -101,21 +101,6 @@ local _OnUIOpen = OnUIOpen
 function OnUIOpen(C)
     local loc_vars = _OnUIOpen(C)
     local loc_pos_x = GetConfigVar(C,"PosX","nan")
-    if loc_pos_x ~= "nan" then
-        loc_vars["x"] = loc_pos_x.."%"
-    end
-    local loc_pos_y = GetConfigVar(C,"PosY","nan")
-    if loc_pos_y ~= "nan" then
-        loc_vars["y"] = loc_pos_y.."%"
-    end
-    local loc_scale = GetConfigVar(C,"Scale","nan")
-    if loc_scale ~= "nan" then
-        loc_vars["scale"] = loc_scale
-    end
-    local loc_hints = GetConfigVar(C,"Hints","nan")
-    if loc_hints ~= "nan" then
-        loc_vars["hints"] = StrToBool(loc_hints)
-    end
     
     loc_vars["scalezone"] = GetMinigameVar(C,"ZoneScale")
     loc_vars["scalecursor"] = GetMinigameVar(C,"ZoneScale")
@@ -201,6 +186,8 @@ function ProcessMinigame(C,delta)
     end
     
     UpdateCursorPosition(C,delta)
+    
+    return true
 end
 
 function IsLockUnlocked(C,lock)

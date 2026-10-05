@@ -70,22 +70,6 @@ end
 local _OnUIOpen = OnUIOpen
 function OnUIOpen(C)
     local loc_vars = _OnUIOpen(C)
-    local loc_pos_x = GetConfigVar(C,"PosX","nan")
-    if loc_pos_x ~= "nan" then
-        loc_vars["pos_x"] = loc_pos_x.."%"
-    end
-    local loc_pos_y = GetConfigVar(C,"PosY","nan")
-    if loc_pos_y ~= "nan" then
-        loc_vars["pos_y"] = loc_pos_y.."%"
-    end
-    local loc_scale = GetConfigVar(C,"Scale","nan")
-    if loc_scale ~= "nan" then
-        loc_vars["scale"] = loc_scale
-    end
-    local loc_hints = GetConfigVar(C,"Hints","nan")
-    if loc_hints ~= "nan" then
-        loc_vars["hints"] = StrToBool(loc_hints)
-    end
     
     if GetMinigameVar(C,'AutoMode') then
         loc_vars["mcurvis"] = false
@@ -93,9 +77,6 @@ function OnUIOpen(C)
     elseif not StrToBool(GetConfigVar(C,"ShowCombo","true")) then
         loc_vars["combvis"] = false
     end
-    
-    local loc_actions = GetRegisteredActions(C)
-    loc_vars["actions"] = loc_actions
     
     return loc_vars
 end
@@ -233,6 +214,8 @@ function ProcessMinigame(C,delta)
         InvokeMinigameUI(C,loc_setzone_payload)
         InvokeMinigameUI(C,loc_updateminigame_payload)
     end
+    
+    return true
 end
 
 function ProcessMinigameNPC(C,delta)

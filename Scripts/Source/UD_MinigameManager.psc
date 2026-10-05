@@ -12,7 +12,9 @@ EndEvent
 Function OnGameReload()
 EndFunction
 
-Function ReadyDeviceMinigame(UD_CustomDevice_RenderScript akDevice, Actor akHelper)
+Function ReadyDeviceMinigame(ObjectReference akObj, Actor akHelper)
+    UD_CustomDevice_RenderScript akDevice = akObj as UD_CustomDevice_RenderScript
+    
     akDevice.setHelper(akHelper)
 
     Actor Wearer = akDevice.GetWearer()
@@ -23,6 +25,9 @@ Function ReadyDeviceMinigame(UD_CustomDevice_RenderScript akDevice, Actor akHelp
     bool                    loc_PlayerInMinigame                = loc_WearerIsPlayer || loc_HelperIsPlayer
     Bool                    loc_is3DLoaded                      = loc_PlayerInMinigame || Wearer.Is3DLoaded()
     UD_CustomDevice_NPCSlot loc_WearerSlot                      = akDevice.UD_WearerSlot
+
+    ObjectReference loc_test = UD_Native.GetDeviceScript2(Wearer,akDevice.DeviceInventory,akDevice.DeviceRendered)
+    UDMain.Info("loc_test = "+loc_test)
 
     akDevice.GetWearer().AddToFaction(UDMain.UDCDmain.MinigameFaction)
     UDMain.UDCDMain.StartMinigameDisable(Wearer)
@@ -66,7 +71,8 @@ Function ReadyDeviceMinigame(UD_CustomDevice_RenderScript akDevice, Actor akHelp
     akDevice.OnMinigameStart()
 EndFunction
 
-Function LoadDeviceMinigame(UD_CustomDevice_RenderScript akDevice, Actor akHelper)
+Function LoadDeviceMinigame(ObjectReference akObj, Actor akHelper)
+    UD_CustomDevice_RenderScript akDevice = akObj as UD_CustomDevice_RenderScript
     ; Wait for UD to load first
     while UD_native.AreModulesReady(true)
         Utility.Wait(1)
@@ -114,7 +120,8 @@ Function LoadDeviceMinigame(UD_CustomDevice_RenderScript akDevice, Actor akHelpe
     ;akDevice.OnMinigameStart()
 EndFunction
 
-Function UpdateMinigameExpression(UD_CustomDevice_RenderScript akDevice, Actor akHelper)
+Function UpdateMinigameExpression(ObjectReference akObj, Actor akHelper)
+    UD_CustomDevice_RenderScript akDevice = akObj as UD_CustomDevice_RenderScript
     Actor Wearer = akDevice.GetWearer()
     Actor Helper = akDevice.GetHelper()
     float[] loc_expression = akDevice.GetCurrentMinigameExpression()
@@ -124,7 +131,8 @@ Function UpdateMinigameExpression(UD_CustomDevice_RenderScript akDevice, Actor a
     endif
 EndFunction
 
-Function StopDeviceMinigame(UD_CustomDevice_RenderScript akDevice, Actor akHelper)
+Function StopDeviceMinigame(ObjectReference akObj, Actor akHelper)
+    UD_CustomDevice_RenderScript akDevice = akObj as UD_CustomDevice_RenderScript
     Actor Wearer = akDevice.GetWearer()
     Actor Helper = akDevice.GetHelper()
     bool  loc_WearerIsPlayer   = akDevice.WearerIsPlayer()
@@ -169,4 +177,25 @@ Function StopDeviceMinigame(UD_CustomDevice_RenderScript akDevice, Actor akHelpe
     akDevice.setHelper(none)
     
     akDevice._CheckUnlock()
+EndFunction
+
+Function PlayRedShader(Actor akWearer, Actor akHelper)
+    UDMain.UDlibs.RedCrit.RemoteCast(akWearer,akWearer,akWearer)
+    if akHelper
+        UDMain.UDlibs.RedCrit.RemoteCast(akHelper,akHelper,akHelper)
+    endif
+EndFunction
+
+Function PlayGreenShader(Actor akWearer, Actor akHelper)
+    UDMain.UDlibs.GreenCrit.RemoteCast(akWearer,akWearer,akWearer)
+    if akHelper
+        UDMain.UDlibs.GreenCrit.RemoteCast(akHelper,akHelper,akHelper)
+    endif
+EndFunction
+
+Function PlayBlueShader(Actor akWearer, Actor akHelper)
+    UDMain.UDlibs.BlueCrit.RemoteCast(akWearer,akWearer,akWearer)
+    if akHelper
+        UDMain.UDlibs.BlueCrit.RemoteCast(akHelper,akHelper,akHelper)
+    endif
 EndFunction

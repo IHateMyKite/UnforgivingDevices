@@ -34,12 +34,27 @@
                 "format": "{1} dmg"
             }
         },
+        "DurabilityScaling":
+        {
+            "name": "Durability scaling",
+            "description": "How much will damage increase per 10% of missing durability",
+            "default": "0.0",
+            "priority": "89",
+            "mcm":
+            {
+                "min": "0.0",
+                "max": "1.0",
+                "precision": "0.01",
+                "format": "{0} %",
+                "mult": "100.0"
+            }
+        },
         "PhysResMult":
         {
             "name": "Physical Multiplier",
             "description": "How much of the device physical resistence is used",
             "default": "0.0",
-            "priority": "89",
+            "priority": "88",
             "mcm":
             {
                 "min": "0.0",
@@ -54,7 +69,7 @@
             "name": "Magickal Multiplier",
             "description": "How much of the device magickal resistence is used",
             "default": "0.0",
-            "priority": "88",
+            "priority": "87",
             "mcm":
             {
                 "min": "0.0",
@@ -69,7 +84,7 @@
             "name": "Combo multiplier",
             "description": "How much will damage increase per every combo",
             "default": "1.16",
-            "priority": "87",
+            "priority": "80",
             "mcm":
             {
                 "min": "1.0",
@@ -84,7 +99,7 @@
             "name": "Speed multiplier",
             "description": "How much will cursor speed increase for every combo",
             "default": "1.07",
-            "priority": "86",
+            "priority": "79",
             "mcm":
             {
                 "min": "0.8",
@@ -99,7 +114,8 @@
             "name": "UI Show Combo",
             "description": "If minigame combo text should be shown",
             "default": "true",
-            "priority": "57",
+            "global": true,
+            "priority": "1",
             "mcm":
             {
                 "type": "bool"

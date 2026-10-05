@@ -127,6 +127,7 @@ Int         Function SendRemoveRenderDeviceEvent(Actor akActor, Armor akRenderDe
 Int         Function SetBitMapData(Int aiHandle1,Int aiHandle2,Armor akRenDev,String asName,Int aiValue, Int aiSize, Int aiOff) global native
             Function UpdateVMHandles() global native
 Bool        Function GetDeviceScript(Actor akActor, Armor akDeviceRendered, String asScript, String asVariable) global native
+ObjectReference  Function GetDeviceScript2(Actor akActor, Armor akID, Armor akRD) global native
 Bool        Function GetInventoryDeviceScript(Actor akActor, Armor akDeviceInventory, String asScript, String asVariable) global native
 
 ; ===Materials===

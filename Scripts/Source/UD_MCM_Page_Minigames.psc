@@ -60,6 +60,9 @@ Function PageReset(Bool abLockMenu)
         loc_i += 1
     endwhile
     
+    _Minigames_List = PapyrusUtil.PushString(_Minigames_List,"Global")
+    _Minigames = PapyrusUtil.PushString(_Minigames,"{\"id\":\"-2\",\"name\":\"Global\"}")
+    
     AddHeaderOption("Minigame setting")
     addEmptyOption()
     
@@ -73,10 +76,14 @@ Function PageReset(Bool abLockMenu)
     addEmptyOption()
     
     _MinigameConfigId = GetJsonValue(_Minigames[_Minigames_Id],"id","-1") as Int
+    ;UDMain.Info("_MinigameConfigId = "+_MinigameConfigId)
+    ;UDMain.Info("_Minigames_Id = "+_Minigames_Id)
+    ;UDMain.Info("_Minigames[_Minigames_Id] = "+_Minigames[_Minigames_Id])
     if _MinigameConfigId != -1
         AddHeaderOption("Minigame variables")
         addEmptyOption()
-        _Exports = UD_Native.GetMinigameExports(_MinigameConfigId as Int)
+        _Exports = UD_Native.GetMinigameExports(_MinigameConfigId)
+        ;UDMain.Info("_Exports = "+_Exports)
         _Exports_Ids = Utility.CreateIntArray(_Exports.length)
         
         loc_i = 0

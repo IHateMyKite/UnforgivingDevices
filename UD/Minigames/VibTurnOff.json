@@ -1,0 +1,19 @@
+{
+    "name": "Turn off",
+    "description": "Try to turn off the toy",
+    "script":"UD\\Minigames\\Scripts\\VibTurnOnOff.lua",
+    "base":"MinigameZoneSlide",
+    "priority": 75,
+    "config":
+    {
+        "ActionName":   "Turn Off",
+        "StaminaDrain": "7.5",
+        "TagBlacklist": "vib_nomanip",
+        "TagWhitelist": "vib",
+        "Type":         "0",
+        "SpeedMult":    "1.01",
+        "ZoneSpeed":    "100.0",
+        "ColorRelease": "rgb(247,0,255)",
+        "CheckAccessibility": "false"
+    }
+}

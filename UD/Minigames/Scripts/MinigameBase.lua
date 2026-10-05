@@ -6,7 +6,7 @@ end
 
 -- Check if actor can struggle or if other conditions are met
 function Condition(C)
-    return CheckMinStatsWearer(C) and (not UseHelper(C) or CheckMinStatsHelper(C)) and GetDeviceAccessibility(C,true) > 0.0
+    return CheckMinStatsWearer(C) and (not UseHelper(C) or CheckMinStatsHelper(C)) and (not StrToBool(GetConfigVar(C,"CheckAccessibility","true")) or GetDeviceAccessibility(C,true) > 0.0)
 end
 
 function CheckMinStatsWearer(C)
@@ -33,15 +33,16 @@ function OnStart(C)
     InitMinigameVars(C)
     
     SetMinigameVar(C,'Ready',false)
+    SetMinigameVar(C,"Running",false)
     
     UpdateVariableValue(C,"thisdevice::_PauseMinigame(A)",false)
     UpdateVariableValue(C,"thisdevice::_StopMinigame(A)",false)
     UpdateVariableValue(C,"thisdevice::_MinigameMainLoopON(A)",true)
     
     if UseHelper(C) then
-        CallPapyrusFunction(C,"thisdevice::Lua_ReadyMinigame","OnMinigameReady",{"actor",C['Helper']})
+        CallPapyrusFunction(C,"MINM::ReadyDeviceMinigame","OnMinigameReady",{"object",C['DeviceObj']},{"actor",C['Helper']})
     else
-        CallPapyrusFunction(C,"thisdevice::Lua_ReadyMinigame","OnMinigameReady",{"actor",nil})
+        CallPapyrusFunction(C,"MINM::ReadyDeviceMinigame","OnMinigameReady",{"object",C['DeviceObj']},{"actor",nil})
     end
     
     -- Ready local minigame variables
@@ -53,7 +54,14 @@ function OnStart(C)
     SetMinigameVar(C,'UseNoUI',StrToBool(GetConfigVar(C,"UseNoUI","false")))
     SetMinigameVar(C,"AutoMode",StrToBool(GetSaveConfig("Minigames.AutoMode","false")))
     SetMinigameVar(C,"AutoModeTimer",SetMinigameVar(C,"AutoModeBase",tonumber(GetSaveConfig("Minigames.AutoModePauseTime","0.25"))))
-    SetMinigameVar(C,"UseShaders",StrToBool(GetSaveConfig("Minigames.Shaders","true")) and not GetMinigameVar(C,"AutoMode"))
+    SetMinigameVar(C,"UseShaders",StrToBool(GetConfigVar(C,"UseShaders","true")) and not GetMinigameVar(C,"AutoMode"))
+    
+    SetMinigameVar(C,"Hints",StrToBool(GetConfigVar(C,"Hints","true")))
+    SetMinigameVar(C,"ShowActions",StrToBool(GetConfigVar(C,"ShowActions","true")))
+    SetMinigameVar(C,"PosX",GetConfigVar(C,"PosX","50"))
+    SetMinigameVar(C,"PosY",GetConfigVar(C,"PosY","65"))
+    SetMinigameVar(C,"Scale",GetConfigVar(C,"Scale","1.0"))
+    SetMinigameVar(C,"Visibility",tonumber(GetConfigVar(C,"Visibility","1.0")))
     
     Log("SkillMult -> "..tostring(GetMinigameVar(C,"SkillMult")))
     
@@ -82,7 +90,9 @@ function OnUpdate(C,delta)
     end
     
     if PlayerInMinigame(C) then
-        ProcessMinigame(C,delta)
+        if not ProcessMinigame(C,delta) then
+            return
+        end
         UpdateSkill(C,delta)
     end
     
@@ -91,10 +101,10 @@ function OnUpdate(C,delta)
     if loc_time <= 0.0 then
         SetMinigameVar(C,'TimerExpr',5.0)
         if UseHelper(C) then
-            CallPapyrusFunction(C,"thisdevice::Lua_UpdateMinigameExpression","",{"actor",C['Helper']})
+            CallPapyrusFunction(C,"MINM::UpdateMinigameExpression","",{"object",C['DeviceObj']},{"actor",C['Helper']})
         else
             Log("Updating expression")
-            CallPapyrusFunction(C,"thisdevice::Lua_UpdateMinigameExpression","",{"actor",nil})
+            CallPapyrusFunction(C,"MINM::UpdateMinigameExpression","",{"object",C['DeviceObj']},{"actor",nil})
         end
     end
 end
@@ -104,9 +114,9 @@ function OnStop(C)
     EnableRegen(C)
     CloseMinigameUI(C)
     if UseHelper(C) then
-        CallPapyrusFunction(C,"thisdevice::Lua_StopMinigame","",{"actor",C['Helper']})
+        CallPapyrusFunction(C,"MINM::StopDeviceMinigame","",{"object",C['DeviceObj']},{"actor",C['Helper']})
     else
-        CallPapyrusFunction(C,"thisdevice::Lua_StopMinigame","",{"actor",nil})
+        CallPapyrusFunction(C,"MINM::StopDeviceMinigame","",{"object",C['DeviceObj']},{"actor",nil})
     end
     UpdateVariableValue(C,"thisdevice::_MinigameMainLoopON(A)",false)
 end
@@ -126,6 +136,7 @@ function OpenUI(C)
         OpenMinigameUI(C,"UIOpen")
     else
         SetMinigameVar(C,'Ready',true)
+        SetMinigameVar(C,"Running",true)
     end
 end
 
@@ -136,12 +147,23 @@ function UIOpen(C)
     RegisterCallbacks(C)
     
     local loc_payload = OnUIOpen(C)
-    loc_payload['actions'] = GetRegisteredActions(C)
+    
+    loc_payload["pos_x"] = GetMinigameVar(C,"PosX").."%"
+    loc_payload["pos_y"] = GetMinigameVar(C,"PosY").."%"
+    loc_payload["scale"] = GetMinigameVar(C,"Scale")
+    loc_payload["visibility"] = GetMinigameVar(C,"Visibility")
+    loc_payload["hints"]    = GetMinigameVar(C,"Hints")
+    
+    if GetMinigameVar(C,"ShowActions") then
+        loc_payload['actions']  = GetRegisteredActions(C)
+    end
+    
     local loc_msg = "Init("..json.stringify(loc_payload)..")"
     Log("UIOpen(MinigameBase.lua) Invoking msg -> "..loc_msg)
     InvokeMinigameUI(C,loc_msg)
     
     SetMinigameVar(C,'Ready',true)
+    SetMinigameVar(C,"Running",true)
     Log("Minigame ready")
 end
 
@@ -190,9 +212,9 @@ function LoadData(C,data)
     EnableRegen(C)
     DisableRegen(C)
     if UseHelper(C) then
-        CallPapyrusFunction(C,"thisdevice::Lua_LoadMinigame","OnMinigameLoaded",{"actor",C['Helper']})
+        CallPapyrusFunction(C,"MINM::LoadDeviceMinigame","OnMinigameLoaded",{"object",C['DeviceObj']},{"actor",C['Helper']})
     else
-        CallPapyrusFunction(C,"thisdevice::Lua_LoadMinigame","OnMinigameLoaded",{"actor",nil})
+        CallPapyrusFunction(C,"MINM::LoadDeviceMinigame","OnMinigameLoaded",{"object",C['DeviceObj']},{"actor",nil})
     end
 end
 
@@ -207,9 +229,7 @@ function RegisterCallbacks(C)
 end
 
 function ProcessMinigame(C,delta)
-end
-
-function ProcessMinigameNPC(C,delta)
+    return true
 end
 
 function GetDataToSave(C,data)

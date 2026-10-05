@@ -6641,18 +6641,6 @@ UD_MinigameManager Property UD_MINM
     EndFunction
 EndProperty
 
-Function Lua_ReadyMinigame(Actor akHelper)
-    UD_MINM.ReadyDeviceMinigame(self,akHelper)
-EndFunction
-Function Lua_LoadMinigame(Actor akHelper)
-    UD_MINM.LoadDeviceMinigame(self,akHelper)
-EndFunction
-Function Lua_UpdateMinigameExpression(Actor akHelper)
-    UD_MINM.UpdateMinigameExpression(self,akHelper)
-EndFunction
-Function Lua_StopMinigame(Actor akHelper)
-    UD_MINM.StopDeviceMinigame(self,akHelper)
-EndFunction
 Int Function Lua_StartLockpickMinigame(Int aiLockIndex)
     ;UDmain.Info(aiLockIndex)
     _MinigameSelectedLockID = aiLockIndex

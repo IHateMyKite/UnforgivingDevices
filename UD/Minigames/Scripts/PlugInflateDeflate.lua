@@ -1,13 +1,17 @@
 
 local _Precondition = Precondition -- Save previous function
 function Precondition(C)
-    Log("Precondition(Struggle.lua) called")
-    local loc_inflatelvl = GetVariableValue(C,"thisdevice::_inflateLevel(A)")
-    if tonumber(GetConfigVar(C,"Type","1")) == 1 then
-        return _Precondition(C) and loc_inflatelvl < 5
-    else
-        return _Precondition(C) and loc_inflatelvl > 0
+    local loc_res = _Precondition(C)
+    Log("Precondition(PlugInflateDeflate.lua) called")
+    if loc_res then
+        local loc_inflatelvl = GetVariableValue(C,"thisdevice::_inflateLevel(A)")
+        if tonumber(GetConfigVar(C,"Type","1")) == 1 then
+            loc_res = loc_res and  _Precondition(C) and loc_inflatelvl < 5
+        else
+            loc_res = loc_res and _Precondition(C) and loc_inflatelvl > 0
+        end
     end
+    return loc_res
 end
 
 -- Called when minigame starts
@@ -39,7 +43,7 @@ end
 
 function OnHoldingZone(C,delta)
     local loc_prog = 0.0
-    local loc_change = GetMinigameVar(C,"ProgressRate")*delta*GetMinigameVar(C,"Multiplier")
+    local loc_change = GetMinigameVar(C,"ProgressRate")*delta*GetMinigameVar(C,"Multiplier")*Clamp(GetMinigameVar(C,"Accessibility"),0.5,1.0)*GetMinigameVar(C,"SkillMult")
     if GetMinigameVar(C,"Type") == 1 then
         loc_prog = UpdateVariableValue(C,"thisdevice::inflateprogress(U)",loc_change)
     else
@@ -54,14 +58,16 @@ end
 
 local _ProcessMinigame = ProcessMinigame
 function ProcessMinigame(C,delta)
-    _ProcessMinigame(C,delta)
+    local loc_res = _ProcessMinigame(C,delta)
     
-    if GetMinigameVar(C,"Progress") >= GetMinigameVar(C,"ProgressMax") then
+    if loc_res and GetMinigameVar(C,"Progress") >= GetMinigameVar(C,"ProgressMax") then
         SetMinigameVar(C,"Progress",0.0)
         
         InflateDeflatePlug(C)
         StopDeviceMinigame(C)
+        loc_res = false
     end
+    return loc_res
 end
 
 function InflateDeflatePlug(C)

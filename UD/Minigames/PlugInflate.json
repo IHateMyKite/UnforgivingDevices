@@ -4,13 +4,17 @@
     "script":"UD\\Minigames\\Scripts\\PlugInflateDeflate.lua",
     "base":"MinigameZoneSlide",
     "priority": 80,
+    "skill": "Agility",
     "config":
     {
         "ActionName":   "Inflate",
+        "StaminaDrain": "5.0",
         "TagBlacklist": "",
         "TagWhitelist": "inflatable_plug",
         "Type":         "1",
         "SpeedMult":    "1.01",
-        "ZoneSpeed":    "100.0"
+        "ZoneSpeed":    "100.0",
+        "CheckAccessibility": "false",
+        "SkillGain":    "2.5"
     }
 }

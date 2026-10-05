@@ -15,7 +15,8 @@
         "StaminaDrain": "10.0",
         "SkillGain":    "10.0",
         "UseNoUI":      "false",
-        "Disabled":     "false"
+        "Disabled":     "false",
+        "CheckAccessibility": "true"
     },
     "export":
     {
@@ -56,6 +57,55 @@
                 "min": "0.0",
                 "max": "50.0",
                 "format": "{0} /s"
+            }
+        },
+        "StaminaDrainMult":
+        {
+            "name": "Stamina Drain Multiplier",
+            "description": "Multiplies amount of stamina drained for every second of minigame",
+            "default": "1.0",
+            "priority": "100",
+            "global": true,
+            "mcm":
+            {
+                "min": "0.0",
+                "max": "2.0",
+                "precision": "0.05",
+                "format": "{0} %",
+                "mult": "100.0"
+                
+            }
+        },
+        "HealthDrainMult":
+        {
+            "name": "Health Drain Multiplier",
+            "description": "Multiplies amount of health drained for every second of minigame",
+            "default": "1.0",
+            "priority": "99",
+            "global": true,
+            "mcm":
+            {
+                "min": "0.0",
+                "max": "2.0",
+                "precision": "0.05",
+                "format": "{0} %",
+                "mult": "100.0"
+            }
+        },
+        "MagickaDrainMult":
+        {
+            "name": "Magicka Drain Multiplier",
+            "description": "Multiplies amount of magicka drained for every second of minigame",
+            "default": "1.0",
+            "priority": "98",
+            "global": true,
+            "mcm":
+            {
+                "min": "0.0",
+                "max": "2.0",
+                "precision": "0.05",
+                "format": "{0} %",
+                "mult": "100.0"
             }
         },
         "minStamina":
@@ -134,6 +184,7 @@
             "description": "If hints should be shown in minigame",
             "default": "true",
             "priority": "1",
+            "global": true,
             "mcm":
             {
                 "type": "bool"
@@ -145,6 +196,7 @@
             "description": "How much will minigame elements move horizontaly. Is in % of screen width",
             "default": "50",
             "priority": "60",
+            "global": true,
             "mcm":
             {
                 "min": "0",
@@ -159,6 +211,7 @@
             "description": "How much will minigame elements move verticaly. Is in % of screen height",
             "default": "80",
             "priority": "59",
+            "global": true,
             "mcm":
             {
                 "min": "0",
@@ -173,6 +226,7 @@
             "description": "How much will minigame UI elements be scaled",
             "default": "1.0",
             "priority": "58",
+            "global": true,
             "mcm":
             {
                 "min": "0.0",
@@ -180,6 +234,46 @@
                 "precision": "0.01",
                 "format": "{0} %",
                 "mult": "100.0"
+            }
+        },
+        "Visibility":
+        {
+            "name": "Visibility",
+            "description": "How visible will minigame be",
+            "default": "1.0",
+            "priority": "80",
+            "global": true,
+            "mcm":
+            {
+                "min": "0.0",
+                "max": "1.0",
+                "precision": "0.01",
+                "format": "{0} %",
+                "mult": "100.0"
+            }
+        },
+        "UseShaders":
+        {
+            "name": "Use shaders",
+            "description": "If shaders can be used in minigames to indicate different things",
+            "default": "true",
+            "priority": "2",
+            "global": true,
+            "mcm":
+            {
+                "type": "bool"
+            }
+        },
+        "ShowActions":
+        {
+            "name": "Show actions",
+            "description": "If possible actions should be shown",
+            "default": "true",
+            "priority": "3",
+            "global": true,
+            "mcm":
+            {
+                "type": "bool"
             }
         }
     }

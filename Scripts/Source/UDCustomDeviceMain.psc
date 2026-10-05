@@ -2632,34 +2632,13 @@ UD_CustomDevice_RenderScript Function getDeviceScriptByRender(Actor akActor,Armo
         return none
     endif
     
-    while _transfereMutex
-        Utility.waitMenuMode(0.05)
-    endwhile
-    
-    _transfereMutex = True
-    
     _transferedDevice = none
-    UD_CustomDevice_RenderScript result = none
     
     if UDmain.TraceAllowed()
         UDmain.Log("getDeviceScriptByRender called for " + akDeviceRendered + "("+getActorName(akActor)+")")
     endif
     
-    bool loc_res = UD_Native.GetDeviceScript(akActor,akDeviceRendered,"UDCustomDeviceMain","_transferedDevice")
-     
-    if !loc_res
-       UDMain.Error("Error getting script for " + akDeviceRendered + " on " + akActor)
-       _transfereMutex = False
-       _transferedDevice = none
-       return none
-    endif
-     
-    result = _transferedDevice
-    
-    _transferedDevice = none
-        
-    _transfereMutex = False
-    return result
+    return UD_Native.GetDeviceScript2(akActor,none,akDeviceRendered) as UD_CustomDevice_RenderScript
 EndFunction
 
 ;/  Function: getDeviceInventoryScriptByID
@@ -2740,24 +2719,9 @@ UD_CustomDevice_RenderScript Function getDeviceScriptByKw(Actor akActor,Keyword 
     endif
 
     UD_CustomDevice_RenderScript result = none
-    while _transfereMutex
-        Utility.waitMenuMode(0.05)
-    endwhile
-    _transfereMutex = True
-        Armor deviceRendered = libs.GetWornRenderedDeviceByKeyword(akActor,akKw)
-        if deviceRendered
-            akActor.removeItem(deviceRendered,1,True,TransfereContainer_ObjRef)
-            TransfereContainer_ObjRef.removeItem(deviceRendered,1,True,akActor)
-            akActor.equipItem(deviceRendered,True,True)
-            while !_transferedDevice
-                Utility.waitMenuMode(0.05)
-            endwhile
-            result = _transferedDevice
-            _transferedDevice = none
-        endif
-    _transfereMutex = False
-    if akActor != libs.playerRef
-        akActor.UpdateWeight(0)
+    Armor deviceRendered = libs.GetWornRenderedDeviceByKeyword(akActor,akKw)
+    if deviceRendered
+        result = GetDeviceScript2(akActor,none,deviceRendered) as UD_CustomDevice_RenderScript
     endif
     return result
 EndFunction

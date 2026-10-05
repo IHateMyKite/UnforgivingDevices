@@ -60,7 +60,7 @@ function OnStart(C)
     SetMinigameVar(C,"DamageSpeedMult",tonumber(GetConfigVar(C,"DamageSpeedMult","1.25")))
     SetMinigameVar(C,"SpeedMult",tonumber(GetConfigVar(C,"SpeedMult","1.05")))
     SetMinigameVar(C,"Accessibility",tonumber(GetDeviceAccessibility(C,true)))
-    
+    SetMinigameVar(C,"DurabilityScaling",tonumber(GetConfigVar(C,"DurabilityScaling","0.0")))
     
     local loc_durability_r  = GetVariableValue(C,"thisdevice::current_device_health(U)")/GetMinigameVar(C,'MaxDurability')
     local loc_condition_r   = 1.0 - GetVariableValue(C,"thisdevice::_total_durability_drain(U)")/100.0
@@ -79,13 +79,19 @@ end
 
 function DamageDurability(C,dmg)
     --Log("DamageDurability - "..tostring(dmg))
+    
+    local loc_lastdur_r     = GetMinigameVar(C,"Durability")
+    local loc_durscalingmult = 1.0 + ((1.0 - loc_lastdur_r)*10.0)*GetMinigameVar(C,"DurabilityScaling")
+    Log("loc_durscalingmult = "..tostring(loc_durscalingmult))
+    
     local loc_resistence    = 1.0 - GetMinigameVar(C,"Resistence")
     local loc_acc           = GetMinigameVar(C,"Accessibility")
     local loc_skillmult     = GetMinigameVar(C,"SkillMult")
-    local loc_durability    = UpdateVariableValue(C,"thisdevice::current_device_health(U)",-1.0*dmg*loc_resistence*loc_acc*loc_skillmult)
+    local loc_durability    = UpdateVariableValue(C,"thisdevice::current_device_health(U)",-1.0*dmg*loc_resistence*loc_acc*loc_skillmult*loc_durscalingmult)
     local loc_durability_r  = loc_durability/GetMinigameVar(C,'MaxDurability')
     local loc_condition     = UpdateVariableValue(C,"thisdevice::_total_durability_drain(U)",dmg*GetMinigameVar(C,"CondMult"))
     local loc_condition_r   = 1.0 - loc_condition/100.0
+    
     
     -- For faster UI update
     SetMinigameVar(C,"Durability",loc_durability_r)
@@ -114,22 +120,6 @@ end
 local _OnUIOpen = OnUIOpen
 function OnUIOpen(C)
     local loc_vars = _OnUIOpen(C)
-    local loc_pos_x = GetConfigVar(C,"PosX","nan")
-    if loc_pos_x ~= "nan" then
-        loc_vars["pos_x"] = loc_pos_x.."%"
-    end
-    local loc_pos_y = GetConfigVar(C,"PosY","nan")
-    if loc_pos_y ~= "nan" then
-        loc_vars["pos_y"] = loc_pos_y.."%"
-    end
-    local loc_scale = GetConfigVar(C,"Scale","nan")
-    if loc_scale ~= "nan" then
-        loc_vars["scale"] = loc_scale
-    end
-    local loc_hints = GetConfigVar(C,"Hints","nan")
-    if loc_hints ~= "nan" then
-        loc_vars["hints"] = StrToBool(loc_hints)
-    end
     
     if GetMinigameVar(C,'AutoMode') then
         loc_vars["mcurvis"] = false
@@ -271,9 +261,5 @@ function ProcessMinigame(C,delta)
         InvokeMinigameUI(C,loc_setzone_payload)
         InvokeMinigameUI(C,loc_updateminigame_payload)
     end
-end
-
-function ProcessMinigameNPC(C,delta)
-    local loc_dmg = GetMinigameVar(C,'DamageBase')*0.5
-    DamageDurability(C,loc_dmg*delta)
+    return true
 end

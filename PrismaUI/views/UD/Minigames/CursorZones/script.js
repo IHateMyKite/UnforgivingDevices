@@ -6,6 +6,17 @@ Combo           = 0
 window.Init = (arg) =>
 {
     var r = document.querySelector(':root');
+    
+    if ('visibility' in arg)
+    {
+        var loc_vis = arg.visibility;
+        if (loc_vis <= 0.0) return;
+        if (loc_vis < 1.0)
+        {
+            document.getElementById('mg_base').style.opacity = String(loc_vis);
+        }
+    }
+    
     if ('pos_y' in arg)r.style.setProperty('--minigame-offset-y', String(arg.pos_y));
     if ('pos_x' in arg)r.style.setProperty('--minigame-offset-x', String(arg.pos_x));
     

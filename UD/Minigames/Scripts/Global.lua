@@ -74,9 +74,9 @@ end
 
 function StoreConfigDrain(C)
     local loc_statDrain = {}
-    loc_statDrain['Stamina']    = tonumber(GetConfigVar(C,"StaminaDrain","0.0"))
-    loc_statDrain['Health']     = tonumber(GetConfigVar(C,"HealthDrain","0.0"))
-    loc_statDrain['Magicka']    = tonumber(GetConfigVar(C,"MagickaDrain","0.0"))
+    loc_statDrain['Stamina']    = tonumber(GetConfigVar(C,"StaminaDrain","0.0"))*tonumber(GetConfigVar(C,"StaminaDrainMult","1.0"))
+    loc_statDrain['Health']     = tonumber(GetConfigVar(C,"HealthDrain","0.0"))*tonumber(GetConfigVar(C,"HealthDrainMult","1.0"))
+    loc_statDrain['Magicka']    = tonumber(GetConfigVar(C,"MagickaDrain","0.0"))*tonumber(GetConfigVar(C,"MagickaDrainMult","1.0"))
     SetMinigameVar(C,'StatDrain',loc_statDrain)
 end
 

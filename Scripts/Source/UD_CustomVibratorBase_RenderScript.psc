@@ -10,6 +10,15 @@ import UD_Native
 ; <DOCUSTR(name,Base vibrator)>
 ; <DOCUSTR(description,This is generic vibrator. When activated, it will start vibrating, increasing wearer arousal)>
 
+;<LUA>
+;   local _GetTags = GetTags
+;   function GetTags(C)
+;       local loc_res = json.parse(_GetTags(C))
+;       loc_res["vib"] = true
+;       return json.stringify(loc_res)
+;   end
+;<\LUA>
+
 ;Properties
 
 ;/  Group: Vibration customization
@@ -123,6 +132,9 @@ int     _currentEdgingMode              =   -1
 int     _forceEdgingMode                =   -1
 int     _vsID                           =   -1           ;current sound ID used to play vib sounds
 bool    _paused                         =   false        ;on if vibrator is paused
+
+float   _turnOnProgress                 = 0.0
+float   _turnOffProgress                = 0.0
 
 ;/  Group: API
 ===========================================================================================
