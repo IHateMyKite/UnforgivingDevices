@@ -1,0 +1,66 @@
+{
+    "name": "Cutting",
+    "description": "Try to cut your way of the device by using Sharpest weapon you have",
+    "uiobject":"UD/Minigames/CursorZones/index.html",
+    "script":"UD\\Minigames\\Devices\\Scripts\\Cutting.lua",
+    "base":"DeviceMinigameBase",
+    "priority": 80,
+    "skill": "Cutting",
+    "config":
+    {
+        "minStamina":   "0.5",
+        "minHealth":    "0.5",
+        "StaminaDrain": "10.0",
+        "HealthDrain":  "4.0",
+        "BaseSpeed":    "175.0",
+        "SpeedMult": "1.1",
+        "DamageSpeedMult": "1.25",
+        "ZoneSize": "0.3",
+        "SkillGain": "8.0",
+        "TagBlacklist": "uncuttable"
+    },
+    "export":
+    {
+        "BaseSpeed":
+        {
+            "name": "Minigame speed",
+            "description": "How fast will minigame be",
+            "default": "100.0",
+            "priority": "88",
+            "mcm":
+            {
+                "min": "10.0",
+                "max": "1000.0",
+                "precision": "10.0",
+                "format": "{0}"
+            }
+        },
+        "SpeedMult":
+        {
+            "name": "Combo multiplier",
+            "description": "How much will damage increase per every combo",
+            "default": "1.16",
+            "priority": "87",
+            "mcm":
+            {
+                "min": "1.0",
+                "max": "2.0",
+                "precision": "0.01",
+                "format": "{0} %",
+                "mult": "100.0"
+            }
+        },
+        "ShowCombo":
+        {
+            "name": "UI Show Combo",
+            "description": "If minigame combo text should be shown",
+            "default": "true",
+            "priority": "57",
+            "global": true,
+            "mcm":
+            {
+                "type": "bool"
+            }
+        }
+    }
+}

@@ -7,6 +7,18 @@ Scriptname UD_CustomVibratorBase_RenderScript extends UD_CustomDevice_RenderScri
 import UnforgivingDevicesMain
 import UD_Native
 
+; <DOCUSTR(name,Base vibrator)>
+; <DOCUSTR(description,This is generic vibrator. When activated, it will start vibrating, increasing wearer arousal)>
+
+;<LUA>
+;   local _GetTags = GetTags
+;   function GetTags(C)
+;       local loc_res = json.parse(_GetTags(C))
+;       loc_res["vib"] = true
+;       return json.stringify(loc_res)
+;   end
+;<\LUA>
+
 ;Properties
 
 ;/  Group: Vibration customization
@@ -96,7 +108,7 @@ String  Property     VibrationEffectSlot                        Hidden
     EndFunction
 EndProperty
 
-Int _currentVibStrength = 0
+Int _currentVibStrength = 0 ;/ <EXPORT(name:Current strength,conv:enum{0=Off})> /;
 Int     Property     CurrentVibStrength                          Hidden
     Int Function Get()
         Return _currentVibStrength
@@ -113,13 +125,16 @@ Int     Property     CurrentVibStrength                          Hidden
 EndProperty
 
 ;local variables
-int     _currentVibRemainingDuration    =   0
+int     _currentVibRemainingDuration    =   0 ;/ <EXPORT(name:Remaining duration,conv:enum{-1=Infinite;0=Off})> /;
 int     _forceStrength                  =   -1
 int     _forceDuration                  =   0
 int     _currentEdgingMode              =   -1
 int     _forceEdgingMode                =   -1
 int     _vsID                           =   -1           ;current sound ID used to play vib sounds
 bool    _paused                         =   false        ;on if vibrator is paused
+
+float   _turnOnProgress                 = 0.0
+float   _turnOffProgress                = 0.0
 
 ;/  Group: API
 ===========================================================================================
@@ -208,10 +223,6 @@ Function InitPostPost()
     if UD_VibDuration == -1 
         vibrate()
     endif
-    If canVibrate() && WearerIsPlayer()
-        UDMain.UDWC.StatusEffect_SetVisible(VibrationEffectSlot)
-        UDMain.UDWC.StatusEffect_SetBlink(VibrationEffectSlot, False)
-    EndIf
 EndFunction
 
 string Function _getEdgingModeString(int iMode)
@@ -1021,10 +1032,6 @@ EndFunction
     Called when vibration end
 /;
 Function OnVibrationEnd()
-    If WearerIsPlayer()
-        UDMain.UDWC.StatusEffect_SetMagnitude(VibrationEffectSlot, 0)
-        UDMain.UDWC.StatusEffect_SetBlink(VibrationEffectSlot, False)
-    EndIf
 EndFunction
 
 ;/  Function: OnVibrationStrengthUpdate
@@ -1032,8 +1039,6 @@ EndFunction
 /;
 Function OnVibrationStrengthUpdate()
     If WearerIsPlayer()
-        UDMain.UDWC.StatusEffect_SetMagnitude(VibrationEffectSlot, CurrentVibStrength)
-        UDMain.UDWC.StatusEffect_SetBlink(VibrationEffectSlot, CurrentVibStrength > 0)
         UD_Events.SendEvent_VibDeviceEffectUpdate(self)
     EndIf
 EndFunction
@@ -1084,11 +1089,7 @@ EndFunction
     Called when vibration starts. Used to show message (someones something start vibrating etc...)
 /;
 Function PrintVibMessage_Start()
-    if WearerIsPlayer()
-        If !UDMain.UDWC.UD_FilterVibNotifications
-            UDmain.Print(getDeviceName() + " starts vibrating "+ getPlugsVibrationStrengthString(getCurrentZadVibStrenth()) +"!",2)
-        EndIf
-    elseif UDCDmain.AllowNPCMessage(GetWearer())
+    if UDCDmain.AllowNPCMessage(GetWearer())
         UDmain.Print(getWearerName() + "'s " + getDeviceName() + " starts vibrating "+ getPlugsVibrationStrengthString(getCurrentZadVibStrenth()) +"!",3)
     endif
 EndFunction
@@ -1098,9 +1099,9 @@ EndFunction
 /;
 Function PrintVibMessage_Stop()
     if WearerIsPlayer()
-        If !UDMain.UDWC.UD_FilterVibNotifications
-            UDmain.Print(getDeviceName() + " stops vibrating.",2)
-        EndIf
+        ;If !UDMain.UDWC.UD_FilterVibNotifications
+        ;    UDmain.Print(getDeviceName() + " stops vibrating.",2)
+        ;EndIf
     elseif UDCDmain.AllowNPCMessage(GetWearer())
         UDmain.Print(getWearerName() + "'s " + getDeviceName() + " stops vibrating.",3)
     endif
@@ -1120,12 +1121,6 @@ EndFunction
 Function OnMendPost(float mult) ;called on device mend (regain durability). Only called if OnMendPre returns true
     parent.OnMendPost(mult)
 EndFunction
-bool Function OnCritDevicePre() ;called on minigame crit
-    return parent.OnCritDevicePre()
-EndFunction
-Function OnCritDevicePost() ;called on minigame crit. Is only called if OnCritDevicePre returns true 
-    parent.OnCritDevicePost()
-EndFunction
 bool Function OnOrgasmPre(bool sexlab = false) ;called on wearer orgasm. Is only called if wearer is registered
     return parent.OnOrgasmPre(sexlab)
 EndFunction
@@ -1137,24 +1132,6 @@ Function OnMinigameOrgasmPost() ;called on wearer orgasm while in minigame. Is o
 EndFunction
 Function OnOrgasmPost(bool sexlab = false) ;called on wearer orgasm. Is only called if OnOrgasmPre returns true. Is only called if wearer is registered
     parent.OnOrgasmPost(sexlab)
-EndFunction
-Function OnMinigameStart() ;called when minigame start
-    parent.OnMinigameStart()
-EndFunction
-Function OnMinigameEnd() ;called when minigame end
-    parent.OnMinigameEnd()
-EndFunction
-Function OnMinigameTick(Float abUpdateTime) ;called every on every tick of minigame. Uses MCM performance setting
-    parent.OnMinigameTick(abUpdateTime)
-EndFunction
-Function OnMinigameTick1() ;called every 1s of minigame
-    parent.OnMinigameTick1()
-EndFunction
-Function OnMinigameTick3() ;called every 3s of minigame
-    parent.OnMinigameTick3()
-EndFunction
-Function OnCritFailure() ;called on crit failure (wrong key pressed)
-    parent.OnCritFailure()
 EndFunction
 float Function getAccesibility() ;return accesibility of device in range 0.0 - 1.0
     return parent.getAccesibility()
@@ -1200,19 +1177,9 @@ bool Function OnUpdateHourPost()
 EndFunction
 Function onRemoveDevicePost(Actor akActor)
     parent.onRemoveDevicePost(akActor)
-    If IsPlayer(akActor)
-        UDMain.UDWC.StatusEffect_SetVisible(VibrationEffectSlot, False)
-        UDMain.UDWC.StatusEffect_SetBlink(VibrationEffectSlot, False)
-    EndIf
 EndFunction
 Function onLockUnlocked(bool lockpick = false)
     parent.onLockUnlocked(lockpick)
-EndFunction
-Function onSpecialButtonPressed(float fMult)
-    parent.onSpecialButtonPressed(fMult)
-EndFunction
-Function onSpecialButtonReleased(Float fHoldTime)
-    parent.onSpecialButtonReleased(fHoldTime)
 EndFunction
 bool Function onWeaponHitPre(Weapon source, Float afDamage = -1.0)
     return parent.onWeaponHitPre(source, afDamage)
@@ -1228,12 +1195,6 @@ Function onSpellHitPost(Form source, Float afDamage = -1.0)
 EndFunction
 string Function addInfoString(string str = "")
     return parent.addInfoString(str)
-EndFunction
-Function updateWidget(bool force = false)
-    parent.updateWidget(force)
-EndFunction
-Function updateWidgetColor()
-    parent.updateWidgetColor()
 EndFunction
 int Function getArousalRate()
     return parent.getArousalRate()

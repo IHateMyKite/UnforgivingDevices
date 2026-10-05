@@ -1,0 +1,14 @@
+{
+    "name": "Maintenance",
+    "alias": "MAIN",
+    "description": "Skill representing profeciency in repairing devices and their locks",
+    "priority": 1,
+    "multiplier": 1.0,
+    "skills":
+    [
+        {
+            "name":"Smithing",
+            "weigth": 1
+        }
+    ]
+}

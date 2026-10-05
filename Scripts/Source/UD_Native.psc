@@ -41,6 +41,8 @@ String      Function GetStringParamString       (String asParam,Int aiIndex = 0,
 Armor       Function GetRandomDevice            (LeveledItem akDeviceList)                                      global native
 Bool        Function IsConcentrationSpell       (Spell akSpell)                                                 global native
 Bool        Function IsConcentrationEnch        (Enchantment akEnch)                                            global native
+String      Function GetJsonValue               (String asJson, String asKey, String asDef)                     global native
+String      Function SetJsonValue               (String asJson, String asKey, String asVal)                     global native
 
 ;===UI===
 int         Function RemoveAllMeterEntries()                                                                    global native
@@ -125,6 +127,7 @@ Int         Function SendRemoveRenderDeviceEvent(Actor akActor, Armor akRenderDe
 Int         Function SetBitMapData(Int aiHandle1,Int aiHandle2,Armor akRenDev,String asName,Int aiValue, Int aiSize, Int aiOff) global native
             Function UpdateVMHandles() global native
 Bool        Function GetDeviceScript(Actor akActor, Armor akDeviceRendered, String asScript, String asVariable) global native
+ObjectReference  Function GetDeviceScript2(Actor akActor, Armor akID, Armor akRD) global native
 Bool        Function GetInventoryDeviceScript(Actor akActor, Armor akDeviceInventory, String asScript, String asVariable) global native
 
 ; ===Materials===
@@ -179,3 +182,24 @@ Quest[]   Function GetDependantModules(Quest akModule)      global native
 Quest[]   Function GetModulesByScript (String asScript)     global native
 Alias[]   Function GetModulesAliasesByScript(String asScript) global native
           Function ResetAllModuleS    ()                    global native
+
+; === UI ===
+Bool      Function IsDeviceMenuOpen     () global native
+Bool      Function ShowDeviceMenu       (Actor akWearer, Actor akHelper, String[] aasCallbacks) global native
+Bool      Function ShowDeviceMenuSingle (Armor akID, Armor akRD, Actor akWearer, Actor akHelper, String[] aasCallbacks) global native
+          Function ReloadHudConfigs     () global native
+
+; === Minigame Manager ===
+String[]  Function GetListOfMinigames (Actor akWearer, Armor akId)                      global native
+Bool      Function StopMinigame       (Actor akActor)                                   global native
+String[]  Function GetMinigameConfigs ()                                                global native
+String[]  Function GetMinigameExports (int aiIndx)                                      global native
+Bool      Function SetMinigameVariable(int aiIndx, String asConfig, String asValue)     global native
+String    Function GetMinigameVariable(int aiIndx, String asConfig, String asDefValue)  global native
+          Function ReloadMinigameConfigs()                                              global native
+; === Device Manager ===
+Float     Function GetDeviceAccessibility(Actor akWearer, Actor akHelper, Armor akRenderDevice) global native
+
+; === Save Manager ===
+          Function SetSave(String asData, Bool abDecode)    global native
+String    Function GetSave(Bool abEncode)                   global native

@@ -1,0 +1,18 @@
+{
+    "name": "Agility",
+    "alias": "AGIL",
+    "description": "Skill based on flexibility",
+    "priority": 0,
+    "multiplier": 1.0,
+    "skills":
+    [
+        {
+            "name":"Pickpocket",
+            "weigth": 1
+        },
+        {
+            "name":"Marksman",
+            "weigth": 1
+        }
+    ]
+}

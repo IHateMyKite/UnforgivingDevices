@@ -1,0 +1,19 @@
+{
+    "name": "Turn on",
+    "description": "Try to turn on the toy",
+    "script":"UD\\Minigames\\Devices\\Scripts\\VibTurnOnOff.lua",
+    "base":"MinigameZoneSlide",
+    "priority": 74,
+    "config":
+    {
+        "ActionName":   "Turn On",
+        "StaminaDrain": "5.0",
+        "TagBlacklist": "vib_nomanip",
+        "TagWhitelist": "vib",
+        "Type":         "1",
+        "SpeedMult":    "1.01",
+        "ZoneSpeed":    "100.0",
+        "ColorRelease": "rgb(247,0,255)",
+        "CheckAccessibility": "false"
+    }
+}

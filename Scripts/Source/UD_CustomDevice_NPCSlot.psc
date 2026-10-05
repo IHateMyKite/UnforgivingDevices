@@ -627,6 +627,8 @@ Function fix()
         
         UDCDmain.libs.StartBoundEffects(getActor())
         
+        UD_Native.StopMinigame(getActor())
+        
         ; fix current devices
         int i = UD_equipedCustomDevices.length
         while i
@@ -2199,11 +2201,6 @@ EndFunction
 Function _OrgasmGameUpdate()
     OrgasmSystem.RegisterForOrgasmEvent_Ref(self)
     RegisterForModEvent("ORS_LinkedWidgetUpdate", "ORSLinkedWidgetUpdate")
-    
-    if IsPlayer()
-        UDmain.UDWC.Meter_RegisterNative("player-orgasm",0,0.0,0.0, true)
-        UDmain.UDWC.Meter_LinkActorOrgasm(GetActor(),"player-orgasm")
-    endif
 EndFunction
 
 Function UpdateOrgasm(Float afUpdateTime)
@@ -2268,18 +2265,6 @@ Function UpdateOrgasmSecond()
 EndFunction
 
 Function ORSLinkedWidgetUpdate(String asEventName, String asUnused, Float afMod, Form akActorF)
-    if (GetActor() != (akActorF as Actor))
-        return
-    endif
-    
-    Actor akActor = akActorF as Actor
-    if UDCONF.UD_UseOrgasmWidget
-        if afMod == 0.0
-            UDmain.UDWC.Meter_SetVisible("player-orgasm", True)
-        else
-            UDmain.UDWC.Meter_SetVisible("player-orgasm", False)
-        endif
-    endif
 EndFunction
 
 String[] _HornyAnimDefs
@@ -2339,9 +2324,6 @@ Function CleanOrgasmUpdate()
         _hornyAnimTimer = 0
     EndIf
     
-    ;hide widget
-    UDmain.UDWC.Meter_UnlinkActorOrgasm(akActor)
-
     ;reset expression
     if akActor
         libs.ExpLibs.ResetExpressionRaw(akActor, 10)

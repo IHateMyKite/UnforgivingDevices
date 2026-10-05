@@ -1,0 +1,17 @@
+{
+    "name": "BaseElement",
+    "description": "Base",
+    "script":"UD\\Hud\\Scripts\\HudElementBase.lua",
+    "priority": 0,
+    "abstract": true,
+    "includes":
+    [
+        "UD\\Hud\\Scripts\\Global.lua"
+    ],
+    "config":
+    {
+        "posX": "0px",
+        "posY": "0px",
+        "minigame": false
+    }
+}

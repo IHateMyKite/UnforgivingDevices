@@ -1,0 +1,75 @@
+#mg_base{
+  width:calc(var(--scale)*100%);
+  height:calc(var(--scale)*100%);
+  left: var(--minigame-offset-x);
+  top: var(--minigame-offset-y);
+  position: absolute;
+  user-select: none;
+  pointer-events: none;
+}
+
+#mg_durability {
+  background-color: green;
+}
+#mg_durability_bcg {
+  filter: opacity(20%);
+  background-color: green;
+}
+#mg_condition_0{
+  background-color: rgba(0,0,255,1);
+}
+#mg_condition_1{
+  background-color: rgba(82,0,255,1);
+}
+#mg_condition_2{
+  background-color: rgba(82,0,110,1);
+}
+#mg_condition_3{
+  background-color: rgba(181,123,110,1);
+}
+#mg_condition_4{
+  background-color: rgba(255,15,0,1);
+}
+#mg_condition_bcg{
+  background-color: rgba(0,0,255,0.2);
+}
+#mg_progress {
+  background-color: orange;
+}
+#mg_progress_bcg{
+  background-color: orange;
+  filter: opacity(20%);
+}
+
+#mg_cursorborder {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+}
+
+#mg_cursor {
+  position: absolute;
+  width: 2.5%;
+  height: 100%;
+  left: 0%;
+  margin-left: 0%;
+  background-color: var(--color-red);
+  z-index: 1;
+}
+
+.mg_minigamezone {
+  width: 10%;
+  height: 100%;
+  position: absolute;
+  background-color: var(--color-green);
+  z-index: 0;
+}
+
+.mg_minigamezone_combo {
+  position: absolute;
+  height:100%;
+  text-align:center;
+  font-size: calc(50px*var(--scale));
+  color: var(--color-white);
+  background-color: rgba(199, 199, 199, 0.5);
+}

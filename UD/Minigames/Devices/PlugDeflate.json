@@ -1,0 +1,20 @@
+{
+    "name": "Deflate plug",
+    "description": "Try to deflate the plug using its pump",
+    "script":"UD\\Minigames\\Devices\\Scripts\\PlugInflateDeflate.lua",
+    "base":"MinigameZoneSlide",
+    "priority": 79,
+    "skill": "Agility",
+    "config":
+    {
+        "ActionName":   "Deflate",
+        "StaminaDrain": "7.5",
+        "TagBlacklist": "",
+        "TagWhitelist": "inflatable_plug",
+        "Type":         "0",
+        "SpeedMult":    "1.01",
+        "ZoneSpeed":    "100.0",
+        "CheckAccessibility": "false",
+        "SkillGain":    "2.5"
+    }
+}

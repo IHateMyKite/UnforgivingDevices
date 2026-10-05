@@ -114,18 +114,18 @@ EndEvent
 
 ;Main evaluate function, this is very experimental and it will need tweeking in future
 Function EvaluateSlot(UD_CustomDevice_NPCSlot akSlot)
-    UD_CustomDevice_RenderScript[]  loc_orderedList = GetOrderedDevicePriorityList(akSlot)
-    
-    Int loc_id = 0
-    While loc_orderedList[loc_id] && !loc_orderedList[loc_id].EvaluateNPCAI()
-        ;Failed to start minigame for top priority device, choose second top priority device, then third, etc...
-        loc_id += 1
-    EndWhile
-    
-    ;actor have tried to escape, reset cooldown
-    if loc_orderedList[loc_id]
-        ResetCooldown(akSlot.GetActor())
-    endif
+    ;UD_CustomDevice_RenderScript[]  loc_orderedList = GetOrderedDevicePriorityList(akSlot)
+    ;
+    ;Int loc_id = 0
+    ;While loc_orderedList[loc_id] && !loc_orderedList[loc_id].EvaluateNPCAI()
+    ;    ;Failed to start minigame for top priority device, choose second top priority device, then third, etc...
+    ;    loc_id += 1
+    ;EndWhile
+    ;
+    ;;actor have tried to escape, reset cooldown
+    ;if loc_orderedList[loc_id]
+    ;    ResetCooldown(akSlot.GetActor())
+    ;endif
 EndFunction
 
 UD_CustomDevice_RenderScript Function GetTopPriorityDevice(UD_CustomDevice_NPCSlot akSlot, Int aiMaxPriority = 1000)
