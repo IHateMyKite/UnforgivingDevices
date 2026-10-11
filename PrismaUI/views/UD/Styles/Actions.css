@@ -1,0 +1,16 @@
+
+.mg_actions{
+  user-select: none;
+  pointer-events: none;
+  width: calc(var(--meter-width)*2);
+  height: calc(2*var(--meter-height));
+  margin-left: calc(-1*var(--meter-width));
+  margin-top: 0px;
+  position: absolute;
+}
+
+.mg_action_text{
+    background-color: rgba(199, 199, 199, 0.5);
+    font-size: calc(25px*var(--scale));
+    color: white;
+}

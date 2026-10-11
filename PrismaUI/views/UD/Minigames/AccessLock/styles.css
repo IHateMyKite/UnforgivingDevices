@@ -1,0 +1,76 @@
+#mg_base{
+  width:calc(var(--scale)*100%);
+  height:calc(var(--scale)*100%);
+  left: var(--minigame-offset-x);
+  top: var(--minigame-offset-y);
+  margin: 0 auto;
+  position: absolute;
+  user-select: none;
+}
+
+#mg_minigame {
+  position: absolute;
+  user-select: none;
+  pointer-events: none;
+  width: 25%;
+  height: calc(25%*var(--ar));
+  margin-left: -12.5%;
+  margin-top: -12.5%;
+  z-index: 1;
+  /* background: var(--color-red-60); */
+  box-shadow:
+    inset 0 0 0 var(--border-size-medium) var(--color-white),
+    inset 0 0 0 var(--border-size-medium) var(--color-white);
+  border-radius: var(--border-radius-large);
+}
+
+#mg_cursorborder {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+}
+
+#mg_cursor {
+  position: absolute;
+  width: calc(10%*var(--cursor-scale));
+  height: calc(10%*var(--cursor-scale));
+  left: 50%;
+  top: 50%;
+  margin-top: calc(-5%*var(--cursor-scale));
+  margin-left: calc(-5%*var(--cursor-scale));
+  border-radius: 100%;
+  background-color: var(--color-yellow);
+  border: 3px solid var(--color-black);
+}
+
+#mg_minigamezone1 {
+  width: calc(35%*var(--zone-scale));
+  height: calc(35%*var(--zone-scale));
+  left: 50%;
+  top: 35%;
+  margin-top: calc(-17.5%*var(--zone-scale));
+  margin-left: calc(-17.5%*var(--zone-scale));
+  border-radius: 100%;
+  position: absolute;
+  background-color: var(--color-blue);
+}
+
+#mg_minigamezone2 {
+  width: calc(20%*var(--zone-scale));
+  height: calc(40%*var(--zone-scale));
+  left: 50%;
+  top: calc(60% - (60% - 35%)*(1.0 - var(--zone-scale)));
+  margin-top: calc(-20.0%*var(--zone-scale));
+  margin-left: calc(-10.0%*var(--zone-scale));
+  position: absolute;
+  background-color: var(--color-blue);
+}
+
+#mg_focus {
+  background-color: rgba(0, 197, 255, 1.0);
+  
+}
+
+#mg_focus_bcg {
+  background-color: rgba(0, 197, 255, 0.2);
+}

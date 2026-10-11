@@ -2,6 +2,45 @@ Scriptname UD_CustomPiercing_RenderScript extends UD_CustomVibratorBase_RenderSc
 
 import UnforgivingDevicesMain
 
+;<LUA>
+;   local _GetAccessibility = GetAccessibility
+;   function GetAccessibility(C,checkHB)
+;       local loc_res = _GetAccessibility(C,checkHB)
+;       if loc_res <= 0.0 then
+;           return 0.0
+;       end
+;       if ArmorHasKeyword(C['RD'],"zad_DeviousPiercingsVaginal") then
+;           --Log("GetAccessibility(Plug) called")
+;           if WornHasKeyword(C['Wearer'],"zad_DeviousBelt") 
+;           or WornHasKeyword(C['Wearer'],"zad_DeviousHarness") then
+;               if not WornHasKeyword(C['Wearer'],"zad_PermitVaginal") then
+;                   loc_res = 0.0
+;               end
+;           end
+;           if loc_res > 0.0 then
+;               if WornHasKeyword(C['Wearer'],"zad_DeviousSuit") 
+;               or WornHasKeyword(C['Wearer'],"zad_DeviousHobbleSkirt") then
+;                   loc_res = loc_res*0.25
+;               elseif WornHasKeyword(C['Wearer'],"zad_DeviousHobbleSkirtRelaxed") then
+;                   loc_res = loc_res*0.75
+;               end
+;           end
+;           --Log("Plug accessibility: "..tostring(loc_res))
+;           return loc_res
+;       else
+;           if WornHasKeyword(C['Wearer'],"zad_DeviousBra") then
+;               loc_res = 0.0
+;           end
+;           if loc_res > 0.0 then
+;               if WornHasKeyword(C['Wearer'],"zad_DeviousSuit") then
+;                   loc_res = loc_res*0.25
+;               end
+;           end
+;           return loc_res
+;       end
+;   end
+;<\LUA>
+
 Function InitPost()
     parent.InitPost()
     UD_DeviceType = "Piercing"
@@ -80,12 +119,6 @@ EndFunction
 Function OnMendPost(float mult) ;called on device mend (regain durability). Only called if OnMendPre returns true
     parent.OnMendPost(mult)
 EndFunction
-bool Function OnCritDevicePre() ;called on minigame crit
-    return parent.OnCritDevicePre()
-EndFunction
-Function OnCritDevicePost() ;called on minigame crit. Is only called if OnCritDevicePre returns true 
-    parent.OnCritDevicePost()
-EndFunction
 bool Function OnOrgasmPre(bool sexlab = false) ;called on wearer orgasm. Is only called if wearer is registered
     return parent.OnOrgasmPre(sexlab)
 EndFunction
@@ -105,18 +138,6 @@ EndFunction
 Function OnMinigameEnd() ;called when minigame end
     parent.OnMinigameEnd()
     zadNativeFunctions.SetActorStripped(GetWearer(),false)    ;show body armor
-EndFunction
-Function OnMinigameTick(Float abUpdateTime) ;called every on every tick of minigame. Uses MCM performance setting
-    parent.OnMinigameTick(abUpdateTime)
-EndFunction
-Function OnMinigameTick1() ;called every 1s of minigame
-    parent.OnMinigameTick1()
-EndFunction
-Function OnMinigameTick3() ;called every 3s of minigame
-    parent.OnMinigameTick3()
-EndFunction
-Function OnCritFailure() ;called on crit failure (wrong key pressed)
-    parent.OnCritFailure()
 EndFunction
 Function OnDeviceCutted() ;called when device is cutted
     parent.OnDeviceCutted()
@@ -169,12 +190,6 @@ EndFunction
 Function onLockUnlocked(bool lockpick = false)
     parent.onLockUnlocked(lockpick)
 EndFunction
-Function onSpecialButtonPressed(float fMult)
-    parent.onSpecialButtonPressed(fMult)
-EndFunction
-Function onSpecialButtonReleased(Float fHoldTime)
-    parent.onSpecialButtonReleased(fHoldTime)
-EndFunction
 bool Function onWeaponHitPre(Weapon source, Float afDamage = -1.0)
     return parent.onWeaponHitPre(source, afDamage)
 EndFunction
@@ -195,12 +210,6 @@ bool Function proccesSpecialMenuWH(Actor akSource,int msgChoice)
 EndFunction
 string Function addInfoString(string str = "")
     return parent.addInfoString(str)
-EndFunction
-Function updateWidget(bool force = false)
-    parent.updateWidget(force)
-EndFunction
-Function updateWidgetColor()
-    parent.updateWidgetColor()
 EndFunction
 float Function getStruggleOrgasmRate()
     return parent.getStruggleOrgasmRate()

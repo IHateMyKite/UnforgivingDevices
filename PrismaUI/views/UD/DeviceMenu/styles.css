@@ -1,0 +1,320 @@
+body {
+  font-size: var(--font-size-medium);
+  background: var(--color-transparent);
+  color: var(--color-black);
+  min-height: 100vh;
+}
+
+tbody {
+  /* display: inline-block; */
+  overflow: hidden;
+  height: 100%;
+  width: 100%;
+}
+
+/* Main Container */
+#main {
+  /* Only here for testing */
+  /*background-image: url('screenshot.png');*/
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+#devicemenu {
+  max-width: 60%;
+  height: 90vh;
+  width: 60%;
+  max-height: 56.25rem;
+  padding: 1.5rem;
+  margin: 0 auto;
+
+}
+
+/* Table Styles */
+#dm_table {
+  height: 95%;
+  width: 100%;
+  border-collapse: collapse;
+  overflow: hidden;
+}
+
+#dm_table_container {
+  height: 93%;
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid white;
+}
+
+.dm_tableelement {
+  /* position:absolute; */
+  overflow: hidden;
+}
+
+#dm_controlmenu {
+  width: 100%;
+}
+
+/* Device Menu Info Sections */
+.devicemenu_info {
+  width: 25%;
+  height: 50%;
+  text-align: center;
+  vertical-align: top;
+}
+
+.dm_detailtable {
+  width: 100%;
+  text-align: left;
+  vertical-align: top;
+  text-align: center;
+}
+
+.dm_detailtable th, tr {
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+
+#dm_description {
+  vertical-align: left;
+  text-align: left;
+}
+
+.dm_det_value_h, .dm_det_value {
+  width: 50%;
+  vertical-align: top;
+  text-align: left;
+}
+
+/* Base Button Styles */
+button {
+  width: 95%;
+  margin: 0.25rem auto;
+  vertical-align: top;
+  cursor: pointer;
+  font-weight: var(--font-weight-bold);
+  border: 1px solid var(--color-white);
+  padding: 0.25rem;
+  border-radius: var(--border-radius-medium);
+  background-color: var(--color-black-60);
+  color: var(--color-white);
+}
+
+button:hover {
+  background-color: var(--color-black-80);
+  color: var(--color-orange-50);
+  border-color: var(--color-blue);
+}
+
+/* Device List Buttons */
+
+#dm_list
+{
+    border: 1px solid black;
+}
+
+#dm_list .dm_entry_selected {
+  border: 1px solid var(--color-blue);
+  color: var(--color-orange);
+}
+
+/* Disabled Device List Buttons */
+#dm_list .dm_entry_disabled {
+  color: var(--color-red);
+  border-color: var(--color-red);
+}
+#dm_list .dm_entry_disabled:hover {
+  border: 1px solid var(--color-red-50);
+  color: var(--color-red-50);
+}
+
+/* Action Buttons */
+#dm_minigames .dm_entry_selected {
+  /* color: var(--color-green); */
+  border-color: var(--color-green);
+}
+#dm_minigames .dm_entry_disabled {
+  /* color: var(--color-red); */
+  border-color: var(--color-red);
+}
+#dm_minigames .dm_entry_disabled:hover {
+  /* border: 1px solid var(--color-red-50); */
+  /* color: var(--color-red-50); */
+}
+
+#dm_minigames .dm_entry_enabled {
+  /* color: var(--color-green); */
+  border-color: var(--color-green);
+}
+
+/* Modifier Buttons */
+#dm_modifiers button {
+  /* color: var(--color-green); */
+  border-color: var(--color-green);
+}
+
+#dm_modifiers button:hover {
+  /* color: var(--color-green-50); */
+  border-color: var(--color-green-50); 
+}
+
+
+#dm_Context .dm_entry_selected {
+  color: var(--color-green);
+  border-color: var(--color-green);
+}
+#dm_Context .dm_entry_disabled {
+  background-color: var(--color-black-80);
+  color: var(--color-red);
+  border-color: var(--color-red);
+}
+#dm_Context .dm_entry_disabled:hover {
+  border: 1px solid var(--color-red-50);
+  color: var(--color-red-50);
+}
+
+#dm_Context .dm_entry_enabled {
+  background-color: var(--color-black-80);
+  color: var(--color-green);
+}
+
+/* Tooltip Styles */
+#dm_Detail {
+  user-select: none;
+  pointer-events: none;
+  position: absolute;
+  background-color: var(--color-black);
+  color: var(--color-orange);
+  width: 10%;
+  top: 0;
+  left: 0;
+  vertical-align: left;
+  transform: translateY(-100%);
+  margin-top: -10px;
+  padding: 0.5rem;
+  border-radius: var(--border-radius-large);
+  z-index: 1000;
+}
+
+#dm_Context {
+  /* user-select: none; */
+  /* pointer-events: none; */
+  background-color: var(--color-black);
+  position: absolute;
+  color: var(--color-orange);
+  width: 10%;
+  top: 0;
+  left: 0;
+  /* vertical-align: top; */
+  /* transform: translateY(-100%); */
+  /* margin-left: -5%; */
+  margin-top: 0px;
+  padding: 0.5rem;
+  border-radius: var(--border-radius-large);
+  z-index: 1100;
+}
+
+/* Control Menu Buttons */
+.dm_control {
+  background-color: var(--color-teal);
+  border: 1px solid var(--color-black);
+  color: var(--color-white);
+}
+
+.dm_control_ena, .dm_control_exit {
+  background-color: var(--color-black-80);
+  color: var(--color-white-80);
+}
+
+.dm_control_dis {
+  background-color: var(--color-black-80);
+  color: var(--color-disabled);
+}
+
+.dm_con_h {
+  width: auto;
+}
+
+#dm_con_name {
+  color: var(--color-yellow);
+}
+
+/* Layout Styles */
+#dm_line0 { height: 5%;}
+#dm_line1 { height: 45%; }
+#dm_line2 { height: 5%; }
+#dm_line3 { height: 45%; }
+
+#dm_stats {
+  height: 3.5%;
+  width: 100%;
+  text-align: left;
+}
+
+#dm_stats table {
+}
+
+/* Border and Background Styles */
+.border-main {
+  border: var(--border-size-small) solid var(--color-white);
+  box-shadow:
+    inset 0 0 0 var(--border-size-medium) var(--color-black),
+    inset 0 0 0 var(--border-size-medium) var(--color-white);
+  border-radius: var(--border-radius-large);
+}
+
+/* Separator Styles */
+.right-seperator {
+  position: relative;
+  border-right: none;
+}
+
+.right-seperator::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: var(--border-size-small);
+  height: 100%;
+  background: var(--color-black-40);
+  clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 50%);
+}
+
+.left-seperator::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--border-size-small);
+  height: 100%;
+  background: var(--color-black-40);
+  clip-path: polygon(0% 0%, 100% 50%, 100% 100%, 0% 100%);
+}
+
+.dm_scrollable {
+    overflow:auto;
+    border: 1px solid white;
+    display: flex;
+    flex-grow: 0;
+    height: 100%;
+    flex-direction: column;
+}
+
+#dm_closebutton_container
+{
+    display: flex;
+    height: 3.5%;
+    width:100%;
+    flex-direction: row-reverse;
+    align-items: center;
+}
+
+#dm_closebutton
+{
+    height:90%;
+    width: 2%;
+    margin: 0;
+    padding: 0;
+    background-color: red;
+    color: white;
+}

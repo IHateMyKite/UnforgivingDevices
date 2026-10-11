@@ -255,16 +255,8 @@ EndFunction
 
 ; override this so I don't have to recalculate widget position for different values
 ; HAnchor property becomes useless
-function UpdateWidgetHAnchor()
-	UI.InvokeString(HUD_MENU, WidgetRoot + ".setHAnchor", "right")
-endFunction
-
 ; override this so I don't have to recalculate widget position for different values
 ; VAnchor property becomes useless
-function UpdateWidgetVAnchor()
-	UI.InvokeString(HUD_MENU, WidgetRoot + ".setVAnchor", "center")
-endFunction
-
 Bool _UpdatePosition_Mutex = False
 
 Function _UpdatePosition()

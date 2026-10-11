@@ -2,6 +2,31 @@ Scriptname UD_CustomSuit_RenderScript extends UD_CustomDevice_RenderScript
 
 import UnforgivingDevicesMain
 
+;<LUA>
+;   local _GetAccessibility = GetAccessibility
+;   function GetAccessibility(C,checkHB)
+;       local loc_res = _GetAccessibility(C,checkHB)
+;       if WornHasKeyword(C['Wearer'],"zad_DeviousArmCuffs") then
+;           loc_res = loc_res*0.75
+;       end
+;       if WornHasKeyword(C['Wearer'],"zad_DeviousLegCuffs") then
+;           loc_res = loc_res*0.75
+;       end
+;       if WornHasKeyword(C['Wearer'],"zad_DeviousCollar") then
+;           loc_res = loc_res*0.75
+;       end
+;       if WornHasKeyword(C['Wearer'],"zad_DeviousBra") then
+;           loc_res = loc_res*0.5
+;       end
+;       if not ArmorHasKeyword(C['RD'],"zad_deviousharness") and WornHasKeyword(C['Wearer'],"zad_deviousharness") then
+;           loc_res = loc_res*0.25
+;       elseif not ArmorHasKeyword(C['RD'],"zad_deviousbelt") and WornHasKeyword(C['Wearer'],"zad_deviousbelt") then
+;           loc_res = loc_res*0.5
+;       end
+;       return loc_res
+;   end
+;<\LUA>
+
 Function InitPost()
     UD_DeviceType = "Suit"
 EndFunction
@@ -56,12 +81,6 @@ EndFunction
 Function OnMendPost(float mult) ;called on device mend (regain durability). Only called if OnMendPre returns true
     parent.OnMendPost(mult)
 EndFunction
-bool Function OnCritDevicePre() ;called on minigame crit
-    return parent.OnCritDevicePre()
-EndFunction
-Function OnCritDevicePost() ;called on minigame crit. Is only called if OnCritDevicePre returns true 
-    parent.OnCritDevicePost()
-EndFunction
 bool Function OnOrgasmPre(bool sexlab = false) ;called on wearer orgasm. Is only called if wearer is registered
     return parent.OnOrgasmPre(sexlab)
 EndFunction
@@ -79,18 +98,6 @@ Function OnMinigameStart() ;called when minigame start
 EndFunction
 Function OnMinigameEnd() ;called when minigame end
     parent.OnMinigameEnd()
-EndFunction
-Function OnMinigameTick(Float abUpdateTime) ;called every on every tick of minigame. Uses MCM performance setting
-    parent.OnMinigameTick(abUpdateTime)
-EndFunction
-Function OnMinigameTick1() ;called every 1s of minigame
-    parent.OnMinigameTick1()
-EndFunction
-Function OnMinigameTick3() ;called every 3s of minigame
-    parent.OnMinigameTick3()
-EndFunction
-Function OnCritFailure() ;called on crit failure (wrong key pressed)
-    parent.OnCritFailure()
 EndFunction
 Function OnDeviceCutted() ;called when device is cutted
     parent.OnDeviceCutted()
@@ -149,12 +156,6 @@ EndFunction
 Function onLockUnlocked(bool lockpick = false)
     parent.onLockUnlocked(lockpick)
 EndFunction
-Function onSpecialButtonPressed(float fMult)
-    parent.onSpecialButtonPressed(fMult)
-EndFunction
-Function onSpecialButtonReleased(Float fHoldTime)
-    parent.onSpecialButtonReleased(fHoldTime)
-EndFunction
 bool Function onWeaponHitPre(Weapon source, Float afDamage = -1.0)
     return parent.onWeaponHitPre(source, afDamage)
 EndFunction
@@ -170,12 +171,6 @@ EndFunction
 string Function addInfoString(string str = "")
     return parent.addInfoString(str)
 EndFunction
-Function updateWidget(bool force = false)
-    parent.updateWidget(force)
-EndFunction
-Function updateWidgetColor()
-    parent.updateWidgetColor()
-EndFunction
 bool Function proccesSpecialMenu(int msgChoice)
     return parent.proccesSpecialMenu(msgChoice)
 EndFunction
@@ -189,5 +184,5 @@ float Function getStruggleOrgasmRate()
     return parent.getStruggleOrgasmRate()
 EndFunction
 Float[] Function GetCurrentMinigameExpression()
-	return parent.GetCurrentMinigameExpression()
+    return parent.GetCurrentMinigameExpression()
 EndFunction
