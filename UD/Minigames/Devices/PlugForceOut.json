@@ -16,6 +16,7 @@
         "SpeedMult": "1.05",
         "ZoneSize": "0.2",
         "TagBlacklist": "",
-        "TagWhitelist": "plug"
+        "TagWhitelist": "plug",
+        "UnlockOnAccess": "true"
     }
 }

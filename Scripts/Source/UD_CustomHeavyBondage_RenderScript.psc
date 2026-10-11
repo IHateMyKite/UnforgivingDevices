@@ -2,6 +2,13 @@ Scriptname UD_CustomHeavyBondage_RenderScript extends UD_CustomDevice_RenderScri
 
 import UnforgivingDevicesMain
 
+;<LUA>
+;   function GetAccessibility(C,checkHB)
+;       --Log("GetAccessibility(Base) called")
+;       return 1.0
+;   end
+;<\LUA>
+
 Function InitPost()
     UD_DeviceType = "Hand restraint"
     UD_Native.ForceUpdateControls()

@@ -41,30 +41,24 @@ function OnStart(C)
     SetMinigameVar(C,'MaxDurability',loc_maxhealth)
     SetMinigameVar(C,"CursorPos",0.0)
     SetMinigameVar(C,"CursorDir",0)
-    SetMinigameVar(C,"ZoneSize",tonumber(GetConfigVar(C,"ZoneSize","0.1")))
+    SetMinigameVar(C,"ZoneSizeCalc",SetMinigameVar(C,"ZoneSize",tonumber(GetConfigVar(C,"ZoneSize","0.1"))))
     SetMinigameVar(C,"ZonePos",math.random()*(1.0 - GetMinigameVar(C,"ZoneSize")))
     SetMinigameVar(C,"ZoneSizeReduction",tonumber(GetConfigVar(C,"ZoneSizeReduction","0.04")))
     SetMinigameVar(C,"CursorSize",0.025)
     SetMinigameVar(C,"CursorPosMax",1.0-GetMinigameVar(C,"CursorSize"))
     SetMinigameVar(C,"CursorSpeed",tonumber(GetConfigVar(C,"BaseSpeed","100.0")))
-    SetMinigameVar(C,"Multiplier",1.0)
     SetMinigameVar(C,"Combo",0)
     SetMinigameVar(C,"SpeedMult",tonumber(GetConfigVar(C,"SpeedMult","1.25")))
     SetMinigameVar(C,"CutPower",tonumber(GetVariableValue(C,"thisdevice::UD_CutChance(A)")))
+    SetMinigameVar(C,"ConditionDamageBase",tonumber(GetConfigVar(C,"ConditionDamageBase","15.0")))
     
     local loc_weaponpower = GetSharpestWeaponPower(C['Wearer'])
     if UseHelper(C) then
         loc_weaponpower = loc_weaponpower + GetSharpestWeaponPower(C['Helper'])
     end
     local loc_weaponmult = 1.0 + loc_weaponpower/100.0
-    Log("WeaponMult = "..loc_weaponmult)
+    Log("WeaponMult -> "..loc_weaponmult)
     SetMinigameVar(C,"WeaponMult",loc_weaponmult)
-    
-    
-    local loc_durability_r  = GetVariableValue(C,"thisdevice::current_device_health(U)")/GetMinigameVar(C,'MaxDurability')
-    local loc_condition_r   = 1.0 - GetVariableValue(C,"thisdevice::_total_durability_drain(U)")/100.0
-    SetMinigameVar(C,"Durability",loc_durability_r)
-    SetMinigameVar(C,"Condition",loc_condition_r)
 end
 
 local _OnUIOpen = OnUIOpen
@@ -92,7 +86,7 @@ end
 
 function CheckZone(C)
     local loc_pos           = GetMinigameVar(C,"CursorPos")
-    local loc_zonesize      = GetMinigameVar(C,"ZoneSize")
+    local loc_zonesize      = GetMinigameVar(C,"ZoneSizeCalc")
     local loc_zonepos       = GetMinigameVar(C,"ZonePos")
     return loc_pos <= loc_zonesize + loc_zonepos and loc_pos >= loc_zonepos
 end
@@ -119,10 +113,9 @@ function ClickSuccess(C)
         InvokeMinigameUI(C,"UpdateCombo({val:"..tostring(loc_combo).."})")
     end
     
-    local loc_weaponmult = GetMinigameVar(C,"WeaponMult")
-    local loc_skillmult  = GetMinigameVar(C,"SkillMult")
-    local loc_dmg        = GetMinigameVar(C,"CutPower")*loc_mult*loc_weaponmult*loc_skillmult
-    CallPapyrusFunction(C,"MINM::CutDevice","",{"object",C['DeviceObj']},{"float",loc_dmg})
+    SetMinigameVar(C,"ZoneSizeCalc",GetMinigameVar(C,"ZoneSize")*(1.0 - loc_combo*GetMinigameVar(C,"ZoneSizeReduction")))
+    
+    CutDevice(C)
     
     -- Move zone
     SetMinigameVar(C,"ZonePos",math.random()*(1.0 - GetMinigameVar(C,"ZoneSize")))
@@ -134,6 +127,7 @@ end
 function ClickFail(C)
     SetMinigameVar(C,"Multiplier",1.0)
     SetMinigameVar(C,"Combo",0)
+    SetMinigameVar(C,"ZoneSizeCalc",GetMinigameVar(C,"ZoneSize"))
     if not GetMinigameVar(C,'UseNoUI') then
         InvokeMinigameUI(C,"UpdateCombo({val:"..tostring(0).."})")
     end
@@ -184,40 +178,64 @@ function ProcessMinigame(C,delta)
     local loc_cutting_r     = Clamp(GetVariableValue(C,"thisdevice::_CuttingProgress(A)")/100.0,0.0,1.0)
     local loc_conditionLvl  = GetVariableValue(C,"thisdevice::UD_condition(A)")
     
-    if loc_durability <= 0.0 then
-        CallPapyrusFunction(C,"thisdevice::unlockRestrain","",{"bool",false},{"bool",false},{"bool",false})
-        StopDeviceMinigame(C)
-        return
-    end
-    if loc_condition >= 100.0 then
-        UpdateVariableValue(C,"thisdevice::_total_durability_drain(A)",0.0)
-        loc_conditionLvl = UpdateVariableValue(C,"thisdevice::UD_condition(U)",1)
-    end
-    
     -- For faster UI update
     SetMinigameVar(C,"Durability",loc_durability_r)
     SetMinigameVar(C,"Condition",loc_condition_r)
     SetMinigameVar(C,"ConditionLvl",loc_conditionLvl)
     
     if not loc_noui then
-        local loc_combo = GetMinigameVar(C,"Combo")
-        local loc_zonesize = GetMinigameVar(C,"ZoneSize")
+        local loc_zonesize = GetMinigameVar(C,"ZoneSizeCalc")
         local loc_zonepos = GetMinigameVar(C,"ZonePos")
-        local loc_zonesizerecution = GetMinigameVar(C,"ZoneSizeReduction")
         
-        local loc_setzone_payload           = "SetZones([{name:\"cutzone\",color:\"orange\",size:"..tostring(loc_zonesize*(1.0 - loc_combo*loc_zonesizerecution))..",left:"..tostring(loc_zonepos).."}])"
-        local loc_updateminigame_payload    = "Update({dur:"..tostring(loc_durability_r)..",cond:"..tostring(loc_condition_r)..",condlvl:"..tostring(loc_conditionLvl)..",prog:"..tostring(loc_cutting_r)..",pos:"..tostring(loc_pos).."})"
+        local loc_zones = {}
+        loc_zones[1] = {}
+        loc_zones[1]["name"] = "cutzone"
+        loc_zones[1]["left"] = loc_zonepos
+        loc_zones[1]["size"] = loc_zonesize
         
-        --Log("SetZone = "..loc_setzone_payload)
-        --Log("Update = "..loc_updateminigame_payload)
-        
-        InvokeMinigameUI(C,loc_setzone_payload)
+        if CheckZone(C) then
+            loc_zones[1]["color"] = "green"
+        else
+            loc_zones[1]["color"] = "orange"
+        end
+
+        local loc_update = {}
+        loc_update["dur"] = loc_durability_r
+        loc_update["cond"] = loc_condition_r
+        loc_update["condlvl"] = loc_conditionlvl
+        loc_update["prog"] = loc_cutting_r
+        loc_update["pos"] = loc_pos
+        loc_update["zones"] = loc_zones
+        local loc_updateminigame_payload    = "Update("..json.stringify(loc_update)..")"
+        --Log(loc_updateminigame_payload)
         InvokeMinigameUI(C,loc_updateminigame_payload)
     end
     
     return true
 end
 
-function ProcessMinigameNPC(C,delta)
-    -- TODO
+function CutDevice(C)
+    --Log("CutDevice called")
+    local loc_mult       = GetMinigameVar(C,"WeaponMult")
+    local loc_cutdmg     = 2.0*GetMinigameVar(C,"CutPower")*GetMinigameVar(C,"Multiplier")*GetMinigameVar(C,'MultiplierConst')
+    local loc_progress   = UpdateVariableValue(C,"thisdevice::_CuttingProgress(U)",loc_cutdmg)
+    Log("Increasing progress by "..tostring(loc_cutdmg).." to "..tostring(loc_progress))
+    while loc_progress >= 100.0 do
+        --Log("Cutting device")
+        loc_progress = loc_progress - 100.0
+        local loc_cond = UpdateVariableValue(C,"thisdevice::_total_durability_drain(U)",GetMinigameVar(C,"ConditionDamageBase")*loc_mult)
+        Log("Condition updated to "..tostring(loc_cond))
+        
+        if UpdateCondition(C) == -1 then
+            CallPapyrusFunction(C,"thisdevice::unlockRestrain","",{"bool",false},{"bool",false},{"bool",false})
+            StopDeviceMinigame(C)
+        end
+        
+        --Log("Nubmer of times cutted = "..tostring(loc_cutted))
+        --while loc_cutted > 0 do
+        --    loc_cutted = loc_cutted - 1
+        --    DamageDurability(C,10.0,false)
+        --end
+    end
+    UpdateVariableValue(C,"thisdevice::_CuttingProgress(A)",loc_progress)
 end

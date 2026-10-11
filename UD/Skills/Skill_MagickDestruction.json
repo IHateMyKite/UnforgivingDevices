@@ -1,6 +1,6 @@
 {
-    "name": "Magick",
-    "alias": "MAGK",
+    "name": "Magick Destruction",
+    "alias": "MAGKDES",
     "description": "Skill based on magick",
     "priority": 1,
     "multiplier": 1.0,
@@ -8,7 +8,7 @@
     [
         {
             "name":"Destruction",
-            "weigth": 1
+            "weigth": 2
         },
         {
             "name":"Alteration",

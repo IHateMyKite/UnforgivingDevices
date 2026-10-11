@@ -13,7 +13,8 @@
         "ZoneSize":     "0.4",
         "ZoneSpeed":    "20.0",
         "ActionName":   "Action",
-        "CursorSpeed":  "75"
+        "CursorSpeed":  "75",
+        "HoldingZoneSpeedMult": "0.25"
     },
     "export":
     {

@@ -1,7 +1,7 @@
 
 local _Precondition = Precondition -- Save previous function
 function Precondition(C)
-    Log("Precondition(PlugTurnOnOff.lua) called")
+    --Log("Precondition(PlugTurnOnOff.lua) called")
     local loc_res = _Precondition(C)
     if loc_res then
         local loc_strength = GetVibStrength(C)
@@ -22,14 +22,14 @@ end
 -- Called when minigame starts
 local _OnStart = OnStart -- Save previous function
 function OnStart(C)
-    Log("OnStart(PlugInflateDeflate.lua) called")
+    Log("OnStart(VibTurnOnOff.lua) called")
     
     InitMinigameVars(C)
     
     if SetMinigameVar(C,"Type",tonumber(GetConfigVar(C,"Type","0"))) == 1 then
-        Log("Progress = "..tostring(SetMinigameVar(C,"Progress",GetVariableValue(C,"thisdevice::_turnOnProgress(A)"))))
+        SetMinigameVar(C,"Progress",GetVariableValue(C,"thisdevice::_turnOnProgress(A)"))
     else
-        Log("Progress = "..tostring(SetMinigameVar(C,"Progress",GetVariableValue(C,"thisdevice::_turnOffProgress(A)"))))
+        SetMinigameVar(C,"Progress",GetVariableValue(C,"thisdevice::_turnOffProgress(A)"))
     end
     
     SetMinigameVar(C,"Strength",GetVibStrength(C))
@@ -37,8 +37,7 @@ function OnStart(C)
         -- Infinite vib -> Use big value instead
         SetMinigameVar(C,"Duration",80)
     end
-    SetMinigameVar(C,"Accessibility",tonumber(GetDeviceAccessibility(C,true)))
-    SetMinigameVar(C,"ProgressRate",2.5)
+    SetMinigameVar(C,"ProgressRate",tonumber(GetConfigVar(C,"ProgressRate","2.5")))
     if GetMinigameVar(C,"Type") == 1 then
         SetMinigameVar(C,"ProgressMax",GetMinigameVar(C,"Strength")*GetMinigameVar(C,"Duration")/50.0)
     else
@@ -50,7 +49,7 @@ end
 
 function OnHoldingZone(C,delta)
     local loc_prog = 0.0
-    local loc_change = GetMinigameVar(C,"ProgressRate")*delta*GetMinigameVar(C,"Multiplier")*Clamp(GetMinigameVar(C,"Accessibility"),0.25,1.0)*GetMinigameVar(C,"SkillMult")
+    local loc_change = GetMinigameVar(C,"ProgressRate")*delta*GetMinigameVar(C,"Multiplier")*Clamp(GetMinigameVar(C,"Accessibility"),0.25,1.0)*GetMinigameVar(C,"MultiplierConst")
     if GetMinigameVar(C,"Type") == 1 then
         loc_prog = UpdateVariableValue(C,"thisdevice::_turnOnProgress(U)",loc_change)
     else
@@ -59,8 +58,9 @@ function OnHoldingZone(C,delta)
     SetMinigameVar(C,"Progress",Clamp(loc_prog,0.0,GetMinigameVar(C,"ProgressMax")))
 end
 
-function GetUIUpdateString(C)
-    return ",prog:"..tostring(GetMinigameVar(C,"Progress")/GetMinigameVar(C,"ProgressMax"))
+function GetUIUpdate(C,input)
+    input["prog"] = GetMinigameVar(C,"Progress")/GetMinigameVar(C,"ProgressMax")
+    return input
 end
 
 local _ProcessMinigame = ProcessMinigame

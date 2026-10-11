@@ -8,13 +8,14 @@
     "config":
     {
         "ActionName":   "Deflate",
-        "StaminaDrain": "7.5",
+        "StaminaDrain": "5.0",
         "TagBlacklist": "",
         "TagWhitelist": "inflatable_plug",
         "Type":         "0",
-        "SpeedMult":    "1.01",
+        "SpeedMult":    "1.02",
         "ZoneSpeed":    "100.0",
         "CheckAccessibility": "false",
-        "SkillGain":    "2.5"
+        "SkillGain":    "2.5",
+        "ProgressRate": "75.0"
     }
 }

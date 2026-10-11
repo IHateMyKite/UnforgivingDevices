@@ -1,5 +1,16 @@
 Scriptname UD_CustomMittens_RenderScript extends UD_CustomGloves_RenderScript  
 
+;<LUA>
+;   local _GetAccessibility = GetAccessibility
+;   function GetAccessibility(C,checkHB)
+;       if WornHasKeyword(C['Wearer'],"zad_DeviousYoke") then
+;           return 0.25
+;       else
+;           return _GetAccessibility(C,checkHB)
+;       end
+;   end
+;<\LUA>
+
 Function InitPost()
     UD_DeviceType = "Mittens"
 EndFunction

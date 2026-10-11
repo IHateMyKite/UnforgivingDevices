@@ -29,7 +29,7 @@ end
 
 -- Called when minigame starts
 function OnStart(C)
-    Log("OnStart called")
+    Log("OnStart(DeviceMinigameBase.lua) called")
     InitMinigameVars(C)
     
     SetMinigameVar(C,'Ready',false)
@@ -49,7 +49,7 @@ function OnStart(C)
     SetMinigameVar(C,'TimerExpr',0.0)
     SetMinigameVar(C,'PauseDrain',false)
     SetMinigameVar(C,'TimerSkill',0.0)
-    SetMinigameVar(C,'SkillGain',tonumber(GetConfigVar(C,"SkillGain","10.0")))
+    SetMinigameVar(C,'SkillGain',tonumber(GetConfigVar(C,"SkillGain","10.0"))*tonumber(GetConfigVar(C,"SkillGainMult","1.0")))
     SetMinigameVar(C,"SkillMult",GetMinigameSkillMult(C))
     SetMinigameVar(C,'UseNoUI',StrToBool(GetConfigVar(C,"UseNoUI","false")))
     SetMinigameVar(C,"AutoMode",StrToBool(GetConfigVar(C,"AutoMode","false")))
@@ -62,6 +62,29 @@ function OnStart(C)
     SetMinigameVar(C,"PosY",GetConfigVar(C,"PosY","65"))
     SetMinigameVar(C,"Scale",GetConfigVar(C,"Scale","1.0"))
     SetMinigameVar(C,"Visibility",tonumber(GetConfigVar(C,"Visibility","1.0")))
+    SetMinigameVar(C,"Multiplier",1.0)
+    SetMinigameVar(C,"LockMultiplier",GetLockMultiplier(C,tonumber(GetConfigVar(C,"LockMultMaxIncrease","1.0"))))
+    SetMinigameVar(C,"DurabilityScaling",tonumber(GetConfigVar(C,"DurabilityScaling","0.0")))
+    SetMinigameVar(C,"Accessibility",GetDeviceAccessibility(C,true))
+    SetMinigameVar(C,"CondMult",tonumber(GetConfigVar(C,"CondMult","1.0")))
+    SetMinigameVar(C,"Difficulty",1.0/(tonumber(GetConfigVar(C,"Difficulty","1.0"))*tonumber(GetConfigVar(C,"GlobalDifficulty","1.0"))))
+    SetMinigameVar(C,"MultiplierConst",GetMinigameVar(C,"LockMultiplier")*GetMinigameVar(C,"Difficulty")*GetMinigameVar(C,"SkillMult"))
+    
+    local loc_durability_r  = GetVariableValue(C,"thisdevice::current_device_health(U)")/SetMinigameVar(C,'MaxDurability',GetVariableValue(C,"thisdevice::_MaxHealth(A)"))
+    local loc_condition_r   = 1.0 - GetVariableValue(C,"thisdevice::_total_durability_drain(U)")/100.0
+    local loc_conditionLvl  = GetVariableValue(C,"thisdevice::UD_condition(A)")
+    SetMinigameVar(C,"Durability",loc_durability_r)
+    SetMinigameVar(C,"Condition",loc_condition_r)
+    SetMinigameVar(C,"ConditionLvl",loc_conditionLvl)
+    SetMinigameVar(C,"PhysResMult",tonumber(GetConfigVar(C,"PhysResMult","0.0")))
+    SetMinigameVar(C,"MagResMult",tonumber(GetConfigVar(C,"MagResMult","0.0")))
+    
+    local loc_physres       = GetVariableValue(C,"thisdevice::UD_ResistPhysical(A)")
+    local loc_physresmult   = GetMinigameVar(C,"PhysResMult")
+    local loc_magres        = GetVariableValue(C,"thisdevice::UD_ResistMagicka(A)")
+    local loc_magresmult    = GetMinigameVar(C,"MagResMult")
+    local loc_resistence    = (loc_physres*loc_physresmult) + (loc_magres*loc_magresmult)
+    SetMinigameVar(C,"Resistence",loc_resistence)
     
     Log("SkillMult -> "..tostring(GetMinigameVar(C,"SkillMult")))
     
@@ -110,7 +133,7 @@ function OnUpdate(C,delta)
 end
 
 function OnStop(C)
-    Log("OnStop called")
+    --Log("OnStop called")
     EnableRegen(C)
     CloseMinigameUI(C)
     if UseHelper(C) then
@@ -123,7 +146,7 @@ end
 
 -- Called after Papyrus finish the ready stage (start animation, expressions, etc...)
 function OnMinigameReady(C)
-    Log("OnMinigameReady")
+    --Log("OnMinigameReady")
     DisableRegen(C)
     OpenUI(C)
 end
@@ -142,7 +165,7 @@ end
 
 -- Called after PrismaUI minigame object is open
 function UIOpen(C)
-    Log("UIOpen")
+    --Log("UIOpen")
     -- Register actions
     RegisterCallbacks(C)
     
@@ -164,7 +187,7 @@ function UIOpen(C)
     
     SetMinigameVar(C,'Ready',true)
     SetMinigameVar(C,"Running",true)
-    Log("Minigame ready")
+    --Log("Minigame ready")
 end
 
 function OnUIOpen(C)
@@ -175,7 +198,7 @@ function StopDeviceMinigame(C,eventtype)
     if eventtype == 1 then
         return
     end
-    Log("StopDeviceMinigame called")
+    --Log("StopDeviceMinigame called")
     StopMinigame(C)
 end
 
@@ -224,7 +247,7 @@ function OnMinigameLoaded(C)
 end
 
 function RegisterCallbacks(C)
-    Log("RegisterCallbacks(MinigameBase.lua)")
+    --Log("RegisterCallbacks(MinigameBase.lua)")
     RegisterActionCallback(C,"press_stop","StopDeviceMinigame","Stop Minigame")
 end
 
@@ -245,3 +268,59 @@ function PlayShader(C,color)
         CallPapyrusFunction(C,"MINM::PlayBlueShader","",{"actor",C['Wearer']},{"actor",C['Helper']})
     end
 end
+
+function UpdateCondition(C)
+    local loc_reduced = 0
+    while GetVariableValue(C,"thisdevice::_total_durability_drain(A)") >= 100.0 do
+        UpdateVariableValue(C,"thisdevice::_total_durability_drain(U)",-100.0)
+        local loc_cond = SetMinigameVar(C,"ConditionLvl",UpdateVariableValue(C,"thisdevice::UD_condition(U)",1))
+        
+        Log("Decreasing condition to "..tostring(loc_cond))
+        
+        loc_reduced = loc_reduced + 1
+        
+        if loc_cond >= 4 then
+            loc_reduced = -1
+        end
+        
+        -- Reduce resistence
+        local loc_physres       = UpdateVariableValue(C,"thisdevice::UD_ResistPhysical(U)",-0.25)
+        local loc_physresmult   = GetMinigameVar(C,"PhysResMult")
+        local loc_magres        = UpdateVariableValue(C,"thisdevice::UD_ResistMagicka(U)",-0.25)
+        local loc_magresmult    = GetMinigameVar(C,"MagResMult")
+        local loc_resistence    = (loc_physres*loc_physresmult) + (loc_magres*loc_magresmult)
+        SetMinigameVar(C,"Resistence",loc_resistence)
+    end
+    return loc_reduced
+end
+
+function DamageDurability(C,dmg,checkcnd)
+    --Log("DamageDurability - "..tostring(dmg))
+    checkcnd = (not checkcnd == nil) or checkcnd
+    
+    --Log("DamageDurability - "..tostring(dmg))
+    
+    local loc_lastdur_r     = GetMinigameVar(C,"Durability")
+    local loc_durscalingmult = 1.0 + ((1.0 - loc_lastdur_r)*10.0)*GetMinigameVar(C,"DurabilityScaling")
+    
+    local loc_resistence    = 1.0 - GetMinigameVar(C,"Resistence")
+    local loc_acc           = GetMinigameVar(C,"Accessibility")
+    local loc_skillmult     = GetMinigameVar(C,"SkillMult")
+    local loc_durability    = UpdateVariableValue(C,"thisdevice::current_device_health(U)",-1.0*dmg*loc_resistence*loc_acc*loc_skillmult*loc_durscalingmult)
+    local loc_durability_r  = loc_durability/GetMinigameVar(C,'MaxDurability')
+    local loc_condition     = UpdateVariableValue(C,"thisdevice::_total_durability_drain(U)",dmg*GetMinigameVar(C,"CondMult"))
+    local loc_condition_r   = 1.0 - loc_condition/100.0
+    
+    if loc_durability <= 0.0 or (checkcnd and UpdateCondition(C) == -1) then
+        CallPapyrusFunction(C,"thisdevice::unlockRestrain","",{"bool",false},{"bool",false},{"bool",false})
+        StopDeviceMinigame(C)
+        return false
+    end
+    
+    -- For faster UI update
+    SetMinigameVar(C,"Durability",loc_durability_r)
+    SetMinigameVar(C,"Condition",loc_condition_r)
+    
+    return true
+end
+

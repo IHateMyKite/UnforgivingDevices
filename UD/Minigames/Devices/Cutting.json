@@ -50,16 +50,18 @@
                 "mult": "100.0"
             }
         },
-        "ShowCombo":
+        "ConditionDamageBase":
         {
-            "name": "UI Show Combo",
-            "description": "If minigame combo text should be shown",
-            "default": "true",
-            "priority": "57",
-            "global": true,
+            "name": "Base condition damage",
+            "description": "How much will condition be damaged when device is cut",
+            "default": "15.0",
+            "priority": "90",
             "mcm":
             {
-                "type": "bool"
+                "min": "1.0",
+                "max": "200.0",
+                "precision": "2.5",
+                "format": "{1} dmg"
             }
         }
     }

@@ -2,6 +2,8 @@
 Durability      = 0.0
 Condition       = 0.0
 Combo           = 0
+Fps             = 60
+UpdateTime      = 1000.0/Fps
 
 window.Init = (arg) =>
 {
@@ -16,6 +18,12 @@ window.Init = (arg) =>
             document.getElementById('mg_base').style.opacity = String(loc_vis);
         }
     }
+    
+    if ('fps' in arg)
+    {
+        Fps = arg.fps;
+    }
+    UpdateTime = 1000.0/Fps;
     
     if ('pos_y' in arg)r.style.setProperty('--minigame-offset-y', String(arg.pos_y));
     if ('pos_x' in arg)r.style.setProperty('--minigame-offset-x', String(arg.pos_x));
@@ -32,33 +40,48 @@ window.Init = (arg) =>
         loc_hints = arg.hints
     }
     
-    
     if (!('mcurvis' in arg) || arg.mcurvis)
     {
         document.getElementById('mg_bar_cursor').style.display = 'inherit';
+        document.getElementById('mg_cursor').style.transition = "left " + UpdateTime + "ms";
     }
     
     var loc_bars = 0
     if (!('mdurvis' in arg) || arg.mdurvis)
     {
-        document.getElementById('mg_bar_health').style.display = 'inherit';
-        if (!loc_hints) document.getElementById('mg_durability_over').style.display = "none";
+        var loc_bar = document.getElementById('mg_bar_health');
+        var loc_barover = document.getElementById('mg_durability_over');
+        
+        loc_bar.style.display = 'inherit';
+        loc_bar.style.transition = "mask-size " + UpdateTime + "ms";
+        if (!loc_hints) loc_barover.style.display = "none";
+        
         loc_bars++;
     }
     r.style.setProperty('--durability-indx', String(loc_bars));
     
     if (!('mconvis' in arg) || arg.mconvis)
     {
-        document.getElementById('mg_bar_condition').style.display = 'inherit';
-        if (!loc_hints) document.getElementById('mg_condition_over').style.display = "none";
+        var loc_bar = document.getElementById('mg_bar_condition');
+        var loc_barover = document.getElementById('mg_condition_over');
+        
+        loc_bar.style.display = 'inherit';
+        loc_bar.style.transition = "mask-size " + UpdateTime + "ms";
+        if (!loc_hints) loc_barover.style.display = "none";
+        
         loc_bars++;
     }
     r.style.setProperty('--condition-indx', String(loc_bars));
     
     if (!('mprovis' in arg) || arg.mprovis)
     {
-        document.getElementById('mg_bar_progress').style.display = 'inherit';
-        if (!loc_hints) document.getElementById('mg_progress_over').style.display = "none";
+        var loc_bar = document.getElementById('mg_bar_progress');
+        var loc_barover = document.getElementById('mg_progress_over');
+        
+        loc_bar.style.display = 'inherit';
+        loc_bar.style.transition = "mask-size " + UpdateTime + "ms";
+        if (!loc_hints) loc_barover.style.display = "none";
+        
         loc_bars++;
     }
     r.style.setProperty('--progress-indx', String(loc_bars));
@@ -75,7 +98,7 @@ window.Init = (arg) =>
     r.style.setProperty('--actions-indx', String(loc_bars));
 }
 
-window.SetZones = (arg) =>
+function SetZones(arg)
 {
     var loc_cur = document.getElementById("mg_bar_cursor")
     
@@ -86,6 +109,7 @@ window.SetZones = (arg) =>
             loc_zone = document.createElement("div");
             loc_zone.className = "mg_minigamezone";
             loc_zone.id = zone.name;
+            loc_zone.style.transition = "left right width " + UpdateTime + "ms";
             loc_cur.appendChild(loc_zone);
         }
         
@@ -100,13 +124,18 @@ window.SetZones = (arg) =>
         }
         if ('color' in zone)
         {
-            loc_zone.style.setProperty("background-color",zone.color)
+            loc_zone.style.setProperty("background-color",String(zone.color))
         }
     }
 }
 
 window.Update = (arg) =>
 {
+    if ('zones' in arg)
+    {
+        SetZones(arg.zones)
+    }
+    
     if ('dur' in arg)
     {
         Durability = arg.dur

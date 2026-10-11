@@ -1,4 +1,9 @@
 
+local _Condition = Condition -- Save previous function
+function Condition(C)
+    return _Condition(C) and (ActorFreeHands(C['Wearer'],true,true) or (UseHelper(C) and ActorFreeHands(C['Helper'],true,true)))
+end
+
 function GetContext(C)
     local loc_res = ""
     local loc_locks         = GetVariableValue(C,"thisdevice::UD_LockList(A)")
@@ -121,7 +126,7 @@ function Click(C,eventtype)
 end
 
 function Focus(C,eventtype)
-    Log("Focus() -> "..tostring(eventtype))
+    --Log("Focus() -> "..tostring(eventtype))
     if eventtype == 0 then
         ChangeFocus(C,true)
     elseif eventtype == 1 then
@@ -130,7 +135,7 @@ function Focus(C,eventtype)
 end
 
 function ChangeFocus(C,val)
-    Log("ChangeFocus called")
+    --Log("ChangeFocus called")
     local loc_speed = GetMinigameVar(C,"CursorVector")
     local loc_focusing = GetMinigameVar(C,"Focusing")
     local loc_focusemult = GetMinigameVar(C,"FocusSpeedMult")
@@ -140,13 +145,13 @@ function ChangeFocus(C,val)
         loc_speed['y'] = loc_speed['y']*loc_focusemult
         SetMinigameVar(C,"Focusing",true)
         SetMinigameVar(C,"CursorVector",loc_speed)
-        Log("Focusing ON")
+        --Log("Focusing ON")
     elseif loc_focusing then
         loc_speed['x'] = loc_speed['x']/loc_focusemult
         loc_speed['y'] = loc_speed['y']/loc_focusemult
         SetMinigameVar(C,"Focusing",false)
         SetMinigameVar(C,"CursorVector",loc_speed)
-        Log("Focusing OFF")
+        --Log("Focusing OFF")
     end
 end
 
@@ -190,31 +195,6 @@ function ProcessMinigame(C,delta)
     return true
 end
 
-function IsLockUnlocked(C,lock)
-    local loc_unlocked = (lock) & 0x01
-    return loc_unlocked == 0x01
-end
-
-function IsLockLockpickable(C,lock)
-    local loc_diff = (lock >> 15) & 0xFF
-    return loc_diff <= 100 and loc_diff > 0
-end
-
-function GetLockAccesibility(C,lock)
-    local loc_acc = ((lock >> 8) & 0x7F)/100.0
-    return loc_acc
-end
-
-function IsAllLocksUnlocked(C)
-    local loc_res = true
-    local loc_locks = GetVariableValue(C,"thisdevice::UD_LockList(A)")
-    for i = 0, loc_locks['n']-1, 1
-    do
-        loc_res = loc_res and IsLockUnlocked(C,loc_locks[i])
-    end
-    return loc_res
-end
-
 function GetSelectedLock(C)
     local loc_locks = GetVariableValue(C,"thisdevice::UD_LockList(A)")
     local loc_lock = loc_locks[tonumber(C['Context'])]
@@ -232,9 +212,8 @@ function OnLockUnlocked(C,res)
     --Log("OnLockUnlocked")
     
     if res then
-        Log("Checking if all locks are unlocked")
         if IsAllLocksUnlocked(C) then
-            Log("All locks are unlocked. Unlocking device")
+            --Log("All locks are unlocked. Unlocking device")
             CallPapyrusFunction(C,"thisdevice::unlockRestrain","",{"bool",false},{"bool",false},{"bool",false})
         end
     end

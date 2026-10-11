@@ -2,6 +2,45 @@ Scriptname UD_CustomPiercing_RenderScript extends UD_CustomVibratorBase_RenderSc
 
 import UnforgivingDevicesMain
 
+;<LUA>
+;   local _GetAccessibility = GetAccessibility
+;   function GetAccessibility(C,checkHB)
+;       local loc_res = _GetAccessibility(C,checkHB)
+;       if loc_res <= 0.0 then
+;           return 0.0
+;       end
+;       if ArmorHasKeyword(C['RD'],"zad_DeviousPiercingsVaginal") then
+;           --Log("GetAccessibility(Plug) called")
+;           if WornHasKeyword(C['Wearer'],"zad_DeviousBelt") 
+;           or WornHasKeyword(C['Wearer'],"zad_DeviousHarness") then
+;               if not WornHasKeyword(C['Wearer'],"zad_PermitVaginal") then
+;                   loc_res = 0.0
+;               end
+;           end
+;           if loc_res > 0.0 then
+;               if WornHasKeyword(C['Wearer'],"zad_DeviousSuit") 
+;               or WornHasKeyword(C['Wearer'],"zad_DeviousHobbleSkirt") then
+;                   loc_res = loc_res*0.25
+;               elseif WornHasKeyword(C['Wearer'],"zad_DeviousHobbleSkirtRelaxed") then
+;                   loc_res = loc_res*0.75
+;               end
+;           end
+;           --Log("Plug accessibility: "..tostring(loc_res))
+;           return loc_res
+;       else
+;           if WornHasKeyword(C['Wearer'],"zad_DeviousBra") then
+;               loc_res = 0.0
+;           end
+;           if loc_res > 0.0 then
+;               if WornHasKeyword(C['Wearer'],"zad_DeviousSuit") then
+;                   loc_res = loc_res*0.25
+;               end
+;           end
+;           return loc_res
+;       end
+;   end
+;<\LUA>
+
 Function InitPost()
     parent.InitPost()
     UD_DeviceType = "Piercing"

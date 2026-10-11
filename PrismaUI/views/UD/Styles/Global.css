@@ -26,6 +26,15 @@
   --color-black-80: rgba(0, 0, 0, 0.8);
   --color-black-90: rgba(0, 0, 0, 0.9);
 
+  /* Black Gray Variants */
+  --color-gray-20: rgba(128, 128, 128, 0.2);
+  --color-gray-30: rgba(128, 128, 128, 0.3);
+  --color-gray-40: rgba(128, 128, 128, 0.4);
+  --color-gray-50: rgba(128, 128, 128, 0.5);
+  --color-gray-60: rgba(128, 128, 128, 0.6);
+  --color-gray-80: rgba(128, 128, 128, 0.8);
+  --color-gray-90: rgba(128, 128, 128, 0.9);
+
   /* Blue Alpha Variants */
   --color-blue-20: rgba(22, 119, 255, 0.2);
   --color-blue-30: rgba(22, 119, 255, 0.3);
@@ -118,4 +127,76 @@ html {
     inset 0 0 0 var(--border-size-medium) var(--color-black),
     inset 0 0 0 var(--border-size-medium) var(--color-white);
   border-radius: var(--border-radius-large);
+}
+
+.background-white {
+  background-color: var(--color-white-80);
+}
+
+.background-light {
+  background-color: var(--color-black-30);
+  font-size: var(--font-size-medium);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-white);
+}
+
+.background-gray {
+  background-color: var(--color-black-20);
+  font-size: var(--font-size-medium);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-white);
+}
+
+.background-dark {
+  background-color: var(--color-black-80);
+  font-size: var(--font-size-medium);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-white);
+}
+
+.background-gray {
+  background-color: var(--color-gray-80);
+  font-size: var(--font-size-medium);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-white);
+}
+
+.background-gray button {
+  background-color: var(--color-black-60);
+  color: var(--color-white);
+}
+
+.background-gray button:hover {
+  background-color: var(--color-black-90);
+  color: var(--color-orange-50);
+  border-color: var(--color-blue);
+}
+
+tr.heading-row, th.heading-row {
+  background-color: var(--color-black-60);
+  color: var(--color-white);
+  font-weight: var(--font-weight-bold);
+}
+
+tr.border-underline {
+  border-collapse: separate;
+  border-spacing: 0 0.5rem;
+  border-bottom: none;
+  position: relative;
+}
+
+tr.border-underline::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: var(--border-size-small);
+  background: var(--color-black-40);
+  clip-path: polygon(0% 0%, 50% 0%, 100% 50%, 50% 100%, 0% 100%);
+}
+
+tr.border-underline td, tr.border-underline th {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
 }

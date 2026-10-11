@@ -2,6 +2,31 @@ Scriptname UD_CustomSuit_RenderScript extends UD_CustomDevice_RenderScript
 
 import UnforgivingDevicesMain
 
+;<LUA>
+;   local _GetAccessibility = GetAccessibility
+;   function GetAccessibility(C,checkHB)
+;       local loc_res = _GetAccessibility(C,checkHB)
+;       if WornHasKeyword(C['Wearer'],"zad_DeviousArmCuffs") then
+;           loc_res = loc_res*0.75
+;       end
+;       if WornHasKeyword(C['Wearer'],"zad_DeviousLegCuffs") then
+;           loc_res = loc_res*0.75
+;       end
+;       if WornHasKeyword(C['Wearer'],"zad_DeviousCollar") then
+;           loc_res = loc_res*0.75
+;       end
+;       if WornHasKeyword(C['Wearer'],"zad_DeviousBra") then
+;           loc_res = loc_res*0.5
+;       end
+;       if not ArmorHasKeyword(C['RD'],"zad_deviousharness") and WornHasKeyword(C['Wearer'],"zad_deviousharness") then
+;           loc_res = loc_res*0.25
+;       elseif not ArmorHasKeyword(C['RD'],"zad_deviousbelt") and WornHasKeyword(C['Wearer'],"zad_deviousbelt") then
+;           loc_res = loc_res*0.5
+;       end
+;       return loc_res
+;   end
+;<\LUA>
+
 Function InitPost()
     UD_DeviceType = "Suit"
 EndFunction

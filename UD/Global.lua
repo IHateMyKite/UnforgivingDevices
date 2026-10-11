@@ -5,7 +5,9 @@
 
 -- Logs message to native skse log
 function Log(msg)
-    Host_Log(msg)
+    --if StrToBool(GetSaveConfig("Lua.Logging","false")) then
+        Host_Log(msg)
+    --end
 end
 
 -- Returns variable value based on variable string
@@ -65,12 +67,14 @@ function        ActorIsPlayer(actor)
     return Host_ActorIsPlayer(actor)
 end
 
-function InvokeMinigameUI(C,msg)
-    Host_InvokeUI(C['MinigameId'],msg)
+function InvokeMinigameUI(C,msg,fast)
+    fast = fast or false
+    Host_InvokeUI(C['MinigameId'],msg,fast)
 end
 
-function InvokeHud(msg)
-    Host_InvokeUI(-1,msg)
+function InvokeHud(msg,fast)
+    fast = fast or false
+    Host_InvokeUI(-1,msg,fast)
 end
 
 function        IsNull(ptr)

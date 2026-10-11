@@ -30,7 +30,7 @@ import UD_Native
 ;               loc_res = 0.5
 ;           end
 ;       end
-;       Log("Base accessibility: "..tostring(loc_res))
+;       --Log("Base accessibility: "..tostring(loc_res))
 ;       return loc_res
 ;   end
 ;   function GetTags(C)
@@ -3102,7 +3102,7 @@ Function Update(float timePassed)
     
     OnUpdatePre(timePassed)
     
-    _updateCondition()
+    ;_updateCondition()
     
     OnUpdatePost(timePassed)
 EndFunction
@@ -3549,10 +3549,8 @@ Function _updateCondition(bool decrease = True)
     Float loc_health = UD_Health
     if decrease
         while (_total_durability_drain >= loc_health) && !IsUnlocked && UD_condition < 4
-            if PlayerInMinigame() && UD_damage_device
-                _total_durability_drain = 0
-            else
-                _total_durability_drain -= loc_health
+            if PlayerInMinigame()
+                _total_durability_drain = _total_durability_drain - loc_health
             endif
             UD_condition += 1
             if WearerIsPlayer()

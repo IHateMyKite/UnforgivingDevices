@@ -2,7 +2,7 @@
 local _Precondition = Precondition -- Save previous function
 function Precondition(C)
     local loc_res = _Precondition(C)
-    Log("Precondition(PlugInflateDeflate.lua) called")
+    --Log("Precondition(PlugInflateDeflate.lua) called")
     if loc_res then
         local loc_inflatelvl = GetVariableValue(C,"thisdevice::_inflateLevel(A)")
         if tonumber(GetConfigVar(C,"Type","1")) == 1 then
@@ -22,12 +22,12 @@ function OnStart(C)
     InitMinigameVars(C)
     
     if SetMinigameVar(C,"Type",tonumber(GetConfigVar(C,"Type","0"))) == 1 then
-        Log("Progress = "..tostring(SetMinigameVar(C,"Progress",GetVariableValue(C,"thisdevice::inflateprogress(A)"))))
+        SetMinigameVar(C,"Progress",GetVariableValue(C,"thisdevice::inflateprogress(A)"))
     else
-        Log("Progress = "..tostring(SetMinigameVar(C,"Progress",GetVariableValue(C,"thisdevice::deflateprogress(A)"))))
+        SetMinigameVar(C,"Progress",GetVariableValue(C,"thisdevice::deflateprogress(A)"))
     end
     
-    SetMinigameVar(C,"ProgressRate",5.0)
+    SetMinigameVar(C,"ProgressRate",tonumber(GetConfigVar(C,"ProgressRate","5.0")))
     SetMinigameVar(C,"PressureChange",tonumber(GetConfigVar(C,"PressureChange","1")))
     
     if SetMinigameVar(C,"Accessibility",tonumber(GetDeviceAccessibility(C,true))) >= 1.0 then
@@ -43,7 +43,7 @@ end
 
 function OnHoldingZone(C,delta)
     local loc_prog = 0.0
-    local loc_change = GetMinigameVar(C,"ProgressRate")*delta*GetMinigameVar(C,"Multiplier")*Clamp(GetMinigameVar(C,"Accessibility"),0.5,1.0)*GetMinigameVar(C,"SkillMult")
+    local loc_change = GetMinigameVar(C,"ProgressRate")*delta*GetMinigameVar(C,"Multiplier")*Clamp(GetMinigameVar(C,"Accessibility"),0.5,1.0)*GetMinigameVar(C,"MultiplierConst")
     if GetMinigameVar(C,"Type") == 1 then
         loc_prog = UpdateVariableValue(C,"thisdevice::inflateprogress(U)",loc_change)
     else
@@ -52,8 +52,9 @@ function OnHoldingZone(C,delta)
     SetMinigameVar(C,"Progress",Clamp(loc_prog,0.0,GetMinigameVar(C,"ProgressMax")))
 end
 
-function GetUIUpdateString(C)
-    return ",prog:"..tostring(GetMinigameVar(C,"Progress")/GetMinigameVar(C,"ProgressMax"))
+function GetUIUpdate(C,input)
+    input["prog"] = GetMinigameVar(C,"Progress")/GetMinigameVar(C,"ProgressMax")
+    return input
 end
 
 local _ProcessMinigame = ProcessMinigame

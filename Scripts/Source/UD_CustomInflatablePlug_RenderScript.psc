@@ -14,10 +14,10 @@ import UD_Native
 ;   end
 ;   local _GetAccessibility = GetAccessibility
 ;   function GetAccessibility(C,checkHB)
-;       Log("GetAccessibility(InflatablePlug) called")
+;       --Log("GetAccessibility(InflatablePlug) called")
 ;       local loc_res = _GetAccessibility(C,checkHB)
 ;       local loc_infllvl = GetVariableValue(C,"thisdevice::_inflateLevel(A)")
-;       Log("inflate level = "..tostring(loc_infllvl))
+;       --Log("inflate level = "..tostring(loc_infllvl))
 ;       loc_res = loc_res*(1.0 - 0.2*loc_infllvl)
 ;       return loc_res
 ;   end

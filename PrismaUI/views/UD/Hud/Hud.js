@@ -1,4 +1,7 @@
 
+Fps             = 60
+UpdateTime      = 1000.0/Fps
+
 id = 0
 window.AddMeter = (arg) =>
 {
@@ -43,6 +46,7 @@ window.AddMeter = (arg) =>
     meter_fill.className = "mg_bar_fill";
     meter_fill.style.backgroundColor = loc_color;
     meter_fill.id = "meter_"+loc_id+"_fill";
+    meter_fill.style.transition = "mask-size " + UpdateTime + "ms";
     
     meter_fill_bcg = document.createElement("div");
     meter_fill_bcg.className = "mg_bar_fill mg_bar_background";
@@ -57,24 +61,21 @@ window.AddMeter = (arg) =>
 
 window.UpdateMeter = (arg) =>
 {
-    if ('id' in arg && 'val' in arg)
+    var loc_vals = arg.split('|')
+
+    meter = document.getElementById("meter_"+loc_vals[0]+"_fill");
+    if (meter)
     {
-        meter = document.getElementById("meter_"+arg.id+"_fill");
-        if (meter)
-        {
-            meter.style.setProperty("mask-size","100% 100%,"+String(arg.val*100.0)+"% 100%")
-        }
+        meter.style.setProperty("mask-size","100% 100%,"+String(loc_vals[1]*100.0)+"% 100%")
     }
+
 }
 
 window.RemoveMeter = (arg) =>
 {
-    if ('id' in arg)
+    meter = document.getElementById("meter_"+arg+"_base");
+    if (meter)
     {
-        meter = document.getElementById("meter_"+arg.id+"_base");
-        if (meter)
-        {
-            meter.remove();
-        }
+        meter.remove();
     }
 }

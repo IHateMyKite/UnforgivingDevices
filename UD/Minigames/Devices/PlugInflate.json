@@ -12,9 +12,10 @@
         "TagBlacklist": "",
         "TagWhitelist": "inflatable_plug",
         "Type":         "1",
-        "SpeedMult":    "1.01",
+        "SpeedMult":    "1.03",
         "ZoneSpeed":    "100.0",
         "CheckAccessibility": "false",
-        "SkillGain":    "2.5"
+        "SkillGain":    "2.5",
+        "ProgressRate": "100.0"
     }
 }

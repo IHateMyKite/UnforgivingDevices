@@ -19,7 +19,6 @@ function OnStart(C)
     SetMinigameVar(C,"CursorPosMax",1.0-GetMinigameVar(C,"CursorSize"))
     SetMinigameVar(C,"CursorSpeed",tonumber(GetConfigVar(C,"CursorSpeed","100.0")))
     
-    SetMinigameVar(C,"Multiplier",1.0)
     SetMinigameVar(C,"Combo",0.0)
     SetMinigameVar(C,"SpeedMult",tonumber(GetConfigVar(C,"SpeedMult","1.05")))
     SetMinigameVar(C,"ActionName",GetConfigVar(C,"ActionName","Action"))
@@ -28,6 +27,7 @@ function OnStart(C)
     SetMinigameVar(C,"ColorHold",GetConfigVar(C,"ColorHold","green"))
     
     SetMinigameVar(C,"HoldingZone",false)
+    SetMinigameVar(C,"HoldingZoneSpeedMult",tonumber(GetConfigVar(C,"HoldingZoneSpeedMult","0.5")))
 end
 
 local _OnUIOpen = OnUIOpen
@@ -62,7 +62,7 @@ function CheckZone(C)
 end
 
 function Click(C,eventtype)
-    Log("Click(MinigameZoneSlide.lua) - "..tostring(eventtype))
+    --Log("Click(MinigameZoneSlide.lua) - "..tostring(eventtype))
     if eventtype == 0 then
         if CheckZone(C) then
             SetMinigameVar(C,"HoldingZone",true)
@@ -118,20 +118,27 @@ function ProcessMinigame(C,delta)
         local loc_zonesizerecution = GetMinigameVar(C,"ZoneSizeReduction")
         local loc_zonesizeui= loc_zonesize--*(1.0 - loc_combo*loc_zonesizerecution)
         local loc_cursor    = GetMinigameVar(C,"CursorPos")
-        local loc_prog      = GetUIUpdateString(C)
         
         local loc_color     = GetMinigameVar(C,"ColorRelease")
         if GetMinigameVar(C,"HoldingZone") then
             loc_color = GetMinigameVar(C,"ColorHold")
         end
         
-        local loc_setzone_payload           = "SetZones([{name:\"zone\",color:\""..loc_color.."\",size:"..tostring(loc_zonesizeui)..",left:"..tostring(loc_zonepos).."}])"
-        local loc_updateminigame_payload    = "Update({pos:"..tostring(loc_cursor)..loc_prog.."})"
+        local loc_zones = {}
+        loc_zones[1] = {}
+        loc_zones[1]["name"]    = "zone"
+        loc_zones[1]["left"]    = loc_zonepos
+        loc_zones[1]["size"]    = loc_zonesizeui
+        loc_zones[1]["color"]   = loc_color
+
+        local loc_update = {}
+        loc_update["pos"] = loc_cursor
+        loc_update["zones"] = loc_zones
         
-        --Log("SetZone = "..loc_setzone_payload)
-        --Log("Update = "..loc_updateminigame_payload)
+        loc_update = GetUIUpdate(C,loc_update)
         
-        InvokeMinigameUI(C,loc_setzone_payload)
+        local loc_updateminigame_payload    = "Update("..json.stringify(loc_update)..")"
+        --Log(loc_updateminigame_payload)
         InvokeMinigameUI(C,loc_updateminigame_payload)
     end
     
@@ -141,7 +148,7 @@ end
 function UpdateCursor(C,delta)
     if GetMinigameVar(C,"HoldingZone") then
         if CheckZone(C) then
-            delta = delta*0.5
+            delta = delta*GetMinigameVar(C,"HoldingZoneSpeedMult")
         end
     end
 
@@ -167,7 +174,7 @@ end
 function UpdateZone(C,delta)
     if GetMinigameVar(C,"HoldingZone") then
         if CheckZone(C) then
-            delta = delta*0.1
+            delta = delta*(GetMinigameVar(C,"HoldingZoneSpeedMult")/5.0)
         end
     end
 
@@ -221,6 +228,6 @@ end
 function OnReleasingZone(C)
 end
 
-function GetUIUpdateString(C)
-    return ""
+function GetUIUpdate(C,input)
+    return input
 end

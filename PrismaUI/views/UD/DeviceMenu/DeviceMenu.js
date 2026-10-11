@@ -11,11 +11,11 @@ window.InitDeviceList = (values) => {
     //document.getElementById('dm_con_name').textContent = "";
 
     devices = values.devices;
-    document.getElementById('dm_devcnt').textContent = devices.length;
+    //document.getElementById('dm_devcnt').textContent = devices.length;
     document.getElementById('dm_wearer').textContent = values.wearer;
     document.getElementById('dm_helper').textContent = values.helper;
-    document.getElementById('dm_arousal').textContent = Number(values.arousal).toFixed(0);
-    document.getElementById('dm_orgasm').textContent = Number(values.orgasm).toFixed(1) + "%";
+    //document.getElementById('dm_arousal').textContent = Number(values.arousal).toFixed(0);
+    //document.getElementById('dm_orgasm').textContent = Number(values.orgasm).toFixed(1) + "%";
 
     var buttons = document.getElementById('dm_list');
     while (buttons.hasChildNodes()) {
@@ -48,31 +48,33 @@ window.InitDeviceList = (values) => {
 
     callbacks = values.callbacks;
 
-    var controls = document.getElementById('dm_con_callbacks');
-    while (controls.hasChildNodes()) {
-        controls.removeChild(controls.firstChild);
-    }
+    //var controls = document.getElementById('dm_con_callbacks');
+    //while (controls.hasChildNodes()) {
+    //    controls.removeChild(controls.firstChild);
+    //}
 
-    if (callbacks) {
-      for (let i = 0; i < callbacks.length; i++) {
-        var header = document.createElement('th');
-        header.className = 'dm_con_h';
-        header.id = 'dm_con_h_callback';
-        controls.appendChild(header);
-        var button = document.createElement('button');
-        button.textContent = callbacks[i].name;
-        if (callbacks[i].module == 'this') button.className = 'dm_control_dis';
-        else {
-          button.setAttribute('onclick', '_SendCallback(' + i + ')');
-          button.className = 'dm_control_ena';
-        }
-        header.appendChild(button);
-      }
-    }
+    //if (callbacks) {
+    //  for (let i = 0; i < callbacks.length; i++) {
+    //    var header = document.createElement('th');
+    //    header.className = 'dm_con_h';
+    //    header.id = 'dm_con_h_callback';
+    //    controls.appendChild(header);
+    //    var button = document.createElement('button');
+    //    button.textContent = callbacks[i].name;
+    //    if (callbacks[i].module == 'this') button.className = 'dm_control_dis';
+    //    else {
+    //      button.setAttribute('onclick', '_SendCallback(' + i + ')');
+    //      button.className = 'dm_control_ena';
+    //    }
+    //    header.appendChild(button);
+    //  }
+    //}
 
-    header.appendChild(button);
+    //header.appendChild(button);
 
     //if (devices.length != 0) _DeviceDetails(0);
+
+    //SetScrollables();
 
     var main = document.getElementById('main');
     main.style = 'display: visible;';
@@ -86,20 +88,20 @@ window.InitDeviceListSingle = (values) => {
     devices = values.devices;
     document.getElementById('dm_wearer').textContent = values.wearer;
     document.getElementById('dm_helper').textContent = values.helper;
-    document.getElementById('dm_arousal').textContent = Number(values.arousal).toFixed(0);
-    document.getElementById('dm_orgasm').textContent = Number(values.orgasm).toFixed(1) + "%";
+    //document.getElementById('dm_arousal').textContent = Number(values.arousal).toFixed(0);
+    //document.getElementById('dm_orgasm').textContent = Number(values.orgasm).toFixed(1) + "%";
 
     var minigames = document.getElementById('dm_minigames');
     while (minigames.hasChildNodes()) {
         minigames.removeChild(minigames.firstChild);
     }
 
-    callbacks = values.callbacks;
-
-    var controls = document.getElementById('dm_con_callbacks');
-    while (controls.hasChildNodes()) {
-        controls.removeChild(controls.firstChild);
-    }
+    //callbacks = values.callbacks;
+    //
+    //var controls = document.getElementById('dm_con_callbacks');
+    //while (controls.hasChildNodes()) {
+    //    controls.removeChild(controls.firstChild);
+    //}
     
     let context = document.getElementById('dm_Context');
     while (context.hasChildNodes()) {
@@ -108,30 +110,46 @@ window.InitDeviceListSingle = (values) => {
 
     HideDetails(null)
 
-    if (callbacks) {
-      for (let i = 0; i < callbacks.length; i++) {
-        var header = document.createElement('th');
-        header.className = 'dm_con_h';
-        header.id = 'dm_con_h_callback';
-        controls.appendChild(header);
-        var button = document.createElement('button');
-        button.textContent = callbacks[i].name;
-        if (callbacks[i].module == 'this') button.className = 'dm_control_dis';
-        else {
-          button.setAttribute('onclick', '_SendCallback(' + i + ')');
-          button.className = 'dm_control_ena';
-        }
-        header.appendChild(button);
-      }
-    }
-
-    header.appendChild(button);
-
-    if (devices.length != 0) _DeviceDetails(0);
+    //if (callbacks) {
+    //  for (let i = 0; i < callbacks.length; i++) {
+    //    var header = document.createElement('th');
+    //    header.className = 'dm_con_h';
+    //    header.id = 'dm_con_h_callback';
+    //    controls.appendChild(header);
+    //    var button = document.createElement('button');
+    //    button.textContent = callbacks[i].name;
+    //    if (callbacks[i].module == 'this') button.className = 'dm_control_dis';
+    //    else {
+    //      button.setAttribute('onclick', '_SendCallback(' + i + ')');
+    //      button.className = 'dm_control_ena';
+    //    }
+    //    header.appendChild(button);
+    //  }
+    //}
+    //
+    //header.appendChild(button);
 
     var main = document.getElementById('main');
     main.style = 'display: visible;';
+    
+    //SetScrollables();
+
+    if (devices.length != 0) _DeviceDetails(0);
+
 };
+
+function SetScrollables()
+{
+    var loc_scrollables = document.getElementsByClassName("dm_scrollable")
+    
+    for (var scrollable of loc_scrollables)
+    {
+        var loc_h = scrollable.parentElement.offsetHeight;
+        console.log(loc_h);
+        scrollable.style.height = String(loc_h) + "px"
+    }
+}
+
 
 function _SendCallback(indx) {
     if (selected_device >= 0 || callbacks[indx].module != "this")
@@ -183,18 +201,20 @@ function _DeviceDetails(arg) {
     _InitValueDetails(arg)
     
     let loc_mods = document.getElementById('dm_modifiers')
-    while (loc_mods.hasChildNodes()) {
-      loc_mods.removeChild(loc_mods.firstChild);
-    }
-    
-    for (let i = 0; i < devices[arg].mods.length; i++)
+    if (loc_mods)
     {
-        var loc_modbutton = document.createElement("button");
-        loc_modbutton.textContent = devices[arg].mods[i].name;
-        loc_modbutton.className = "dm_entry"
-        loc_modbutton.setAttribute("onmouseover","ShowDetails(event,\""+devices[arg].mods[i].desc+"\")")
-        loc_modbutton.setAttribute("onmouseout","HideDetails(event)")
-        loc_mods.appendChild(loc_modbutton);
+        while (loc_mods.hasChildNodes()) {
+          loc_mods.removeChild(loc_mods.firstChild);
+        }
+        for (let i = 0; i < devices[arg].mods.length; i++)
+        {
+            var loc_modbutton = document.createElement("button");
+            loc_modbutton.textContent = devices[arg].mods[i].name;
+            loc_modbutton.className = "dm_entry"
+            loc_modbutton.setAttribute("onmouseover","ShowDetails(event,\""+devices[arg].mods[i].desc+"\")")
+            loc_modbutton.setAttribute("onmouseout","HideDetails(event)")
+            loc_mods.appendChild(loc_modbutton);
+        }
     }
     
     let loc_minigames = document.getElementById('dm_minigames')
@@ -385,7 +405,10 @@ function _InitValueDetails(arg)
     }
 }
 
+// 1 -> Device menu
+// 2 -> Device menu Single
 function _Exit(arg) {
+    console.log("Exit called")
     window.ExitMenu(arg);
 };
 

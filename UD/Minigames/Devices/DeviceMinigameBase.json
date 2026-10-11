@@ -7,7 +7,8 @@
     "abstract": true,
     "includes":
     [
-        "UD\\Minigames\\Devices\\Scripts\\Global.lua"
+        "UD\\Minigames\\Devices\\Scripts\\Utils\\MinigameUtils.lua",
+        "UD\\Minigames\\Devices\\Scripts\\Utils\\Locks.lua"
     ],
     "config":
     {
@@ -20,6 +21,37 @@
     },
     "export":
     {
+        "GlobalDifficulty":
+        {
+            "name": "Global difficulty",
+            "description": "How difficult will all device minigames be",
+            "default": "1.0",
+            "priority": "101",
+            "global": true,
+            "mcm":
+            {
+                "min": "0.1",
+                "max": "5.0",
+                "precision": "0.1",
+                "format": "{0} %",
+                "mult": "100.0"
+            }
+        },
+        "Difficulty":
+        {
+            "name": "Global difficulty",
+            "description": "How difficult will minigame be",
+            "default": "1.0",
+            "priority": "50",
+            "mcm":
+            {
+                "min": "0.1",
+                "max": "5.0",
+                "precision": "0.1",
+                "format": "{0} %",
+                "mult": "100.0"
+            }
+        },
         "StaminaDrain":
         {
             "name": "Stamina Drain",
@@ -165,6 +197,22 @@
                 "max": "100.0",
                 "precision": "1.0",
                 "format": "{0} %"
+            }
+        },
+        "SkillGainMult":
+        {
+            "name": "Skill Gain",
+            "description": "Multiplier of skill gain from any device minigame",
+            "default": "1.0",
+            "priority": "50",
+            "global": true,
+            "mcm":
+            {
+                "min": "0.0",
+                "max": "3.0",
+                "precision": "0.1",
+                "format": "{0} %",
+                "mult": "100.0"
             }
         },
         "Disabled":

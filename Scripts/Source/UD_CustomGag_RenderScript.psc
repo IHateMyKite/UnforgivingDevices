@@ -1,5 +1,16 @@
 Scriptname UD_CustomGag_RenderScript extends UD_CustomDevice_RenderScript  
 
+;<LUA>
+;   local _GetAccessibility = GetAccessibility
+;   function GetAccessibility(C,checkHB)
+;       local loc_res = _GetAccessibility(C,checkHB)
+;       if WornHasKeyword(C['Wearer'],"zad_DeviousHood") then
+;           loc_res = loc_res*0.25
+;       end
+;       return loc_res
+;   end
+;<\LUA>
+
 import UnforgivingDevicesMain
 import UD_Native
 

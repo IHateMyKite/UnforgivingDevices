@@ -2,50 +2,8 @@
 Durability      = 0.0
 Condition       = 0.0
 Combo           = 0
-
-function Test()
-{
-    //Direction.x = (2*Math.random() - 1)*Direction.x;
-    //Direction.y = (2*Math.random() - 1)*Direction.y;
-    setInterval(Test_Update,10)
-}
-
-Pos = {x:200.0,y:200.0,size:80,zonex:200,zoney:200,zonescale:0.5}
-Direction = {x:15.0,y:15.0}
-
-function Test_Update()
-{
-    
-    Pos.x += Direction.x;
-    Pos.y += Direction.y;
-    
-    Test_CheckPosBound();
-    
-    UpdateCursorPosition(Pos);
-}
-
-function CheckZones(argPos,argZones)
-{
-    let loc_inzone = argPos.in;
-    
-    if (loc_inzone)
-    {
-        for(let i = 0; i < argZones.length;i++)
-        {
-            let loc_zone = argZones[i];
-            loc_zone.style.setProperty("background-color","green")
-        }
-    }
-    else
-    {
-        for(let i = 0; i < argZones.length;i++)
-        {
-            let loc_zone = argZones[i];
-            loc_zone.style.setProperty("background-color","red")
-        }
-    }
-    
-}
+Fps             = 60
+UpdateTime      = 1000.0/Fps
 
 window.Init = (arg) =>
 {
@@ -60,6 +18,12 @@ window.Init = (arg) =>
             document.getElementById('mg_base').style.opacity = String(loc_vis);
         }
     }
+    
+    if ('fps' in arg)
+    {
+        Fps = arg.fps;
+    }
+    UpdateTime = 1000.0/Fps;
     
     if ('pos_y' in arg)r.style.setProperty('--minigame-offset-y', String(arg.pos_y));
     if ('pos_x' in arg)r.style.setProperty('--minigame-offset-x', String(arg.pos_x));
@@ -82,6 +46,8 @@ window.Init = (arg) =>
         r.style.setProperty('--cursor-scale', String(loc_scale));
     }
     
+    document.getElementById('mg_cursor').style.transition = "left top " + UpdateTime + "ms";
+    
     var loc_hints  = false
     if (('hints' in arg))
     {
@@ -91,6 +57,7 @@ window.Init = (arg) =>
     if (!('focvis' in arg) || arg.focvis)
     {
         document.getElementById('mg_bar_focus').style.display = 'inherit';
+        document.getElementById('mg_bar_focus').style.transition = "mask-size " + UpdateTime + "ms";
         if (!loc_hints) document.getElementById('mg_focus_over').style.display = "none";
     }
     
@@ -100,42 +67,26 @@ window.Init = (arg) =>
     }
 }
 
-function Test_CheckPosBound()
+function CheckZones(argPos,argZones)
 {
-    let loc_ref = false
-    if (Pos.x > 400.0-20.0)
-    {
-        Pos.x = 400.0-20.0;
-        loc_ref = true;
-    }
-    if (Pos.y > 400.0-20.0)
-    {
-        Pos.y = 400.0-20.0;
-        loc_ref = true;
-    }
-    if (Pos.x < 20.0)
-    {
-        Pos.x = 20.0;
-        loc_ref = true;
-    }
-    if (Pos.y < 20.0)
-    {
-        Pos.y = 20.0;
-        loc_ref = true;
-    }
-    if (loc_ref)
-    {
-        Test_ReflectVec();
-    }
-}
+    let loc_inzone = argPos.in;
 
-function Test_ReflectVec()
-{
-    let loc_posX = Direction.x
-    let loc_posY = Direction.y
-    let loc_angle = Math.PI/2*(1.0 - 0.15*Math.random())
-    Direction.x = loc_posX*Math.cos(loc_angle) - loc_posY*Math.sin(loc_angle);
-    Direction.y = loc_posX*Math.sin(loc_angle) + loc_posY*Math.cos(loc_angle);
+    if (loc_inzone)
+    {
+        for(let i = 0; i < argZones.length;i++)
+        {
+            let loc_zone = argZones[i];
+            loc_zone.style.setProperty("background-color","green")
+        }
+    }
+    else
+    {
+        for(let i = 0; i < argZones.length;i++)
+        {
+            let loc_zone = argZones[i];
+            loc_zone.style.setProperty("background-color","red")
+        }
+    }
 }
 
 window.Update = (arg) =>

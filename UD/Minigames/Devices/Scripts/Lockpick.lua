@@ -41,7 +41,7 @@ function OnLockAccessed(C)
 end
 
 function OnLockpickMinigameOver(C,res)
-    Log("OnLockpickMinigameOver - Result = "..tostring(res))
+    --Log("OnLockpickMinigameOver - Result = "..tostring(res))
     SetMinigameVar(C,"PauseDrain",false)
     if res == 1 then
         UnlockLock(C)

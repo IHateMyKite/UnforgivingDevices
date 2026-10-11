@@ -3497,8 +3497,8 @@ EndFunction
 ;function used for mod development
 Function DebugFunction(Actor akActor)
     String[] loc_options
-    loc_options = PapyrusUtil.PushString(loc_options,"Lock Abadon Set")
     loc_options = PapyrusUtil.PushString(loc_options,"Lock Abadon Set Selective")
+    loc_options = PapyrusUtil.PushString(loc_options,"Lock Abadon Set Random")
     loc_options = PapyrusUtil.PushString(loc_options,"Lock Random Devices")
     loc_options = PapyrusUtil.PushString(loc_options,"Reload Minigames")
     loc_options = PapyrusUtil.PushString(loc_options,"Reload HUD")

@@ -2,6 +2,17 @@ Scriptname UD_CustomBoots_RenderScript extends UD_CustomDevice_RenderScript
 
 import UnforgivingDevicesMain
 
+;<LUA>
+;   local _GetAccessibility = GetAccessibility
+;   function GetAccessibility(C,checkHB)
+;       local loc_res = _GetAccessibility(C,checkHB)
+;       if WornHasKeyword(C['Wearer'],"zad_DeviousLegCuffs") then
+;           loc_res = loc_res*0.5
+;       end
+;       return loc_res
+;   end
+;<\LUA>
+
 Function InitPost()
     UD_DeviceType = "Boots"
 EndFunction
