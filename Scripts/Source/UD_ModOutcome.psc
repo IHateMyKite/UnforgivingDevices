@@ -118,8 +118,13 @@ EndFunction
 /;
 
 Function PrintNotification(UD_CustomDevice_RenderScript akDevice, String asOutcome, Int aiEffectId = -1)
+    Bool loc_isplayer = akDevice.WearerIsPlayer()
+    If !loc_isplayer && !UDCDmain.AllowNPCMessage(akDevice.GetWearer())
+        Return
+    EndIf
+
     String loc_wearer = "Someone's "
-    If akDevice.WearerIsPlayer()
+    If loc_isplayer
         loc_wearer = "Your "
     Else
         loc_wearer = akDevice.GetWearer().GetActorBase().GetName() + "'s "
@@ -138,9 +143,28 @@ Function PrintNotification(UD_CustomDevice_RenderScript akDevice, String asOutco
     ElseIf aiEffectId == 3
         loc_effect = loc_wearer + akDevice.UD_DeviceType + " began to emit electrical discharges "
     ElseIf aiEffectId == 4
-        loc_effect = loc_wearer + akDevice.UD_DeviceType + " squeezed your body harder "
+        loc_effect = loc_wearer + akDevice.UD_DeviceType + " squeezed %poss% body harder "
     EndIf
-    UDMain.Print(loc_effect + asOutcome)
+
+    Int loc_level = 1
+    If !loc_isplayer
+        loc_level = 3
+    EndIf
+    UDMain.Print(ExpandWearerTokens(loc_effect + asOutcome, loc_isplayer), loc_level)
+EndFunction
+
+String Function ExpandWearerTokens(String asText, Bool abWearerIsPlayer)
+    String loc_res = asText
+    If abWearerIsPlayer
+        loc_res = UDmain.UDMTF.ReplaceSubstr(loc_res, "%subj%", "you")
+        loc_res = UDmain.UDMTF.ReplaceSubstr(loc_res, "%obj%", "you")
+        loc_res = UDmain.UDMTF.ReplaceSubstr(loc_res, "%poss%", "your")
+    Else
+        loc_res = UDmain.UDMTF.ReplaceSubstr(loc_res, "%subj%", "they")
+        loc_res = UDmain.UDMTF.ReplaceSubstr(loc_res, "%obj%", "them")
+        loc_res = UDmain.UDMTF.ReplaceSubstr(loc_res, "%poss%", "their")
+    EndIf
+    Return loc_res
 EndFunction
 
 Int Function MultInt(Float afValue, Float afMult)

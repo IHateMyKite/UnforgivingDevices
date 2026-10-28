@@ -48,7 +48,7 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
 
     If loc_devices.Length > 0
         If RandomFloat(0.0, 100.0) < 50.0
-            PrintNotification(akDevice, ;/changed/; "and mended some of your devices a little bit.")
+            PrintNotification(akDevice, ;/changed/; "and mended some of %poss% devices a little bit.")
         EndIf
     EndIf
 

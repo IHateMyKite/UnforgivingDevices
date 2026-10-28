@@ -52,9 +52,9 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
         EndIf
 
         If loc_use
-            PrintNotification(akDevice, ;/changed/; "and forced you to use an item.")
+            PrintNotification(akDevice, ;/changed/; "and forced %obj% to use an item.")
         Else
-            PrintNotification(akDevice, ;/changed/; "and placed new item in your bag.")
+            PrintNotification(akDevice, ;/changed/; "and placed new item in %poss% bag.")
         EndIf
         
         If (loc_item As LeveledItem) != None && loc_use
