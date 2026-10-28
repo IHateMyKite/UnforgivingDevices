@@ -1,28 +1,19 @@
 var devices = []
-var callbacks = []
 var selected_device = -1
 
 window.InitDeviceList = (values) => {
     devices = [];
-    callbacks = [];
     selected_device = -1;
 
-    //document.getElementById('dm_con_info').textContent = "Select device first";
-    //document.getElementById('dm_con_name').textContent = "";
-
     devices = values.devices;
-    //document.getElementById('dm_devcnt').textContent = devices.length;
     document.getElementById('dm_wearer').textContent = values.wearer;
     document.getElementById('dm_helper').textContent = values.helper;
-    //document.getElementById('dm_arousal').textContent = Number(values.arousal).toFixed(0);
-    //document.getElementById('dm_orgasm').textContent = Number(values.orgasm).toFixed(1) + "%";
 
     var buttons = document.getElementById('dm_list');
     while (buttons.hasChildNodes()) {
         buttons.removeChild(buttons.firstChild);
     }
 
-    //   var minigames = document.getElementById('dm_entry');
     var minigames = document.getElementById('dm_minigames');
     while (minigames.hasChildNodes()) {
         minigames.removeChild(minigames.firstChild);
@@ -33,129 +24,74 @@ window.InitDeviceList = (values) => {
         loc_detailvalues.removeChild(loc_detailvalues.firstChild);
     }
     
+    var modifiers = document.getElementById('dm_modifiers');
+    while (modifiers.hasChildNodes()) {
+        modifiers.removeChild(modifiers.firstChild);
+    }
+    
     HideDetails(null)
-
+    
     for (let i = 0; i < devices.length; i++) {
         var button1 = document.createElement('button');
         button1.textContent = devices[i].name;
-        button1.className = 'dm_entry';
+        
+        var loc_usable = false
+        for (let y = 0; y < devices[i].minigames.length; y++)
+        {
+            if (devices[i].minigames[y].state == 1) 
+            {
+                loc_usable = true;
+                break;
+            }
+        }
+        
+        if (loc_usable) button1.className = 'dm_entry';
+        else button1.className = 'dm_entry dm_entry_disabled';
+        
         button1.setAttribute('onmouseover', '_HoverDeviceOver(event,' + i + ')');
         button1.setAttribute('onclick', '_SelectDevice(' + i + ')');
         //button1.setAttribute("onmouseover","ShowDetails(event,\""+devices[i].desc+"\")")
         button1.setAttribute("onmouseout","HideDetails(event)")
         buttons.appendChild(button1);
     }
-
-    callbacks = values.callbacks;
-
-    //var controls = document.getElementById('dm_con_callbacks');
-    //while (controls.hasChildNodes()) {
-    //    controls.removeChild(controls.firstChild);
-    //}
-
-    //if (callbacks) {
-    //  for (let i = 0; i < callbacks.length; i++) {
-    //    var header = document.createElement('th');
-    //    header.className = 'dm_con_h';
-    //    header.id = 'dm_con_h_callback';
-    //    controls.appendChild(header);
-    //    var button = document.createElement('button');
-    //    button.textContent = callbacks[i].name;
-    //    if (callbacks[i].module == 'this') button.className = 'dm_control_dis';
-    //    else {
-    //      button.setAttribute('onclick', '_SendCallback(' + i + ')');
-    //      button.className = 'dm_control_ena';
-    //    }
-    //    header.appendChild(button);
-    //  }
-    //}
-
-    //header.appendChild(button);
-
-    //if (devices.length != 0) _DeviceDetails(0);
-
-    //SetScrollables();
-
+    
+    _SelectTab(document.getElementById('dm_tabdetailsbutton'),"dm_tabdetails");
+    
     var main = document.getElementById('main');
     main.style = 'display: visible;';
 };
 
 window.InitDeviceListSingle = (values) => {
     devices = [];
-    callbacks = [];
     selected_device = 0;
 
     devices = values.devices;
     document.getElementById('dm_wearer').textContent = values.wearer;
     document.getElementById('dm_helper').textContent = values.helper;
-    //document.getElementById('dm_arousal').textContent = Number(values.arousal).toFixed(0);
-    //document.getElementById('dm_orgasm').textContent = Number(values.orgasm).toFixed(1) + "%";
 
     var minigames = document.getElementById('dm_minigames');
     while (minigames.hasChildNodes()) {
         minigames.removeChild(minigames.firstChild);
     }
 
-    //callbacks = values.callbacks;
-    //
-    //var controls = document.getElementById('dm_con_callbacks');
-    //while (controls.hasChildNodes()) {
-    //    controls.removeChild(controls.firstChild);
-    //}
-    
     let context = document.getElementById('dm_Context');
     while (context.hasChildNodes()) {
       context.removeChild(context.firstChild);
     }
 
-    HideDetails(null)
+    var modifiers = document.getElementById('dm_modifiers');
+    while (modifiers.hasChildNodes()) {
+        modifiers.removeChild(modifiers.firstChild);
+    }
 
-    //if (callbacks) {
-    //  for (let i = 0; i < callbacks.length; i++) {
-    //    var header = document.createElement('th');
-    //    header.className = 'dm_con_h';
-    //    header.id = 'dm_con_h_callback';
-    //    controls.appendChild(header);
-    //    var button = document.createElement('button');
-    //    button.textContent = callbacks[i].name;
-    //    if (callbacks[i].module == 'this') button.className = 'dm_control_dis';
-    //    else {
-    //      button.setAttribute('onclick', '_SendCallback(' + i + ')');
-    //      button.className = 'dm_control_ena';
-    //    }
-    //    header.appendChild(button);
-    //  }
-    //}
-    //
-    //header.appendChild(button);
+    HideDetails(null)
 
     var main = document.getElementById('main');
     main.style = 'display: visible;';
     
-    //SetScrollables();
-
     if (devices.length != 0) _DeviceDetails(0);
-
-};
-
-function SetScrollables()
-{
-    var loc_scrollables = document.getElementsByClassName("dm_scrollable")
     
-    for (var scrollable of loc_scrollables)
-    {
-        var loc_h = scrollable.parentElement.offsetHeight;
-        console.log(loc_h);
-        scrollable.style.height = String(loc_h) + "px"
-    }
-}
-
-
-function _SendCallback(indx) {
-    if (selected_device >= 0 || callbacks[indx].module != "this")
-    {
-        window.SendCallback(selected_device + "," + indx);
-    }
+    _SelectTab(document.getElementById('dm_tabdetailsbutton'),"dm_tabdetails");
 };
 
 function _HoverDeviceOver(event,arg)
@@ -165,8 +101,6 @@ function _HoverDeviceOver(event,arg)
     {
         _DeviceDetails(arg);
     }
-    
-    //_SelectDevice(arg)
 };
 
 function _SelectDevice(arg)
@@ -199,6 +133,7 @@ function _DeviceDetails(arg) {
     //document.getElementById('dm_description').textContent   = devices[arg].desc
     
     _InitValueDetails(arg)
+    _InitValueLocks(arg)
     
     let loc_mods = document.getElementById('dm_modifiers')
     if (loc_mods)
@@ -323,7 +258,6 @@ function ContextSelected(event,dev,min,cntx)
     }
 }
 
-
 function MouseOverContext(event)
 {
     let c = document.getElementById('dm_Context');
@@ -340,7 +274,6 @@ function MouseOverContext(event)
     }
     return false;
 }
-
 
 function HideDetailsOrContext(event,dev,min)
 {
@@ -401,8 +334,85 @@ function _InitValueDetails(arg)
         loc_tr.appendChild(loc_th_value);
         
         loc_values.appendChild(loc_tr);
-        
     }
+}
+
+function _OnLockHoverOn(event,arg)
+{
+    let loc_values = document.getElementById('dm_lockstable')
+    while (loc_values.hasChildNodes()) {
+      loc_values.removeChild(loc_values.firstChild);
+    }
+    
+    let loc_lock = arg
+    
+    AddTableRow(loc_values,"dm_lockstable","Name",loc_lock.name)
+    AddTableRow(loc_values,"dm_lockstable","Accessibility",'accessibility' in loc_lock ? loc_lock.accessibility : 0)
+    AddTableRow(loc_values,"dm_lockstable","Difficulty",'difficulty' in loc_lock ? loc_lock.difficulty : 0)
+    AddTableRow(loc_values,"dm_lockstable","Shields",'shields' in loc_lock ? loc_lock.shields : 0)
+    AddTableRow(loc_values,"dm_lockstable","Time Locked",'timelocked' in loc_lock ? loc_lock.timelocked : "FALSE")
+
+    if ('unlocked' in loc_lock && loc_lock.unlocked) AddTableRow(loc_values,"dm_lockstable","State","Unlocked");
+    else if ('jammed' in loc_lock && loc_lock.jammed) AddTableRow(loc_values,"dm_lockstable","State","Jammed");
+    else AddTableRow(loc_values,"dm_lockstable","State","Locked");
+}
+
+function AddTableRow(table,classname,name,value)
+{
+    var loc_tr = document.createElement("tr");
+    loc_tr.className = classname;
+    
+    var loc_th = document.createElement("th");
+    loc_th.className   = "dm_det_value_h";
+    loc_th.textContent = name;
+    loc_tr.appendChild(loc_th);
+    loc_th = document.createElement("th");
+    loc_th.className   = "dm_det_value";
+    loc_th.textContent = value;
+    loc_tr.appendChild(loc_th);
+    
+    table.appendChild(loc_tr);
+}
+
+function _OnLockHoverOff(event,arg)
+{
+    let loc_values = document.getElementById('dm_lockstable')
+    while (loc_values.hasChildNodes()) {
+      loc_values.removeChild(loc_values.firstChild);
+    }
+};
+
+function _InitValueLocks(arg)
+{
+    let loc_values = document.getElementById('dm_lockstable')
+    while (loc_values.hasChildNodes()) {
+      loc_values.removeChild(loc_values.firstChild);
+    }
+    
+    var loc_lockbuttons = document.getElementById('dm_locklist');
+    while (loc_lockbuttons.hasChildNodes()) {
+        loc_lockbuttons.removeChild(loc_lockbuttons.firstChild);
+    }
+    
+    var loc_locks = ConvertToIDict(devices[arg].locks);
+    Object.keys(loc_locks).forEach(function(key)
+    {
+        if (key != "n")
+        {
+            let loc_lock = loc_locks[key]
+            var button1 = document.createElement('button');
+            
+            button1.textContent = loc_lock.name;
+            
+            let loc_usable = 'unlocked' in loc_lock && loc_lock.unlocked;
+            if (loc_usable) button1.className = 'dm_entry dm_entry_enabled';
+            else button1.className = 'dm_entry dm_entry_disabled';
+            
+            button1.setAttribute('onmouseover', '_OnLockHoverOn(event,' + JSON.stringify(loc_lock) + ')');
+            button1.setAttribute("onmouseout","_OnLockHoverOff(event)")
+            loc_lockbuttons.appendChild(button1);
+        }
+    });
 }
 
 // 1 -> Device menu
@@ -415,4 +425,36 @@ function _Exit(arg) {
 function _StartMinigame(dev,min,cntx)
 {
     if (devices[dev].minigames[min].state == 1) StartMinigame(dev+","+devices[dev].minigames[min].id+","+cntx)
+}
+
+function SelectTab(evt, tabName) {
+  var i, tabcontent, tablinks;
+  tabcontent = document.getElementsByClassName("dm_tabcontent");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+  }
+  
+  tablinks = document.getElementsByClassName("dm_tablinks");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
+  }
+  
+  document.getElementById(tabName).style.display = "block";
+  evt.currentTarget.className += " active";
+}
+
+function _SelectTab(butt, tabName) {
+  var i, tabcontent, tablinks;
+  tabcontent = document.getElementsByClassName("dm_tabcontent");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+  }
+  
+  tablinks = document.getElementsByClassName("dm_tablinks");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
+  }
+  
+  document.getElementById(tabName).style.display = "block";
+  butt.className += " active";
 }

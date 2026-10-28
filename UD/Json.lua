@@ -192,4 +192,48 @@ function json.parse(str, pos, end_delim)
   end
 end
 
+-- Created for parsing papyrus strings because papyrus string handling is fucked up
+function json.iparse(str, pos, end_delim)
+  pos = pos or 1
+  if pos > #str then error('Reached unexpected end of input.') end
+  local pos = pos + #str:match('^%s*', pos)  -- Skip whitespace.
+  local first = str:sub(pos, pos)
+  if first == '{' then  -- Parse an object.
+    local obj, key, delim_found = {}, true, true
+    pos = pos + 1
+    while true do
+      key, pos = json.parse(str, pos, '}')
+      if key == nil then return obj, pos end
+      if not delim_found then error('Comma missing between object items.') end
+      pos = skip_delim(str, pos, ':', true)  -- true -> error if missing.
+      obj[string.lower(key)], pos = json.iparse(str, pos)
+      pos, delim_found = skip_delim(str, pos, ',')
+    end
+  elseif first == '[' then  -- Parse an array.
+    local arr, val, delim_found = {}, true, true
+    pos = pos + 1
+    while true do
+      val, pos = json.iparse(str, pos, ']')
+      if val == nil then return arr, pos end
+      if not delim_found then error('Comma missing between array items.') end
+      arr[#arr + 1] = val
+      pos, delim_found = skip_delim(str, pos, ',')
+    end
+  elseif first == '"' then  -- Parse a string.
+    return parse_str_val(str, pos + 1)
+  elseif first == '-' or first:match('%d') then  -- Parse a number.
+    return parse_num_val(str, pos)
+  elseif first == end_delim then  -- End of an object or array.
+    return nil, pos + 1
+  else  -- Parse true, false, or null.
+    local literals = {['true'] = true, ['false'] = false, ['null'] = json.null}
+    for lit_str, lit_val in pairs(literals) do
+      local lit_end = pos + #lit_str - 1
+      if str:sub(pos, lit_end) == lit_str then return lit_val, lit_end + 1 end
+    end
+    local pos_info_str = 'position ' .. pos .. ': ' .. str:sub(pos, pos + 10)
+    error('Invalid json syntax starting at ' .. pos_info_str)
+  end
+end
+
 --return json

@@ -4,8 +4,9 @@ local _Precondition = Precondition -- Save previous function
 function Precondition(C)
     local loc_res = _Precondition(C)
     if loc_res then
-        local loc_locks = GetVariableValue(C,"thisdevice::UD_LockList(A)")
-        if loc_locks['n'] > 0 then
+        local loc_locks = json.iparse(GetVariableValue(C,"thisdevice::UD_LocksJson(A)"))
+        local loc_count = tonumber(loc_locks['n'])
+        if loc_count and loc_count > 0 then
             loc_res = true
         else
             loc_res = false
@@ -32,5 +33,4 @@ end
 function OnLockAccessed(C)
     SetMinigameVar(C,"PauseDrain",true)
     UnlockLock(C)
-    --CallPapyrusFunction(C,"thisdevice::Lua_StartLockpickMinigame","OnLockpickMinigameOver",{"int",tonumber(C['Context'])})
 end

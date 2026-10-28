@@ -7,28 +7,6 @@ function Precondition(C)
     return _Precondition(C) and loc_cutpower > 0.0
 end
 
--- Check if actor can struggle or if other conditions are met
-local _Condition = Condition -- Save previous function
-function Condition(C)
-    return _Condition(C)
-end
-
-function GetContext(C)
-    local loc_res = ""
-    if PlayerInMinigame(C) and not ActorIsPlayer(C['Wearer']) then
-        -- TODO: Check if NPC can be commanded
-        loc_res = loc_res.."["
-        loc_res = loc_res.."{name:\"Command\",value:\"command\",state:\"1\"},"
-        if CheckMinStatsHelper(C) then
-            loc_res = loc_res.."{name:\"Help\",value:\"help\",state:\"1\"}"
-        else
-            loc_res = loc_res.."{name:\"Help\",value:\"help\",state:\"0\"}"
-        end
-        loc_res = loc_res.."]"
-    end
-    return loc_res
-end
-
 -- Called when minigame starts
 local _OnStart = OnStart -- Save previous function
 function OnStart(C)
@@ -222,7 +200,8 @@ function CutDevice(C)
     Log("Increasing progress by "..tostring(loc_cutdmg).." to "..tostring(loc_progress))
     while loc_progress >= 100.0 do
         --Log("Cutting device")
-        loc_progress = loc_progress - 100.0
+        loc_progress = UpdateVariableValue(C,"thisdevice::_CuttingProgress(U)",-100.0)
+        Log("Progress reduced to "..tostring(loc_progress))
         local loc_cond = UpdateVariableValue(C,"thisdevice::_total_durability_drain(U)",GetMinigameVar(C,"ConditionDamageBase")*loc_mult)
         Log("Condition updated to "..tostring(loc_cond))
         
@@ -237,5 +216,5 @@ function CutDevice(C)
         --    DamageDurability(C,10.0,false)
         --end
     end
-    UpdateVariableValue(C,"thisdevice::_CuttingProgress(A)",loc_progress)
+    
 end

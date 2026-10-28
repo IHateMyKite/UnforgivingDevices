@@ -5,11 +5,12 @@ function Precondition(C)
     --Log("Precondition(Lockpick.lua) called")
     local loc_res = _Precondition(C)
     if loc_res then
-        local loc_locks = GetVariableValue(C,"thisdevice::UD_LockList(A)")
-        if loc_locks['n'] > 0 then
-            for i = 0, loc_locks['n']-1, 1
+        local loc_locks = json.iparse(GetVariableValue(C,"thisdevice::UD_LocksJson(A)"))
+        local loc_count = tonumber(loc_locks['n'])
+        if loc_count and loc_count > 0 then
+            for i = 0, loc_count-1, 1
             do
-                if IsLockLockpickable(C,loc_locks[i]) then
+                if IsLockLockpickable(C,loc_locks[tostring(i)]) then
                     loc_res = true
                 end
             end

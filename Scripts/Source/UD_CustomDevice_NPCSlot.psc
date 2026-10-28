@@ -121,13 +121,13 @@ Int   Property UD_AITimer           = 2     auto hidden
 
 ;prevent slot update
 State UpdatePaused
-    Function update(float fTimePassed)
+    Function update(float fTimePassed, float afCurrentTime)
     EndFunction
     Function updateDeviceHour()
     EndFunction
     Function UpdateSlot(Bool abUpdateSkill = true)
     EndFunction
-    Function DeviceUpdate(UD_CustomDevice_RenderScript akDevice,Float afTimePassed)
+    Function DeviceUpdate(UD_CustomDevice_RenderScript akDevice,Float afTimePassed,Float afCurrentTime)
     EndFunction
 EndState
 
@@ -1361,17 +1361,17 @@ Function showDebugMenu(int slot_id)
     endif
 EndFunction
 
-Function update(float fTimePassed)
+Function update(float afTimePassed, float afCurrentTime)
     int i = 0
     while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
-        DeviceUpdate(UD_equipedCustomDevices[i],fTimePassed)
+        DeviceUpdate(UD_equipedCustomDevices[i],afTimePassed,afCurrentTime)
         i+=1
     endwhile
 EndFunction
 
-Function DeviceUpdate(UD_CustomDevice_RenderScript akDevice,Float afTimePassed)
+Function DeviceUpdate(UD_CustomDevice_RenderScript akDevice,Float afTimePassed,Float afCurrentTime)
     if akDevice.isReady()
-        akDevice.update(afTimePassed)
+        akDevice.update(afTimePassed,afCurrentTime)
     endif
 EndFunction
 

@@ -74,9 +74,9 @@ end
 
 function StoreConfigDrain(C)
     local loc_statDrain = {}
-    loc_statDrain['Stamina']    = tonumber(GetConfigVar(C,"StaminaDrain","0.0"))*tonumber(GetConfigVar(C,"StaminaDrainMult","1.0"))
-    loc_statDrain['Health']     = tonumber(GetConfigVar(C,"HealthDrain","0.0"))*tonumber(GetConfigVar(C,"HealthDrainMult","1.0"))
-    loc_statDrain['Magicka']    = tonumber(GetConfigVar(C,"MagickaDrain","0.0"))*tonumber(GetConfigVar(C,"MagickaDrainMult","1.0"))
+    loc_statDrain['Stamina']    = tonumber(GetConfigVar(C,"StaminaDrain","0.0"))*tonumber(GetConfigVar(C,"DrainMult","1.0"))
+    loc_statDrain['Health']     = tonumber(GetConfigVar(C,"HealthDrain","0.0"))*tonumber(GetConfigVar(C,"DrainMult","1.0"))
+    loc_statDrain['Magicka']    = tonumber(GetConfigVar(C,"MagickaDrain","0.0"))*tonumber(GetConfigVar(C,"DrainMult","1.0"))
     SetMinigameVar(C,'StatDrain',loc_statDrain)
 end
 
@@ -157,7 +157,6 @@ function CheckStats(C,stamina,health,magicka)
         Log("ERROR: DamageStats() - Context is nil")
         return
     end
-    
     local loc_res = true
     if stamina then
         loc_res = loc_res and GetVariableValue(C,"wearer::stamina(A)") > 0.0
@@ -182,7 +181,12 @@ function CheckStats(C,stamina,health,magicka)
     return loc_res
 end
 
+
 function UseHelper(C)
+    return GetMinigameVar(C,"Helping")
+end
+
+function UseHelperCond(C)
     return not IsNull(C['Helper']) and (not C['Context'] or C['Context'] == "help")
 end
 

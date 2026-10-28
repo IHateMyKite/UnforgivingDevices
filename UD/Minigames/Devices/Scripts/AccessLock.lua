@@ -6,25 +6,26 @@ end
 
 function GetContext(C)
     local loc_res = ""
-    local loc_locks         = GetVariableValue(C,"thisdevice::UD_LockList(A)")
-    local loc_locksNames    = GetVariableValue(C,"thisdevice::UD_LockNameList(A)")
-    if loc_locks['n'] > 0 then
+    local loc_locks = json.iparse(GetVariableValue(C,"thisdevice::UD_LocksJson(A)"))
+    local loc_count = tonumber(loc_locks['n'])
+    if loc_count > 0 then
         loc_res = "["
-        for i = 0, loc_locks['n']-1, 1
+        for i = 0, loc_count-1, 1
         do
+            local loc_lock = loc_locks[tostring(i)]
             loc_res = loc_res.."{"
-            loc_res = loc_res.."name:\""..loc_locksNames[i].."\","
-            loc_res = loc_res.."value:\""..tostring(i).."\","
+            loc_res = loc_res.."\"name\":\""..loc_lock['name'].."\","
+            loc_res = loc_res.."\"value\":\""..tostring(i).."\","
             
-            if IsLockSelectable(C,loc_locks[i]) then
-                loc_res = loc_res.."state:1"
+            if IsLockSelectable(C,loc_lock) then
+                loc_res = loc_res.."\"state\":1"
             else
-                loc_res = loc_res.."state:0"
+                loc_res = loc_res.."\"state\":0"
             end
             
             loc_res = loc_res.."}"
             
-            if i ~= (loc_locks['n']-1) then
+            if i ~= (loc_count-1) then
                 loc_res = loc_res..","
             end
             
@@ -196,14 +197,12 @@ function ProcessMinigame(C,delta)
 end
 
 function GetSelectedLock(C)
-    local loc_locks = GetVariableValue(C,"thisdevice::UD_LockList(A)")
-    local loc_lock = loc_locks[tonumber(C['Context'])]
-    --Log("GetSelectedLock - "..tostring(loc_lock))
+    local loc_locks = json.iparse(GetVariableValue(C,"thisdevice::UD_LocksJson(A)"))
+    local loc_lock = loc_locks[tostring(C['Context'])]
     return loc_lock
 end
 
 function UnlockLock(C)
-    --Log("UnlockLock called for lock "..tostring(C['Context']))
     CallPapyrusFunction(C,"thisdevice::UnlockNthLock","OnLockUnlocked",{"int",tonumber(C['Context'])},{"bool",true})
     return loc_lock
 end

@@ -11,3 +11,14 @@ window.onload = (event) => {
   r.style.setProperty('--h', String(vh)+"px");
   r.style.setProperty('--ar', String(ar));
 };
+
+function ConvertToIDict(dict)
+{
+    var loc_res = {}
+    Object.keys(dict).forEach(function(key) {
+        var loc_val = dict[key];
+        if (loc_val.constructor == Object) loc_val = ConvertToIDict(loc_val);
+        loc_res[key.toLowerCase()] = loc_val;
+    });
+    return loc_res;
+}

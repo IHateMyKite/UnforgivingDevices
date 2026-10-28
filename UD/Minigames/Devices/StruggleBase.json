@@ -113,7 +113,7 @@
         {
             "name": "UI Show Combo",
             "description": "If minigame combo text should be shown",
-            "default": "true",
+            "default": "false",
             "global": true,
             "priority": "1",
             "mcm":

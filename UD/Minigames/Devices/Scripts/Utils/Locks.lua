@@ -1,36 +1,39 @@
 
 function IsLockUnlocked(C,lock)
-    local loc_unlocked = (lock) & 0x01
-    return loc_unlocked == 0x01
+    return StrToBool(lock['unlocked'])
 end
 
 function IsLockLockpickable(C,lock)
-    local loc_diff = (lock >> 15) & 0xFF
+    local loc_diff = tonumber(lock['difficulty'])
     return loc_diff <= 100 and loc_diff > 0
 end
 
 function GetLockAccesibility(C,lock)
-    local loc_acc = ((lock >> 8) & 0x7F)/100.0
+    local loc_acc = tonumber(lock['accessibility'])/100.0
     return loc_acc
 end
 
 function IsAllLocksUnlocked(C)
     local loc_res = true
-    local loc_locks = GetVariableValue(C,"thisdevice::UD_LockList(A)")
-    for i = 0, loc_locks['n']-1, 1
-    do
-        loc_res = loc_res and IsLockUnlocked(C,loc_locks[i])
+    local loc_locks = json.iparse(GetVariableValue(C,"thisdevice::UD_LocksJson(A)"))
+    local loc_count = tonumber(loc_locks['n'])
+    if loc_count then
+        for i = 0, loc_count-1, 1
+        do
+            loc_res = loc_res and IsLockUnlocked(C,loc_locks[tostring(i)])
+        end
     end
     return loc_res
 end
 
 function GetLockMultiplier(C,maxincrease)
     local loc_res = 1.0
-    local loc_locks = GetVariableValue(C,"thisdevice::UD_LockList(A)")
-    if loc_locks['n'] > 0 then
-        for i = 0, loc_locks['n']-1, 1 do
-            if IsLockUnlocked(C,loc_locks[i]) then
-                loc_res = loc_res + maxincrease/loc_locks['n']
+    local loc_locks = json.iparse(GetVariableValue(C,"thisdevice::UD_LocksJson(A)"))
+    local loc_count = tonumber(loc_locks['n'])
+    if loc_count and loc_count > 0 then
+        for i = 0, loc_count-1, 1 do
+            if IsLockUnlocked(C,loc_locks[tostring(i)]) then
+                loc_res = loc_res + maxincrease/loc_count
             end
         end
     end

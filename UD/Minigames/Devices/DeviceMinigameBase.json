@@ -26,7 +26,7 @@
             "name": "Global difficulty",
             "description": "How difficult will all device minigames be",
             "default": "1.0",
-            "priority": "101",
+            "priority": "102",
             "global": true,
             "mcm":
             {
@@ -35,6 +35,21 @@
                 "precision": "0.1",
                 "format": "{0} %",
                 "mult": "100.0"
+            }
+        },
+        "Fps":
+        {
+            "name": "Frames per second",
+            "description": "How fast will minigame UI update",
+            "default": "60.0",
+            "priority": "101",
+            "global": true,
+            "mcm":
+            {
+                "min": "30.0",
+                "max": "300.0",
+                "precision": "30.0",
+                "format": "{0} fps"
             }
         },
         "Difficulty":
@@ -91,10 +106,10 @@
                 "format": "{0} /s"
             }
         },
-        "StaminaDrainMult":
+        "DrainMult":
         {
-            "name": "Stamina Drain Multiplier",
-            "description": "Multiplies amount of stamina drained for every second of minigame",
+            "name": "Drain Multiplier",
+            "description": "Multiplies amount of stats drained for every second of minigame",
             "default": "1.0",
             "priority": "100",
             "global": true,
@@ -106,38 +121,6 @@
                 "format": "{0} %",
                 "mult": "100.0"
                 
-            }
-        },
-        "HealthDrainMult":
-        {
-            "name": "Health Drain Multiplier",
-            "description": "Multiplies amount of health drained for every second of minigame",
-            "default": "1.0",
-            "priority": "99",
-            "global": true,
-            "mcm":
-            {
-                "min": "0.0",
-                "max": "2.0",
-                "precision": "0.05",
-                "format": "{0} %",
-                "mult": "100.0"
-            }
-        },
-        "MagickaDrainMult":
-        {
-            "name": "Magicka Drain Multiplier",
-            "description": "Multiplies amount of magicka drained for every second of minigame",
-            "default": "1.0",
-            "priority": "98",
-            "global": true,
-            "mcm":
-            {
-                "min": "0.0",
-                "max": "2.0",
-                "precision": "0.05",
-                "format": "{0} %",
-                "mult": "100.0"
             }
         },
         "minStamina":
@@ -257,7 +240,7 @@
         {
             "name": "UI Position Y",
             "description": "How much will minigame elements move verticaly. Is in % of screen height",
-            "default": "80",
+            "default": "70",
             "priority": "59",
             "global": true,
             "mcm":
@@ -272,7 +255,7 @@
         {
             "name": "UI Scale",
             "description": "How much will minigame UI elements be scaled",
-            "default": "1.0",
+            "default": "0.75",
             "priority": "58",
             "global": true,
             "mcm":
@@ -288,7 +271,7 @@
         {
             "name": "Visibility",
             "description": "How visible will minigame be",
-            "default": "1.0",
+            "default": "0.8",
             "priority": "80",
             "global": true,
             "mcm":
@@ -334,6 +317,22 @@
             "mcm":
             {
                 "type": "bool"
+            }
+        },
+        "HelpMult":
+        {
+            "name": "Helping Multiplier",
+            "description": "How much easier will minigame get when getting help by other person",
+            "default": "1.5",
+            "priority": "90",
+            "global": true,
+            "mcm":
+            {
+                "min": "0.5",
+                "max": "3.0",
+                "precision": "0.1",
+                "format": "{0} %",
+                "mult": "100.0"
             }
         }
     }

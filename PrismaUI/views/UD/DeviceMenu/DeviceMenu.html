@@ -32,12 +32,22 @@
                     </tr>
                     <tr id="dm_line1">
                         <th rowspan="3" class="background-light right-seperator">
-                            <div id="dm_list" class="dm_scrollable">
+                            <div id="dm_list" class="dm_list dm_scrollable">
                             </div>
                         </th>
                         <th rowspan="3" class="background-light devicemenu_info">
-                            <div class="dm_scrollable">
+                            <div class="dm_tab">
+                              <button id="dm_tabdetailsbutton" class="dm_tablinks" onclick="SelectTab(event, 'dm_tabdetails')">Details</button>
+                              <button id="dm_tablocksbutton"class="dm_tablinks" onclick="SelectTab(event, 'dm_tablocks')">Locks</button>
+                            </div>
+                            <div id="dm_tabdetails" class="dm_scrollable dm_tabcontent">
                                 <table id="dm_detailtable" class="dm_detailtable">
+                                </table>
+                            </div>
+                            <div id="dm_tablocks" class="dm_scrollable dm_tabcontent">
+                                <div id="dm_locklist" class="dm_list dm_scrollable">
+                                </div>
+                                <table id="dm_lockstable" class="dm_lockstable">
                                 </table>
                             </div>
                         </th>
@@ -60,6 +70,7 @@
         </div>
         <div id="dm_Detail" style="display: none;"></div>
         <div id="dm_Context" style="display: none;"></div>
+        <script src="../Scripts/Global.js"></script>
         <script src="DeviceMenu.js"></script>
     </body>
 </html>

@@ -5,9 +5,13 @@
 
 -- Logs message to native skse log
 function Log(msg)
-    --if StrToBool(GetSaveConfig("Lua.Logging","false")) then
-        Host_Log(msg)
-    --end
+    if StrToBool(GetSaveConfig("Lua.Logging","false")) then
+        Host_Log(tostring(msg))
+    end
+end
+
+function Echo(msg)
+    Host_Log(tostring(msg))
 end
 
 -- Returns variable value based on variable string
@@ -51,7 +55,7 @@ end
 
 -- Stops minigame on native level
 function StopMinigame(C)
-    Log("StopMinigame("..tostring(C['MinigameId'])..")")
+    --Log("StopMinigame("..tostring(C['MinigameId'])..")")
     Host_StopMinigame(C['MinigameId'])
 end
 
@@ -141,6 +145,9 @@ StringToBoolTable={ ["true"]=true, ["false"]=false }
 
 -- Converts string to bool
 function StrToBool(str)
+    if str == nil then
+        return false
+    end
     return StringToBoolTable[string.lower(str)]
 end
 

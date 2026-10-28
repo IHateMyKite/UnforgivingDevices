@@ -18,9 +18,9 @@ import UnforgivingDevicesMain
 ;       if WornHasKeyword(C['Wearer'],"zad_DeviousBra") then
 ;           loc_res = loc_res*0.5
 ;       end
-;       if not ArmorHasKeyword(C['RD'],"zad_deviousharness") and WornHasKeyword(C['Wearer'],"zad_deviousharness") then
+;       if WornHasKeyword(C['Wearer'],"zad_deviousharness") or WornHasKeyword(C['Wearer'],"zad_deviouscorset") then
 ;           loc_res = loc_res*0.25
-;       elseif not ArmorHasKeyword(C['RD'],"zad_deviousbelt") and WornHasKeyword(C['Wearer'],"zad_deviousbelt") then
+;       elseif WornHasKeyword(C['Wearer'],"zad_deviousbelt") then
 ;           loc_res = loc_res*0.5
 ;       end
 ;       return loc_res

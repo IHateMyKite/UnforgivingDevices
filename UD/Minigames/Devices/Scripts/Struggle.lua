@@ -11,28 +11,6 @@ function Precondition(C)
     return _Precondition(C) and GetVariableValue(C,"thisdevice::UD_durability_damage_base(A)") > 0.0 and loc_resistence < 1.0
 end
 
--- Check if actor can struggle or if other conditions are met
-local _Condition = Condition -- Save previous function
-function Condition(C)
-    return _Condition(C)
-end
-
-function GetContext(C)
-    local loc_res = ""
-    if PlayerInMinigame(C) and not ActorIsPlayer(C['Wearer']) then
-        -- TODO: Check if NPC can be commanded
-        loc_res = loc_res.."["
-        loc_res = loc_res.."{name:\"Command\",value:\"command\",state:\"1\"},"
-        if CheckMinStatsHelper(C) then
-            loc_res = loc_res.."{name:\"Help\",value:\"help\",state:\"1\"}"
-        else
-            loc_res = loc_res.."{name:\"Help\",value:\"help\",state:\"0\"}"
-        end
-        loc_res = loc_res.."]"
-    end
-    return loc_res
-end
-
 -- Called when minigame starts
 local _OnStart = OnStart -- Save previous function
 function OnStart(C)
@@ -133,7 +111,9 @@ function ClickSuccess(C)
     InvokeMinigameUI(C,"UpdateCombo({val:"..tostring(loc_combo).."})")
     
     local loc_dmg = GetMinigameVar(C,'DamageBase')*GetMinigameVar(C,'MultiplierConst')
-    DamageDurability(C,loc_dmg*loc_mult)
+    if not DamageDurability(C,loc_dmg*loc_mult) then
+        return false
+    end
     
     local loc_speed = GetMinigameVar(C,"CursorSpeed")
     loc_speed = loc_speed*GetMinigameVar(C,"SpeedMult")
@@ -141,6 +121,7 @@ function ClickSuccess(C)
     if GetMinigameVar(C,"UseShaders") and not GetMinigameVar(C,'UseNoUI') then
         PlayShader(C,"green")
     end
+    return true
 end
 
 function ClickFail(C)
@@ -155,8 +136,6 @@ function ClickFail(C)
 end
 
 function ProcessMinigame(C,delta)
-    --Log("ProcessMinigame(Struggle.lua) called")
-
     local loc_auto = GetMinigameVar(C,'AutoMode')
     local loc_noui = GetMinigameVar(C,'UseNoUI')
 
@@ -184,7 +163,9 @@ function ProcessMinigame(C,delta)
         if loc_timer <= 0.0 then
             SetMinigameVar(C,"AutoModeTimer",GetMinigameVar(C,"AutoModeBase"))
             if (CheckZone(C,0) or CheckZone(C,1)) and math.random() <= 0.8 then
-                ClickSuccess(C)
+                if not ClickSuccess(C) then
+                    return false
+                end
             elseif math.random() > 0.9 then
                 ClickFail(C)
             end

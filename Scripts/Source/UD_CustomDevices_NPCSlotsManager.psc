@@ -193,8 +193,9 @@ Event OnUpdate()
     
     if UDmain.UDReady()
         if !UDmain.UD_DisableUpdate
-            float loc_timePassed = Utility.GetCurrentGameTime() - _LastUpdateTime
-            UpdateDevices(loc_timePassed)
+            float loc_currenttime = Utility.GetCurrentGameTime()
+            float loc_timePassed = loc_currenttime - _LastUpdateTime
+            UpdateDevices(loc_timePassed,loc_currenttime)
             _LastUpdateTime = Utility.GetCurrentGameTime()
             _UpdateTimePassed2 += UDMain.UDCONF.UD_UpdateTime
             if _UpdateTimePassed2 >= UD_SlotScanUpdateTime
@@ -524,20 +525,20 @@ UD_CustomDevice_NPCSlot Function getPlayerSlot()
     return GetAliasByName("NPCSlot_Player") as UD_CustomDevice_NPCSlot
 EndFunction
 
-Function UpdateDevices(float fTimePassed)
+Function UpdateDevices(float afTimePassed, float afCurrentTime)
     int index = 0
     while index < UD_Slots
         UD_CustomDevice_NPCSlot loc_slot = (GetNthAlias(index) as UD_CustomDevice_NPCSlot)
         if loc_slot
-            UpdateSlotDevices(loc_slot,fTimePassed)
+            UpdateSlotDevices(loc_slot,afTimePassed,afCurrentTime)
         endif
         index += 1
     endwhile
 EndFunction
 
-Function UpdateSlotDevices(UD_CustomDevice_NPCSlot akSlot, Float afTimePassed)
+Function UpdateSlotDevices(UD_CustomDevice_NPCSlot akSlot, Float afTimePassed, float afCurrentTime)
     if akSlot.isScriptRunning() && akSlot.isUsed() && akSlot.canUpdate()
-        akSlot.update(afTimePassed)
+        akSlot.update(afTimePassed,afCurrentTime)
     endif
 EndFunction
 
@@ -616,9 +617,9 @@ State UpdatePaused
     endEvent
     Function UpdateSlot(UD_CustomDevice_NPCSlot akSlot)
     EndFunction
-    Function UpdateDevices(float fTimePassed)
+    Function UpdateDevices(float afTimePassed, float afCurrentTime)
     EndFunction
-    Function UpdateSlotDevices(UD_CustomDevice_NPCSlot akSlot, Float afTimePassed)
+    Function UpdateSlotDevices(UD_CustomDevice_NPCSlot akSlot, Float afTimePassed, Float afCurrentTime)
     EndFunction
 EndState
 
@@ -633,8 +634,8 @@ State Disabled
     endEvent
     Function UpdateSlot(UD_CustomDevice_NPCSlot akSlot)
     EndFunction
-    Function UpdateDevices(float fTimePassed)
+    Function UpdateDevices(float fTimePassed, Float afCurrentTime)
     EndFunction
-    Function UpdateSlotDevices(UD_CustomDevice_NPCSlot akSlot, Float afTimePassed)
+    Function UpdateSlotDevices(UD_CustomDevice_NPCSlot akSlot, Float afTimePassed, Float afCurrentTime)
     EndFunction
 EndState

@@ -23,12 +23,10 @@ tbody {
 
 #devicemenu {
   max-width: 60%;
-  height: 90vh;
+  height: 100vh;
   width: 60%;
-  max-height: 56.25rem;
-  padding: 1.5rem;
+  padding: 1.0rem;
   margin: 0 auto;
-
 }
 
 /* Table Styles */
@@ -75,6 +73,18 @@ tbody {
   border-collapse: collapse;
 }
 
+.dm_lockstable {
+  width: 100%;
+  text-align: left;
+  vertical-align: top;
+  text-align: center;
+}
+
+.dm_lockstable th, tr {
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+
 #dm_description {
   vertical-align: left;
   text-align: left;
@@ -108,22 +118,22 @@ button:hover {
 
 /* Device List Buttons */
 
-#dm_list
+.dm_list
 {
     border: 1px solid black;
 }
 
-#dm_list .dm_entry_selected {
+.dm_list .dm_entry_selected {
   border: 1px solid var(--color-blue);
   color: var(--color-orange);
 }
 
 /* Disabled Device List Buttons */
-#dm_list .dm_entry_disabled {
+.dm_list .dm_entry_disabled {
   color: var(--color-red);
   border-color: var(--color-red);
 }
-#dm_list .dm_entry_disabled:hover {
+.dm_list .dm_entry_disabled:hover {
   border: 1px solid var(--color-red-50);
   color: var(--color-red-50);
 }
@@ -317,4 +327,29 @@ button:hover {
     padding: 0;
     background-color: red;
     color: white;
+}
+
+.dm_tabcontent {
+  display: none;
+}
+
+.dm_tab {
+  overflow: hidden;
+}
+
+/* Style the buttons inside the tab */
+.dm_tab button {
+  width: 50%;
+  background-color: var(--color-gray-50);
+  float: left;
+  cursor: pointer;
+}
+
+.dm_tab button.active {
+  background-color: var(--color-blue-50);
+}
+
+#dm_locklist
+{
+    height: 50%;
 }

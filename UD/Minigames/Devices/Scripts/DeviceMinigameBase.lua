@@ -6,7 +6,7 @@ end
 
 -- Check if actor can struggle or if other conditions are met
 function Condition(C)
-    return CheckMinStatsWearer(C) and (not UseHelper(C) or CheckMinStatsHelper(C)) and (not StrToBool(GetConfigVar(C,"CheckAccessibility","true")) or GetDeviceAccessibility(C,true) > 0.0)
+    return CheckMinStatsWearer(C) and (not UseHelperCond(C) or CheckMinStatsHelper(C)) and (not StrToBool(GetConfigVar(C,"CheckAccessibility","true")) or GetDeviceAccessibility(C,true) > 0.0)
 end
 
 function CheckMinStatsWearer(C)
@@ -17,27 +17,55 @@ function CheckMinStatsWearer(C)
 end
 
 function CheckMinStatsHelper(C)
-    local loc_stamina = loc_stamina and (GetVariableValue(C,"helper::stamina(R)") > tonumber(GetConfigVar(C,"minStamina","0.0")))
-    local loc_magicka = loc_magicka and (GetVariableValue(C,"helper::magicka(R)") > tonumber(GetConfigVar(C,"minMagicka","0.0")))
-    local loc_health  = loc_health  and (GetVariableValue(C,"helper::health(R)")  > tonumber(GetConfigVar(C,"minHealth","0.0")))
+    local loc_stamina = GetVariableValue(C,"helper::stamina(R)") > tonumber(GetConfigVar(C,"minStamina","0.0"))
+    local loc_magicka = GetVariableValue(C,"helper::magicka(R)") > tonumber(GetConfigVar(C,"minMagicka","0.0"))
+    local loc_health  = GetVariableValue(C,"helper::health(R)")  > tonumber(GetConfigVar(C,"minHealth","0.0"))
     return loc_stamina and loc_magicka and loc_health
 end
 
 function GetContext(C)
-    return ""
+    local loc_res = ""
+    if ActorIsPlayer(C['Helper']) then
+        -- TODO: Check if NPC can be commanded
+        local loc_wearer = CheckMinStatsWearer(C)
+        local loc_helper = CheckMinStatsHelper(C)
+        
+        loc_res = loc_res.."["
+        if loc_wearer then
+            loc_res = loc_res.."{\"name\":\"Command\",\"value\":\"command\",\"state\":1},"
+        else
+            loc_res = loc_res.."{\"name\":\"Command\",\"value\":\"command\",\"state\":0},"
+        end
+
+        if loc_wearer and loc_helper then
+            loc_res = loc_res.."{\"name\":\"Help\",\"value\":\"help\",\"state\":1}"
+        else
+            loc_res = loc_res.."{\"name\":\"Help\",\"value\":\"help\",\"state\":0}"
+        end
+
+        loc_res = loc_res.."]"
+    end
+    return loc_res
 end
 
 -- Called when minigame starts
 function OnStart(C)
-    Log("OnStart(DeviceMinigameBase.lua) called")
     InitMinigameVars(C)
     
     SetMinigameVar(C,'Ready',false)
     SetMinigameVar(C,"Running",false)
     
+    if (not C['Context'] or C['Context'] == "" or C['Context'] == "help") and not IsNull(C['Helper']) then
+        Log("Setting minigame to Helping")
+        SetMinigameVar(C,"Helping",true)
+    else
+        SetMinigameVar(C,"Helping",false)
+    end
+    
     UpdateVariableValue(C,"thisdevice::_PauseMinigame(A)",false)
     UpdateVariableValue(C,"thisdevice::_StopMinigame(A)",false)
     UpdateVariableValue(C,"thisdevice::_MinigameMainLoopON(A)",true)
+    
     
     if UseHelper(C) then
         CallPapyrusFunction(C,"MINM::ReadyDeviceMinigame","OnMinigameReady",{"object",C['DeviceObj']},{"actor",C['Helper']})
@@ -52,7 +80,14 @@ function OnStart(C)
     SetMinigameVar(C,'SkillGain',tonumber(GetConfigVar(C,"SkillGain","10.0"))*tonumber(GetConfigVar(C,"SkillGainMult","1.0")))
     SetMinigameVar(C,"SkillMult",GetMinigameSkillMult(C))
     SetMinigameVar(C,'UseNoUI',StrToBool(GetConfigVar(C,"UseNoUI","false")))
-    SetMinigameVar(C,"AutoMode",StrToBool(GetConfigVar(C,"AutoMode","false")))
+    
+    if PlayerInMinigame(C) then
+        SetMinigameVar(C,"AutoMode",StrToBool(GetConfigVar(C,"AutoMode","false")))
+    else
+        SetMinigameVar(C,"AutoMode",true)
+        Log("No player present -> Activating Auto Mode")
+    end
+    
     SetMinigameVar(C,"AutoModeTimer",SetMinigameVar(C,"AutoModeBase",tonumber(GetSaveConfig("Minigames.AutoModePauseTime","0.25"))))
     SetMinigameVar(C,"UseShaders",StrToBool(GetConfigVar(C,"UseShaders","true")) and not GetMinigameVar(C,"AutoMode"))
     
@@ -67,7 +102,13 @@ function OnStart(C)
     SetMinigameVar(C,"DurabilityScaling",tonumber(GetConfigVar(C,"DurabilityScaling","0.0")))
     SetMinigameVar(C,"Accessibility",GetDeviceAccessibility(C,true))
     SetMinigameVar(C,"CondMult",tonumber(GetConfigVar(C,"CondMult","1.0")))
-    SetMinigameVar(C,"Difficulty",1.0/(tonumber(GetConfigVar(C,"Difficulty","1.0"))*tonumber(GetConfigVar(C,"GlobalDifficulty","1.0"))))
+    
+    
+    local loc_helpmult = 1.0
+    if UseHelper(C) then
+        loc_helpmult = GetConfigVar(C,"HelpMult","1.5")
+    end
+    SetMinigameVar(C,"Difficulty",loc_helpmult/(tonumber(GetConfigVar(C,"Difficulty","1.0"))*tonumber(GetConfigVar(C,"GlobalDifficulty","1.0"))))
     SetMinigameVar(C,"MultiplierConst",GetMinigameVar(C,"LockMultiplier")*GetMinigameVar(C,"Difficulty")*GetMinigameVar(C,"SkillMult"))
     
     local loc_durability_r  = GetVariableValue(C,"thisdevice::current_device_health(U)")/SetMinigameVar(C,'MaxDurability',GetVariableValue(C,"thisdevice::_MaxHealth(A)"))
@@ -95,7 +136,6 @@ end
 -- Called on every player update frame
 -- Is not called while in menu mode
 function OnUpdate(C,delta)
-    -- Log("OnUpdate called")
     -- Check if minigame is already ready
     if not GetMinigameVar(C,"Ready") then
         return
@@ -112,10 +152,11 @@ function OnUpdate(C,delta)
         end
     end
     
+    if not ProcessMinigame(C,delta) then
+        return
+    end
+    
     if PlayerInMinigame(C) then
-        if not ProcessMinigame(C,delta) then
-            return
-        end
         UpdateSkill(C,delta)
     end
     
@@ -133,7 +174,6 @@ function OnUpdate(C,delta)
 end
 
 function OnStop(C)
-    --Log("OnStop called")
     EnableRegen(C)
     CloseMinigameUI(C)
     if UseHelper(C) then
@@ -174,8 +214,9 @@ function UIOpen(C)
     loc_payload["pos_x"] = GetMinigameVar(C,"PosX").."%"
     loc_payload["pos_y"] = GetMinigameVar(C,"PosY").."%"
     loc_payload["scale"] = GetMinigameVar(C,"Scale")
-    loc_payload["visibility"] = GetMinigameVar(C,"Visibility")
-    loc_payload["hints"]    = GetMinigameVar(C,"Hints")
+    loc_payload["visibility"]   = GetMinigameVar(C,"Visibility")
+    loc_payload["hints"]        = GetMinigameVar(C,"Hints")
+    loc_payload["fps"]          = tonumber(GetConfigVar(C,"Fps","60"))
     
     if GetMinigameVar(C,"ShowActions") then
         loc_payload['actions']  = GetRegisteredActions(C)
@@ -203,7 +244,7 @@ function StopDeviceMinigame(C,eventtype)
 end
 
 function PlayerInMinigame(C)
-    if ActorIsPlayer(C['Wearer']) or (ActorIsPlayer(C['Helper']) and UseHelper(C)) then
+    if ActorIsPlayer(C['Wearer']) or (ActorIsPlayer(C['Helper'])) then
         return true
     else
         return false
@@ -296,7 +337,7 @@ end
 
 function DamageDurability(C,dmg,checkcnd)
     --Log("DamageDurability - "..tostring(dmg))
-    checkcnd = (not checkcnd == nil) or checkcnd
+    checkcnd = (checkcnd == nil) or checkcnd
     
     --Log("DamageDurability - "..tostring(dmg))
     

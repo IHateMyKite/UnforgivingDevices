@@ -1245,8 +1245,10 @@ Function ShowNPCMenu(Actor akActor)
             loc_break = True
         elseif loc_res == 4                         ; View devices
             loc_break = HelpNPC(akActor,UDmain.Player,UDmain.ActorIsFollower(akActor))
+            loc_break = true
         elseif loc_res == 5                         ; Get help
             loc_break = HelpNPC(UDmain.Player,akActor,false)
+            loc_break = true
         elseif loc_res == 6                         ; Update Outfit
             loc_break = ShowUndressArmorMenu(akActor)
             ;akActor.UpdateWeight(0)
@@ -1311,10 +1313,13 @@ Bool Function HelpNPC(Actor akVictim, Actor akHelper, Bool abAllowCommand)
             SetPlayerFollower(akHelper,true,2)
         endif
         
-        UD_CustomDevice_RenderScript loc_device = loc_slot.GetUserSelectedDevice()
-        if loc_device
-            loc_exit = ShowHelpDeviceMenu(loc_device,akHelper,abAllowCommand)
-        endif
+        ;UD_CustomDevice_RenderScript loc_device = loc_slot.GetUserSelectedDevice()
+        ;if loc_device
+        ;    loc_exit = ShowHelpDeviceMenu(loc_device,akHelper,abAllowCommand)
+        ;endif
+        
+        UD_Native.ShowDeviceMenu(akVictim,akHelper,none)
+        
         
         if IsPlayer(akHelper)
             SetPlayerFollower(akVictim,false,2)
