@@ -347,13 +347,20 @@ function _OnLockHoverOn(event,arg)
     let loc_lock = arg
     
     AddTableRow(loc_values,"dm_lockstable","Name",loc_lock.name)
-    AddTableRow(loc_values,"dm_lockstable","Accessibility",'accessibility' in loc_lock ? loc_lock.accessibility : 0)
-    AddTableRow(loc_values,"dm_lockstable","Difficulty",'difficulty' in loc_lock ? loc_lock.difficulty : 0)
-    AddTableRow(loc_values,"dm_lockstable","Shields",'shields' in loc_lock ? loc_lock.shields : 0)
-    AddTableRow(loc_values,"dm_lockstable","Time Locked",'timelocked' in loc_lock ? loc_lock.timelocked : "FALSE")
-
-    if ('unlocked' in loc_lock && loc_lock.unlocked) AddTableRow(loc_values,"dm_lockstable","State","Unlocked");
-    else if ('jammed' in loc_lock && loc_lock.jammed) AddTableRow(loc_values,"dm_lockstable","State","Jammed");
+    AddTableRow(loc_values,"dm_lockstable","Accessibility",'acc' in loc_lock ? loc_lock.acc : 0)
+    AddTableRow(loc_values,"dm_lockstable","Difficulty",'diff' in loc_lock ? loc_lock.diff : 0)
+    AddTableRow(loc_values,"dm_lockstable","Shields",'shl' in loc_lock ? loc_lock.shl : 0)
+    
+    let loc_timelocked = 'tmlk' in loc_lock ? loc_lock.tmlk : "false";
+    
+    if ('unl' in loc_lock && loc_lock.unl) AddTableRow(loc_values,"dm_lockstable","State","Unlocked");
+    else if ('jam' in loc_lock && loc_lock.jam) AddTableRow(loc_values,"dm_lockstable","State","Jammed");
+    else if (loc_timelocked.toLowerCase() == "true")
+    {
+        AddTableRow(loc_values,"dm_lockstable","Auto Unlock",'atmlk' in loc_lock ? loc_lock.atmlk : "FALSE")
+        AddTableRow(loc_values,"dm_lockstable","Timelock unlocks in",('tml_r' in loc_lock ? Number(loc_lock.tml_r).toFixed(1) : "0.0") + " h")
+        AddTableRow(loc_values,"dm_lockstable","State","Timelocked");
+    }
     else AddTableRow(loc_values,"dm_lockstable","State","Locked");
 }
 
@@ -404,7 +411,7 @@ function _InitValueLocks(arg)
             
             button1.textContent = loc_lock.name;
             
-            let loc_usable = 'unlocked' in loc_lock && loc_lock.unlocked;
+            let loc_usable = 'unl' in loc_lock && loc_lock.unl;
             if (loc_usable) button1.className = 'dm_entry dm_entry_enabled';
             else button1.className = 'dm_entry dm_entry_disabled';
             

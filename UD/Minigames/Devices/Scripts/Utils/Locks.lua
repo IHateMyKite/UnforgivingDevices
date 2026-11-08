@@ -1,15 +1,15 @@
 
 function IsLockUnlocked(C,lock)
-    return StrToBool(lock['unlocked'])
+    return StrToBool(lock['unl'])
 end
 
 function IsLockLockpickable(C,lock)
-    local loc_diff = tonumber(lock['difficulty'])
+    local loc_diff = tonumber(lock['diff'])
     return loc_diff <= 100 and loc_diff > 0
 end
 
 function GetLockAccesibility(C,lock)
-    local loc_acc = tonumber(lock['accessibility'])/100.0
+    local loc_acc = tonumber(lock['acc'])/100.0
     return loc_acc
 end
 

@@ -99,5 +99,8 @@ String Function MinigameProhibitedMessage(UD_CustomDevice_RenderScript akDevice,
     If akForm1
         loc_currency = akForm1.GetName()
     EndIf
-    Return "You don't have enough " + loc_currency + " to pay the device!"
+    If akDevice.WearerIsPlayer()
+        Return "You don't have enough " + loc_currency + " to pay the device!"
+    EndIf
+    Return akDevice.GetWearerName() + " doesn't have enough " + loc_currency + " to pay the device!"
 EndFunction

@@ -43,6 +43,7 @@ Bool        Function IsConcentrationSpell       (Spell akSpell)                 
 Bool        Function IsConcentrationEnch        (Enchantment akEnch)                                            global native
 String      Function GetJsonValue               (String asJson, String asKey, String asDef)                     global native
 String      Function SetJsonValue               (String asJson, String asKey, String asVal)                     global native
+String      Function DecompressString           (String asInput)                                                global native
 
 ;===UI===
 int         Function RemoveAllMeterEntries()                                                                    global native

@@ -363,7 +363,7 @@ Function EquipPrePlug(actor akActor, bool silent=false)
                     msg = "Barely in control of your own body you thrust the plug almost forcefully into the appropriate opening."
                 endif
             else
-                msg = akActor.GetLeveledActorBase().GetName() + " shudders as you push the plugs into her."
+                msg = akActor.GetLeveledActorBase().GetName() + " shudders as you push the plugs into " + GetPronounceObject(akActor) + "."
             EndIf
         Else
             if akActor == libs.PlayerRef
@@ -377,7 +377,7 @@ Function EquipPrePlug(actor akActor, bool silent=false)
                     msg = "You impatiently thrust the plug deep into yourself and its rapid expansion makes your legs clench together instinctively."
                 endif
             else
-                msg = akActor.GetLeveledActorBase().GetName() + " shudders as you push the plug into her and lock it."
+                msg = akActor.GetLeveledActorBase().GetName() + " shudders as you push the plug into " + GetPronounceObject(akActor) + " and lock it."
             EndIf
         EndIf
         if !silent
@@ -390,7 +390,7 @@ Function EquipPreHarness(actor akActor, bool silent=false)
         if akActor == libs.PlayerRef
             libs.NotifyActor("You step into the harness, securing it tightly against your body.", akActor, true)
         Else
-            libs.NotifyActor(GetMessageName(akActor) +" steps into the harness, securing it tightly against her body.", akActor, true)
+            libs.NotifyActor(GetMessageName(akActor) +" steps into the harness, securing it tightly against " + GetPronouncePossessive(akActor) + " body.", akActor, true)
         EndIf
     EndIf
 EndFunction

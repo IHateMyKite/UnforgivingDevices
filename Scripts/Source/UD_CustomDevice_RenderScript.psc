@@ -433,7 +433,7 @@ Float       Property UD_Health                                      Hidden
     EndFunction
 EndProperty
 
-;/  Variable: UD_LocksRaw
+;/  Variable: UD_LocksJson
     List of device locks in json format
 /;
 String Property UD_LocksJson = "{}" Auto
@@ -1013,6 +1013,8 @@ Function _Init(Actor akActor)
         endif
     endif
 
+    DecompressLocks()
+
     if deviceRendered.hasKeyword(UDlibs.PatchedDevice) ;patched device
         if UDmain.TraceAllowed()
             UDmain.Log("Patching device " + getDeviceName(),2)
@@ -1038,6 +1040,8 @@ Function _Init(Actor akActor)
     safeCheck()
     
     _OnInitLevelUpdate()
+    
+    InitLocks()
     
     InitPost()
 
@@ -1089,6 +1093,28 @@ Function _Init(Actor akActor)
     InitPostPost() ;called after everything else. Can add some followup interaction immidiatly after device is equipped (activate device, start vib, etc...)
     
     _initState = 6 ;Fully ready
+EndFunction
+
+Function InitLocks()
+    Int loc_n = GetLockNumber()
+    Int loc_i = 0
+    Float loc_time = Utility.GetCurrentGameTime()
+    while loc_i < loc_n
+        Float loc_timelockdur = ConvertTime(GetNthLockTimeLockDur(loc_i))
+        if (loc_timelockdur > 0.0)
+            SetNthLockTimeLock(loc_i,loc_time + loc_timelockdur)
+            SetNthLockTimeLocked(loc_i,true)
+            SetNthLockTimeLockRem(loc_i,loc_timelockdur)
+        endif
+        loc_i += 1
+    endwhile
+EndFunction
+
+Function DecompressLocks()
+    if StringUtil.GetLength(UD_LocksJson) > 3 && StringUtil.Substring(UD_LocksJson,0,3) == "c!_"
+        UD_LocksJson = StringUtil.Substring(UD_LocksJson,3,0)
+        UD_LocksJson = UD_Native.DecompressString(UD_LocksJson)
+    endif
 EndFunction
 
 Function _StartInitMutex()
@@ -2167,53 +2193,51 @@ EndFunction
 
 ;returns true if the Nth lock is unlocked, or false if no Nth lock exist or is invalid
 Bool Function IsNthLockUnlocked(Int aiLockIndex)
-    return UD_Native.GetJsonValue(UD_LocksJson,aiLockIndex+".unlocked","false") == "true"
+    return UD_Native.GetJsonValue(UD_LocksJson,aiLockIndex+".unl","false") == "true"
 EndFunction
 
 ;returns true if the Nth lock is unlocked, or false if no Nth lock exist or is invalid
 Bool Function IsNthLockLockpicable(Int aiLockIndex)
-    return iInRange(UD_Native.GetJsonValue(UD_LocksJson,aiLockIndex+".difficulty","1") as int,1,100)
+    return iInRange(UD_Native.GetJsonValue(UD_LocksJson,aiLockIndex+".diff","1") as int,1,100)
 EndFunction
 
 ;returns true if the Nth lock is jammed, or false if no Nth lock exist or is invalid
 Bool Function IsNthLockJammed(Int aiLockIndex)
-    return UD_Native.GetJsonValue(UD_LocksJson,aiLockIndex+".jammed","false") == "true"
+    return UD_Native.GetJsonValue(UD_LocksJson,aiLockIndex+".jam","false") == "true"
 EndFunction
 
 ;returns true if the Nth lock is time locked, or false if no Nth lock exist or is invalid
 Bool Function IsNthLockTimeLocked(Int aiLockIndex)
-    return UD_Native.GetJsonValue(UD_LocksJson,aiLockIndex+".timelocked","false") == "true"
+    return UD_Native.GetJsonValue(UD_LocksJson,aiLockIndex+".tmlk","false") == "true"
 EndFunction
 Function SetNthLockTimeLocked(Int aiLockIndex, Bool abVal)
-    UD_Native.SetJsonValue(UD_LocksJson,aiLockIndex+".timelocked",abVal as String)
+    UD_LocksJson = UD_Native.SetJsonValue(UD_LocksJson,aiLockIndex+".tmlk",abVal as String)
 EndFunction
-
 
 ;returns true if the Nth lock is time locked with auto unlock, or false if no Nth lock exist or is invalid
 Bool Function IsNthLockAutoTimeLocked(Int aiLockIndex)
-    return UD_Native.GetJsonValue(UD_LocksJson,aiLockIndex+".autotimelocked","false") == "true"
+    return UD_Native.GetJsonValue(UD_LocksJson,aiLockIndex+".atmlk","false") == "true"
 EndFunction
 Function SetNthLockAutoTimeLocked(Int aiLockIndex, Bool abVal)
-    UD_LocksJson = UD_Native.SetJsonValue(UD_LocksJson,aiLockIndex+".autotimelocked",abVal as String)
+    UD_LocksJson = UD_Native.SetJsonValue(UD_LocksJson,aiLockIndex+".atmlk",abVal as String)
 EndFunction
 
 ;returns number of shields of the Nth lock, or 0 if no Nth lock exist or is invalid
 Int Function GetNthLockShields(Int aiLockIndex)
-    return UD_Native.GetJsonValue(UD_LocksJson,aiLockIndex+".shields","0") as Int
+    return UD_Native.GetJsonValue(UD_LocksJson,aiLockIndex+".shl","0") as Int
 EndFunction
-
 Function SetNthLockShields(Int aiLockIndex, Int aiShields)
-    UD_LocksJson = UD_Native.SetJsonValue(UD_LocksJson,aiLockIndex+".shields",aiShields as String)
+    UD_LocksJson = UD_Native.SetJsonValue(UD_LocksJson,aiLockIndex+".shl",aiShields as String)
 EndFunction
 
 ;returns accessibility of the Nth lock in %, or 0 if no Nth lock exist or is invalid
 Int Function GetNthLockAccessibility(Int aiLockIndex)
-    return UD_Native.GetJsonValue(UD_LocksJson,aiLockIndex+".accessibility","0") as Int
+    return UD_Native.GetJsonValue(UD_LocksJson,aiLockIndex+".acc","0") as Int
 EndFunction
 
 ;returns difficulty of the Nth lock, or 0 if no Nth lock exist or is invalid
 Int Function GetNthLockDifficulty(Int aiLockIndex, Bool abUseLevel = True)
-    int loc_difficulty = UD_Native.GetJsonValue(UD_LocksJson,aiLockIndex+".difficulty","0") as Int
+    int loc_difficulty = UD_Native.GetJsonValue(UD_LocksJson,aiLockIndex+".diff","0") as Int
     if abUseLevel && loc_difficulty < 100
         ;increase difficulty based on device level
         if UDCDMain.UD_PreventMasterLock
@@ -2224,33 +2248,43 @@ Int Function GetNthLockDifficulty(Int aiLockIndex, Bool abUseLevel = True)
     endif
     return loc_difficulty as int
 EndFunction
-
 Int Function UpdateNthLockDifficulty(Int aiLockIndex, Int aiVal, Bool abUseLevel = True)
     Int loc_diff = GetNthLockDifficulty(aiLockIndex,abUseLevel) + aiVal
-    UD_LocksJson = UD_Native.GetJsonValue(UD_LocksJson,aiLockIndex+".difficulty",loc_diff as String)
+    UD_LocksJson = UD_Native.GetJsonValue(UD_LocksJson,aiLockIndex+".diff",loc_diff as String)
     return loc_diff
 EndFunction
 
 ;returns number of remaining hours from time lock of the Nth lock, or 0 if no Nth lock exist or is invalid
 Float Function GetNthLockTimeLock(Int aiLockIndex)
-    return UD_Native.GetJsonValue(UD_LocksJson,aiLockIndex+".timelock","0.0") as Float
+    return UD_Native.GetJsonValue(UD_LocksJson,aiLockIndex+".tml_e","0.0") as Float
+EndFunction
+Float Function SetNthLockTimeLock(Int aiLockIndex, Float aiVal)
+    UD_LocksJson = UD_Native.SetJsonValue(UD_LocksJson,aiLockIndex+".tml_e",aiVal as String)
 EndFunction
 
-Function SetNthLockTimeLock(Int aiLockIndex, Float aiVal)
-    UD_Native.SetJsonValue(UD_LocksJson,aiLockIndex+".timelock",aiVal as String)
+Float Function GetNthLockTimeLockRem(Int aiLockIndex)
+    return UD_Native.GetJsonValue(UD_LocksJson,aiLockIndex+".tml_r","0.0") as Float
+EndFunction
+Function SetNthLockTimeLockRem(Int aiLockIndex, Float aiVal)
+    UD_LocksJson = UD_Native.SetJsonValue(UD_LocksJson,aiLockIndex+".tml_r",(aiVal*24.0) as String)
+EndFunction
+
+Float Function GetNthLockTimeLockDur(Int aiLockIndex)
+    return UD_Native.GetJsonValue(UD_LocksJson,aiLockIndex+".tml_d","0.0") as Float
+EndFunction
+Function SetNthLockTimeLockDur(Int aiLockIndex, Float aiVal)
+    UD_LocksJson = UD_Native.SetJsonValue(UD_LocksJson,aiLockIndex+".tml_d",aiVal as String)
 EndFunction
 
 ;returns Nth locks repair progress in absolute value
 Float Function GetNthLockRepairProgress(Int aiLockIndex)
-    return UD_Native.GetJsonValue(UD_LocksJson,aiLockIndex+".repair_progress","0.0") as float
+    return UD_Native.GetJsonValue(UD_LocksJson,aiLockIndex+".rep_p","0.0") as float
 EndFunction
 
 ;sets lock unlock status. If the operation was succesfull, returns true
 ;argument abUnlock can be set to either true or false, depending if lock should be unlocked, or locked
 Bool Function UnlockNthLock(Int aiLockIndex, Bool abUnlock = True)
-    _StartLockManipMutex()
-    UD_LocksJson = UD_Native.SetJsonValue(UD_LocksJson,aiLockIndex+".unlocked",abUnlock as String)
-    _EndLockManipMutex()
+    UD_LocksJson = UD_Native.SetJsonValue(UD_LocksJson,aiLockIndex+".unl",abUnlock as String)
     return true
 EndFunction
 
@@ -2265,7 +2299,7 @@ Int Function UnlockAllLocks(Bool abUnlock = True)
     Int     loc_LockNum = GetLockNumber()
     while loc_LockNum
         loc_LockNum -= 1
-        UD_LocksJson = UD_Native.SetJsonValue(UD_LocksJson,loc_LockNum+".unlocked",abUnlock as String)
+        UD_LocksJson = UD_Native.SetJsonValue(UD_LocksJson,loc_LockNum+".unl",abUnlock as String)
         loc_res += 1
     endwhile
     _EndLockManipMutex()
@@ -2275,7 +2309,7 @@ EndFunction
 ;sets lock jammed status. If the operation was succesfull, returns true
 ;argument abJamm can be set to either true or false, depending if lock should be jammed, or unjammed
 Bool Function JammNthLock(Int aiLockIndex, Bool abJamm = True)
-    UD_LocksJson = UD_Native.SetJsonValue(UD_LocksJson,aiLockIndex + ".jammed",abJamm as String)
+    UD_LocksJson = UD_Native.SetJsonValue(UD_LocksJson,aiLockIndex + ".jam",abJamm as String)
     return true
 EndFunction
 
@@ -2289,7 +2323,7 @@ Int Function JammAllLocks(Bool abJamm = True)
     Int     loc_LockNum = GetLockNumber()
     while loc_LockNum
         loc_LockNum -= 1
-        UD_LocksJson = UD_Native.SetJsonValue(UD_LocksJson,loc_LockNum + ".jammed",abJamm as String)
+        UD_LocksJson = UD_Native.SetJsonValue(UD_LocksJson,loc_LockNum + ".jam",abJamm as String)
     endwhile
     _EndLockManipMutex()
     return loc_res
@@ -2347,8 +2381,12 @@ EndFunction
 Function UpdateLockTimeLock(Int aiLockIndex, Float aiCurrentTime)
     _StartLockManipMutex()
 
-    if GetNthLockTimeLock(aiLockIndex) >= aiCurrentTime
+    Float loc_end = GetNthLockTimeLock(aiLockIndex)
+    if loc_end > aiCurrentTime
         ; Time passed
+        SetNthLockTimeLockRem(aiLockIndex,(loc_end - aiCurrentTime))
+    else
+        SetNthLockTimeLockRem(aiLockIndex,0.0)
         SetNthLockTimeLocked(aiLockIndex,false)
         if IsNthLockAutoTimeLocked(aiLockIndex) && !IsNthLockUnlocked(aiLockIndex)
             ;auto unlock the lock
@@ -2388,17 +2426,16 @@ EndFunction
 
 ;creates lock from passed arguments
 ;if abAdd is True, the lock will also be automatically added to the list of locks
-String Function CreateLock(Int aiDifficulty, Int aiAccess, Int aiShields, String asName, Int aiTimelock = 0, Bool abAdd = False)
+String Function CreateLock(Int aiDifficulty, Int aiAccess, Int aiShields, String asName, Float aiTimelock = 0.0, Bool abAdd = False)
     String loc_res = "{}"
     loc_res = UD_Native.SetJsonValue(loc_res,"name",asName)
-    loc_res = UD_Native.SetJsonValue(loc_res,"shields",aiShields as String)
-    loc_res = UD_Native.SetJsonValue(loc_res,"accessibility",aiAccess as String)
-    loc_res = UD_Native.SetJsonValue(loc_res,"difficulty",aiDifficulty as String)
+    loc_res = UD_Native.SetJsonValue(loc_res,"shl",aiShields as String)
+    loc_res = UD_Native.SetJsonValue(loc_res,"acc",aiAccess as String)
+    loc_res = UD_Native.SetJsonValue(loc_res,"diff",aiDifficulty as String)
     
     ;add timelock
-    if aiTimelock
-        loc_res = UD_Native.SetJsonValue(loc_res,"timelocked",true as Bool)
-        loc_res = UD_Native.SetJsonValue(loc_res,"timelock",(Utility.GetCurrentGameTime() + ConvertTime(0,aiTimelock)) as String)
+    if aiTimelock > 0.0
+        loc_res = UD_Native.SetJsonValue(loc_res,"tml_d",aiTimelock)
     endif
     
     if abAdd
@@ -2922,6 +2959,40 @@ int Function _getLockpickLevel(Int aiLockIndex, Int aiDiff = 0)
     else
         return 5 ;require key
     endif
+EndFunction
+
+Int Function _getLocksLockpickLevel(Bool abHardest = True)
+    Int loc_res = -1
+    Int loc_all = -1
+    Int loc_lockNum = GetLockNumber()
+    while loc_lockNum
+        loc_lockNum -= 1
+        Int loc_level = _getLockpickLevel(loc_lockNum)
+        loc_all = _pickLockpickLevel(loc_all, loc_level, abHardest)
+        if !IsNthLockUnlocked(loc_lockNum)
+            loc_res = _pickLockpickLevel(loc_res, loc_level, abHardest)
+        endif
+    endwhile
+    if loc_res < 0
+        loc_res = loc_all
+    endif
+    if loc_res < 0
+        return 5
+    endif
+    return loc_res
+EndFunction
+
+Int Function _pickLockpickLevel(Int aiCurrent, Int aiNew, Bool abHardest)
+    if aiCurrent < 0
+        return aiNew
+    endif
+    if abHardest && aiNew > aiCurrent
+        return aiNew
+    endif
+    if !abHardest && aiNew < aiCurrent
+        return aiNew
+    endif
+    return aiCurrent
 EndFunction
 
 String Function _getLockpickLevelString(Int aiLevel, Bool abDecorate = False)
@@ -4229,44 +4300,6 @@ bool Function checkMaxExhaustion(Actor akActor)
     return !(UDOM.isOrgasmExhaustedMax(akActor) || UDCDMain.isMinigameExhaustedMax(akActor))
 endFunction
 
-;/  Group: Details
-===========================================================================================
-===========================================================================================
-===========================================================================================
-/;
-
-String Function GetLocksIcons(String asFontFace = "$EverywhereBoldFont", String asSeparator = " ")
-    String loc_frag = ""
-    Int loc_i = 0
-    loc_frag += UDMTF.FontBegin(asFontFace = asFontFace)
-    While loc_i < GetLockNumber()
-        loc_frag += UDMTF.DeviceLockIcon(IsNthLockUnlocked(loc_i), IsNthLockJammed(loc_i), IsNthLockTimeLocked(loc_i) && (GetNthLockTimeLock(loc_i) > 0))
-        loc_frag += UDMTF.InlineIfString(loc_i  < GetLockNumber() - 1, asSeparator)
-        loc_i += 1
-    EndWhile
-    
-    loc_frag += UDMTF.FontEnd()
-    Return loc_frag
-EndFunction
-
-string Function _getCritInfo()
-    string loc_res = ""
-    if (UD_StruggleCritChance > 0)
-        loc_res += UDMTF.TableRowDetails("Crit chance:", UD_StruggleCritChance + "%")
-        loc_res += UDMTF.TableRowDetails("Crit:", FormatFloat(UD_StruggleCritMul,1) + "x") 
-        if UD_StruggleCritDuration >= 1
-            loc_res += UDMTF.TableRowDetails("Crit difficulty:", "Easy", UDMTF.PercentToRainbow(100))
-        elseif UD_StruggleCritDuration >= 0.5
-            loc_res += UDMTF.TableRowDetails("Crit difficulty:", "Normal", UDMTF.PercentToRainbow(50))
-        else
-            loc_res += UDMTF.TableRowDetails("Crit difficulty:", "Hard", UDMTF.PercentToRainbow(0))
-        endif
-    else
-        loc_res += UDMTF.TableRowDetails("Crit chance:", "NEVER", UDMTF.PercentToGrayscale(0))
-    endif
-    return loc_res
-endFunction
-
 ;/  Group: Extension functions / Override
 These functions are intended to be overriden by extending scripts.
 
@@ -4701,6 +4734,10 @@ State UpdatePaused
         _updateTimePassed += (afTimePassed*24.0*60.0);*UDCDmain.UD_CooldownMultiplier
     EndFunction
     Function UpdateHour()
+        ; Keep timed locks advancing while the hourly durability/modifier hooks remain paused.
+        if !_IsUnlocked
+            UpdateAllLocksTimeLock(-1*Math.Ceiling(_LastHourUpdate()),True)
+        endif
     EndFunction
 EndState
 

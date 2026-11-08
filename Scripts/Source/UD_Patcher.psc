@@ -651,9 +651,9 @@ Function _GenerateLocks(UD_CustomDevice_RenderScript akDevice, Int aiType, Int a
     endif
     
     if !akDevice.HaveLocks()
-        Int loc_timelock = 0
+        Float loc_timelock = 0
         if UD_TimedLocks
-            loc_timelock = RandomInt(0,120) ;random timelock, to force player in to being longer locked in akDevice
+            loc_timelock = RandomFloat(0.0,2.0) ;random timelock, to force player in to being longer locked in akDevice
         endif
         
         if aiType == 0 ;generic
@@ -764,8 +764,6 @@ Function _GenerateLocks(UD_CustomDevice_RenderScript akDevice, Int aiType, Int a
                 akDevice.UpdateNthLockDifficulty(loc_lockNum,50,False) ;increase all locks difficulty by 50
             endwhile
         endif
-        
-        UDMain.Info("Locks created = "+akDevice.UD_LocksJson)
     endif
 EndFunction
 

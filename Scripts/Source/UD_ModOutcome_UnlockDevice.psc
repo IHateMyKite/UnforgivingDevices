@@ -44,7 +44,7 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
         Return
     EndIf
 
-    PrintNotification(akDevice, ;/changed/; "and unlock device on you.")
+    PrintNotification(akDevice, ;/changed/; "and unlock device on %obj%.")
 
     Int loc_i = 0
     While loc_i < loc_devices.Length
