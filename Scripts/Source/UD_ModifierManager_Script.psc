@@ -10,6 +10,10 @@ EndProperty
 
 bool Property Ready = false auto Hidden
 
+; OnActorAction cache, reset in _UpdateEventRegistrations. Scalars only: new arrays cannot be added to old saves.
+Faction _RegisteredNPCFaction   ; From UDNPCM.RegisteredNPCFaction. None means nobody counts as registered
+Float   _MissWindowStart        ; Real time at which the current miss list was started
+Bool    _MissUseA               ; True when the miss list "UD_ActorAction_MissA" is the current one
 Int _ModDeviceEvent_Locked      = 0x01
 Int _ModDeviceEvent_Unlocked    = 0x02
 Int _ModDeviceEvent_Broken      = 0x04
@@ -130,6 +134,19 @@ Function _UpdateEventRegistrations(Bool abUnregister = False)
         RegisterForActorAction(8)       ; 
         RegisterForActorAction(9)       ; 
         RegisterForActorAction(10)      ; 
+        ; Forget actor action lookups from before the load, and cache the faction instead of reading it per event.
+        StorageUtil.FormListClear(self, "UD_ActorAction_MissA")
+        StorageUtil.FormListClear(self, "UD_ActorAction_MissB")
+        StorageUtil.FormListClear(self, "UD_ActorAction_SlotHit")
+        _MissWindowStart = 0.0
+        _MissUseA = True
+        _RegisteredNPCFaction = None
+        If UDNPCM
+            _RegisteredNPCFaction = UDNPCM.RegisteredNPCFaction
+        EndIf
+        If !_RegisteredNPCFaction
+            UDmain.Error("UD_ModifierManager_Script::_UpdateEventRegistrations() RegisteredNPCFaction is None, actor actions will be filtered by the slot lookup only")
+        EndIf
     Else
     EndIf
 EndFunction
@@ -235,9 +252,46 @@ EndEvent
 ; 1 - Right Hand
 ; 2 - Voice
 Event OnActorAction(Int aiActionType, Actor akActor, Form akSource, Int aiSlot)
+    ; Every actor action in the area lands here, and the slot lookup is a walk of cross-script calls over every
+    ; alias slot and static slot. A burst of events from one actor all start before its first lookup returns, so an
+    ; actor with no slot is claimed BEFORE the lookup. Claims live in two miss lists that swap every 4 real seconds
+    ; (so they stay small and expire after 4 to 8 seconds). The player, registered NPCs and static-slot actors seen before are never claimed.
+    If !akActor
+        Return
+    EndIf
+    Bool loc_known = akActor == Game.GetPlayer() || (_RegisteredNPCFaction && akActor.IsInFaction(_RegisteredNPCFaction)) || StorageUtil.FormListHas(self, "UD_ActorAction_SlotHit", akActor)
+    If !loc_known
+        Float loc_now = Utility.GetCurrentRealTime()
+        If loc_now - _MissWindowStart > 4.0 || loc_now < _MissWindowStart ; Real time restarts each session
+            _MissUseA = !_MissUseA
+            If _MissUseA
+                StorageUtil.FormListClear(self, "UD_ActorAction_MissA")
+            Else
+                StorageUtil.FormListClear(self, "UD_ActorAction_MissB")
+            EndIf
+            _MissWindowStart = loc_now
+        EndIf
+        If StorageUtil.FormListHas(self, "UD_ActorAction_MissA", akActor) || StorageUtil.FormListHas(self, "UD_ActorAction_MissB", akActor)
+            Return
+        EndIf
+        If _MissUseA
+            StorageUtil.FormListAdd(self, "UD_ActorAction_MissA", akActor, False)
+        Else
+            StorageUtil.FormListAdd(self, "UD_ActorAction_MissB", akActor, False)
+        EndIf
+    EndIf
     UD_CustomDevice_NPCSlot loc_slot = UDNPCM.getNPCSlotByActor(akActor)
     If loc_slot == None
         Return
+    EndIf
+    If !loc_known
+        ; Not in the faction, so it is a static slot actor: look it up on every action from now on.
+        StorageUtil.FormListRemove(self, "UD_ActorAction_MissA", akActor, True)
+        StorageUtil.FormListRemove(self, "UD_ActorAction_MissB", akActor, True)
+        If StorageUtil.FormListCount(self, "UD_ActorAction_SlotHit") > 128
+            StorageUtil.FormListClear(self, "UD_ActorAction_SlotHit")
+        EndIf
+        StorageUtil.FormListAdd(self, "UD_ActorAction_SlotHit", akActor, False)
     EndIf
     _UpdateModifiers_ActorAction(loc_slot, aiActionType, aiSlot, akSource)
 EndEvent
