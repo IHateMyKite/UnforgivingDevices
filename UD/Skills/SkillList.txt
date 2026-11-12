@@ -1,0 +1,18 @@
+OneHanded
+TwoHanded
+Marksman (Archery)
+Block
+Smithing
+HeavyArmor
+LightArmor
+Pickpocket
+Lockpicking
+Sneak
+Alchemy
+Speechcraft (Speech)
+Alteration
+Conjuration
+Destruction
+Illusion
+Restoration
+Enchanting

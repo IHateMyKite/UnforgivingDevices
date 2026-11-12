@@ -121,13 +121,13 @@ Int   Property UD_AITimer           = 2     auto hidden
 
 ;prevent slot update
 State UpdatePaused
-    Function update(float fTimePassed)
+    Function update(float fTimePassed, float afCurrentTime)
     EndFunction
     Function updateDeviceHour()
     EndFunction
     Function UpdateSlot(Bool abUpdateSkill = true)
     EndFunction
-    Function DeviceUpdate(UD_CustomDevice_RenderScript akDevice,Float afTimePassed)
+    Function DeviceUpdate(UD_CustomDevice_RenderScript akDevice,Float afTimePassed,Float afCurrentTime)
     EndFunction
 EndState
 
@@ -219,39 +219,6 @@ Function _ValidateOutfit()
     endwhile
 EndFunction
 
-UD_CustomDevice_RenderScript Function GetUserSelectedDevice()
-    startDeviceManipulation()
-
-    String[] loc_devicesString
-
-    removeUnlocked(false)
-
-    If UDCDMain.UD_DeviceListGroups
-        loc_devicesString = getDeviceGroupsPremade()
-    Else
-        loc_devicesString = getDeviceItemsPremade()
-    EndIf
-    loc_devicesString = PapyrusUtil.PushString(loc_devicesString, _getHeaderListItem("(CLOSE)") + ";;-1;;-10;;button;;0")
-
-    Int loc_deviceIndx = -1
-    If UDCDMain.UD_DeviceListEx
-        loc_deviceIndx = UDmain.GetUserListInputEx(loc_devicesString, aiListWidth = 440, aiEntryHeight = 22)
-    Else
-        loc_deviceIndx = UDmain.GetUserListInput(loc_devicesString, abPremade = True)
-    EndIf
-    
-    UD_CustomDevice_RenderScript loc_res = none
-    if loc_deviceIndx < UD_equipedCustomDevices.Length && loc_deviceIndx >= 0
-        UD_CustomDevice_RenderScript loc_device = UD_equipedCustomDevices[loc_deviceIndx]
-        If loc_device != None
-            UD_LastSelectedDevice = loc_device
-        EndIf
-        loc_res = loc_device
-    endif
-    endDeviceManipulation()
-    return loc_res
-EndFunction
-
 String[] Function getSlotsStringA()
     String[] loc_res
     If UDCDMain.UD_DeviceListLastOnTop && UD_LastSelectedDevice != None
@@ -265,131 +232,6 @@ String[] Function getSlotsStringA()
         loc_i+=1
     endwhile
     return loc_res
-EndFunction
-
-String[] Function getDeviceItemsPremade()
-    String[] loc_res
-    String loc_str = ""
-    int loc_i = 0
-    while (loc_i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[loc_i]
-        loc_str = _getDeviceListItem(UD_equipedCustomDevices[loc_i]) + ";;-1;;" + (loc_i as String) + ";;device;;0"
-        If UDCDMain.UD_DeviceListLastOnTop && UD_LastSelectedDevice == UD_equipedCustomDevices[loc_i]
-            String[] loc_temp_arr = new String[1]
-            loc_temp_arr[0] = loc_str
-            loc_res = PapyrusUtil.MergeStringArray(loc_temp_arr, loc_res)
-        Else
-            loc_res = PapyrusUtil.PushString(loc_res, loc_str)
-        EndIf
-        loc_i += 1
-    endwhile
-    return loc_res
-EndFunction
-
-String[] Function getDeviceGroupsPremade()
-    String[] loc_res
-    String[] loc_res_head
-    String[] loc_res_arms
-    String[] loc_res_upper
-    String[] loc_res_lower
-    String[] loc_res_legs
-
-    Int loc_slots_head =  0x0200F823    ; 0x00004000 | 0x00008000 | 0x02000000 | 0x00000001 | 0x00001000 | 0x00000020 | 0x00000002 | 0x00000800 | 0x00002000
-    Int loc_slots_arms =  0x20010058    ; 0x00000008 | 0x00000010 | 0x00000040 | 0x00010000 | 0x20000000
-    Int loc_slots_upper = 0x14200004    ; 0x00000004 | 0x00200000 | 0x10000000 | 0x04000000 
-    Int loc_slots_lower = 0x081C0400    ; 0x00040000 | 0x00080000 | 0x00100000 | 0x08000000 | 0x00000400 
-    Int loc_slots_legs =  0x00800180    ; 0x00000080 | 0x00000100 | 0x00800000 
-
-    int loc_i = 0
-    while (loc_i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[loc_i]
-        Int loc_slot = UD_equipedCustomDevices[loc_i].deviceRendered.GetSlotMask()
-        String loc_str = _getDeviceListItem(UD_equipedCustomDevices[loc_i]) + ";;-1;;" + (loc_i as String) + ";;device;;0"
-        If UDCDMain.UD_DeviceListLastOnTop && UD_LastSelectedDevice == UD_equipedCustomDevices[loc_i]
-            loc_res = PapyrusUtil.PushString(loc_res, loc_str)
-        EndIf
-        If Math.LogicalAnd(loc_slot, loc_slots_head) > 0
-            loc_res_head = PapyrusUtil.PushString(loc_res_head, loc_str)
-        EndIf
-        If Math.LogicalAnd(loc_slot, loc_slots_arms) > 0
-            loc_res_arms = PapyrusUtil.PushString(loc_res_arms, loc_str)
-        EndIf
-        If Math.LogicalAnd(loc_slot, loc_slots_upper) > 0
-            loc_res_upper = PapyrusUtil.PushString(loc_res_upper, loc_str)
-        EndIf
-        If Math.LogicalAnd(loc_slot, loc_slots_lower) > 0
-            loc_res_lower = PapyrusUtil.PushString(loc_res_lower, loc_str)
-        EndIf
-        If Math.LogicalAnd(loc_slot, loc_slots_legs) > 0
-            loc_res_legs = PapyrusUtil.PushString(loc_res_legs, loc_str)
-        EndIf
-        loc_i += 1
-    endwhile
-
-    loc_res = PapyrusUtil.PushString(loc_res, _getHeaderListItem("--HEAD--") + ";;-1;;-2;;separator;;0")
-    loc_res = PapyrusUtil.MergeStringArray(loc_res, loc_res_head)
-    loc_res = PapyrusUtil.PushString(loc_res, _getHeaderListItem("--ARMS--") + ";;-1;;-3;;separator;;0")
-    loc_res = PapyrusUtil.MergeStringArray(loc_res, loc_res_arms)
-    loc_res = PapyrusUtil.PushString(loc_res, _getHeaderListItem("--UPPER BODY--") + ";;-1;;-4;;separator;;0")
-    loc_res = PapyrusUtil.MergeStringArray(loc_res, loc_res_upper)
-    loc_res = PapyrusUtil.PushString(loc_res, _getHeaderListItem("--LOWER BODY--") + ";;-1;;-5;;separator;;0")
-    loc_res = PapyrusUtil.MergeStringArray(loc_res, loc_res_lower)
-    loc_res = PapyrusUtil.PushString(loc_res, _getHeaderListItem("--LEGS--") + ";;-1;;-6;;separator;;0")
-    loc_res = PapyrusUtil.MergeStringArray(loc_res, loc_res_legs)
-
-    return loc_res
-EndFunction
-
-String Function _getDeviceListItem(UD_CustomDevice_RenderScript akDevice)
-    String loc_str = ""
-    String loc_name = akDevice.getDeviceName()
-    If UDCDMain.UD_DeviceListEx && UDMain.UDMTF.HasHtmlMarkup()
-        If StringUtil.GetLength(loc_name) > 37
-            loc_name = StringUtil.Substring(loc_name, 0, 36) + "..."
-        EndIf
-        Int loc_health = Round(100 * akDevice.getRelativeDurability())
-        String loc_health_str = UDMain.UDMTF.Text((loc_health as String) + "%", asColor = UDMain.UDMTF.PercentToGrayscale(loc_health))
-        Int loc_acc = Round(100 * akDevice.getAccesibility())               ; without helper
-        String loc_acc_str = UDMain.UDMTF.Text((loc_acc as String) + "%", asColor = UDMain.UDMTF.PercentToRainbow(loc_acc))
-        String loc_locks = akDevice.GetLocksIcons(asSeparator = "")
-        String[] loc_tags_arr = akDevice.GetModifierTags()
-        String loc_tags = ""
-        If loc_tags_arr.Length > 0
-            loc_tags_arr = PapyrusUtil.RemoveDupeString(loc_tags_arr)
-            Int loc_j = 0
-            Int loc_tags_length = 0
-            While loc_j < loc_tags_arr.Length
-                If loc_tags_length > 0
-                    loc_tags_length += 1
-                    loc_tags += " "
-                EndIf
-                loc_tags_length += StringUtil.GetLength(loc_tags_arr[loc_j])
-                loc_tags += UDMain.UDMTF.Text(loc_tags_arr[loc_j], asColor = UDMain.UDMTF.StringHashToColor(loc_tags_arr[loc_j]))
-                loc_j += 1
-            EndWhile
-            Int loc_tags_font_size = UD_Native.iRange((21 * 16 / loc_tags_length) as Int, 8, 16)                        ; Font size: 10 .. 16. Base length: 22 symbols
-            loc_tags = UDMain.UDMTF.AddTag("ucase", loc_tags)                                                           ; decorate with a made-up <ucase> tag to convert this substring to uppercase in swf
-            loc_tags = UDMain.UDMTF.Text(loc_tags, aiFontSize = loc_tags_font_size)                                     ; change font size to avoid clipping
-        EndIf
-        loc_str += UDMain.UDMTF.FontBegin(asFontFace = "$EverywhereFont", aiFontSize = 16)
-        loc_str += UDMain.UDMTF.TableBegin(5, 180, 31, 31, 74)                                                          ; 119 on the last column
-        loc_str += UDMain.UDMTF.TableRowWide(loc_name, loc_acc_str, loc_health_str, loc_locks, loc_tags)
-        loc_str += UDMain.UDMTF.TableEnd()
-        loc_str += UDMain.UDMTF.FontEnd()
-    Else
-        loc_str = loc_name
-    EndIf
-    Return loc_str
-EndFunction
-
-String Function _getHeaderListItem(String asText)
-    String loc_str = ""
-    If UDCDMain.UD_DeviceListEx && UDMain.UDMTF.HasHtmlMarkup()
-        loc_str += UDMain.UDMTF.ParagraphBegin(asAlign = "center")
-        loc_str += UDMain.UDMTF.Text(asText, aiFontSize = 16, asFontFace = "$EverywhereBoldFont")
-        loc_str += UDMain.UDMTF.ParagraphEnd()
-    Else
-        loc_str = asText
-    EndIf
-    Return loc_str
 EndFunction
 
 Function ReorderSlots(UD_CustomDevice_RenderScript firstDevice)
@@ -626,6 +468,8 @@ Function fix()
         getActor().RemoveFromFaction(libs.Sexlab.AnimatingFaction)
         
         UDCDmain.libs.StartBoundEffects(getActor())
+        
+        UD_Native.StopMinigame(getActor())
         
         ; fix current devices
         int i = UD_equipedCustomDevices.length
@@ -1359,17 +1203,17 @@ Function showDebugMenu(int slot_id)
     endif
 EndFunction
 
-Function update(float fTimePassed)
+Function update(float afTimePassed, float afCurrentTime)
     int i = 0
     while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
-        DeviceUpdate(UD_equipedCustomDevices[i],fTimePassed)
+        DeviceUpdate(UD_equipedCustomDevices[i],afTimePassed,afCurrentTime)
         i+=1
     endwhile
 EndFunction
 
-Function DeviceUpdate(UD_CustomDevice_RenderScript akDevice,Float afTimePassed)
+Function DeviceUpdate(UD_CustomDevice_RenderScript akDevice,Float afTimePassed,Float afCurrentTime)
     if akDevice.isReady()
-        akDevice.update(afTimePassed)
+        akDevice.update(afTimePassed,afCurrentTime)
     endif
 EndFunction
 
@@ -2199,11 +2043,6 @@ EndFunction
 Function _OrgasmGameUpdate()
     OrgasmSystem.RegisterForOrgasmEvent_Ref(self)
     RegisterForModEvent("ORS_LinkedWidgetUpdate", "ORSLinkedWidgetUpdate")
-    
-    if IsPlayer()
-        UDmain.UDWC.Meter_RegisterNative("player-orgasm",0,0.0,0.0, true)
-        UDmain.UDWC.Meter_LinkActorOrgasm(GetActor(),"player-orgasm")
-    endif
 EndFunction
 
 Function UpdateOrgasm(Float afUpdateTime)
@@ -2268,18 +2107,6 @@ Function UpdateOrgasmSecond()
 EndFunction
 
 Function ORSLinkedWidgetUpdate(String asEventName, String asUnused, Float afMod, Form akActorF)
-    if (GetActor() != (akActorF as Actor))
-        return
-    endif
-    
-    Actor akActor = akActorF as Actor
-    if UDCONF.UD_UseOrgasmWidget
-        if afMod == 0.0
-            UDmain.UDWC.Meter_SetVisible("player-orgasm", True)
-        else
-            UDmain.UDWC.Meter_SetVisible("player-orgasm", False)
-        endif
-    endif
 EndFunction
 
 String[] _HornyAnimDefs
@@ -2339,9 +2166,6 @@ Function CleanOrgasmUpdate()
         _hornyAnimTimer = 0
     EndIf
     
-    ;hide widget
-    UDmain.UDWC.Meter_UnlinkActorOrgasm(akActor)
-
     ;reset expression
     if akActor
         libs.ExpLibs.ResetExpressionRaw(akActor, 10)

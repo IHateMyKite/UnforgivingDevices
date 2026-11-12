@@ -896,27 +896,3 @@ Bool Function UnJamLock(actor akActor, keyword zad_DeviousDevice)
         return false
     endif
 EndFunction
-
-Function Notify(string out, bool messageBox=false)
-    If !messageBox
-        UDMain.UDWC.Notification_Push(out)
-    Else
-        Parent.Notify(out, messageBox)
-    EndIf
-EndFunction
-
-String Function BuildVibrationString(actor akActor, int vibStrength, bool vPlug, bool aPlug, bool vPiercings, bool nPiercings)
-    If UDMain.UDWC.UD_FilterVibNotifications
-        Return ""
-    Else
-        Parent.BuildVibrationString(akActor, vibStrength, vPlug, aPlug, vPiercings, nPiercings)
-    EndIf
-EndFunction
-
-String Function BuildPostVibrationString(actor akActor, int vibStrength, bool vPlug, bool aPlug, bool vPiercings, bool nPiercings)
-    If UDMain.UDWC.UD_FilterVibNotifications
-        Return ""
-    Else
-        Parent.BuildVibrationString(akActor, vibStrength, vPlug, aPlug, vPiercings, nPiercings)
-    EndIf
-EndFunction

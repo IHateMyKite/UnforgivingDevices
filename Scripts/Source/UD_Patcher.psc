@@ -553,7 +553,7 @@ Function _PatchFinish(UD_CustomDevice_RenderScript akDevice,int aiControlVar = 0
     WaitForReady(10.0)
     _CheckInventoryScript(akDevice,aiControlVar,afMult,aiType)
     
-    if akDevice.UD_CutChance && (akDevice.UD_durability_damage_base || akDevice.UD_Locks)
+    if akDevice.UD_CutChance && (akDevice.UD_durability_damage_base || akDevice.HaveLocks())
         _CheckCutting(akDevice,35)
     endif
 
@@ -651,9 +651,9 @@ Function _GenerateLocks(UD_CustomDevice_RenderScript akDevice, Int aiType, Int a
     endif
     
     if !akDevice.HaveLocks()
-        Int loc_timelock = 0
+        Float loc_timelock = 0
         if UD_TimedLocks
-            loc_timelock = RandomInt(0,2) ;random timelock, to force player in to being longer locked in akDevice
+            loc_timelock = RandomFloat(0.0,2.0) ;random timelock, to force player in to being longer locked in akDevice
         endif
         
         if aiType == 0 ;generic
@@ -761,10 +761,9 @@ Function _GenerateLocks(UD_CustomDevice_RenderScript akDevice, Int aiType, Int a
             Int loc_lockNum = akDevice.GetLockNumber()
             while loc_lockNum
                 loc_lockNum -= 1
-                akDevice.UpdateLockDifficulty(loc_lockNum,50,False) ;increase all locks difficulty by 50
+                akDevice.UpdateNthLockDifficulty(loc_lockNum,50,False) ;increase all locks difficulty by 50
             endwhile
         endif
-        
     endif
 EndFunction
 

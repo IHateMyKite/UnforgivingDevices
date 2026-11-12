@@ -1,20 +1,6 @@
 ;   File: UD_Native
 Scriptname UD_Native hidden
 
-;===Minigame Effect===
-        Function StartMinigameEffect        (Actor akActor,Float afMult, Float afStamina, Float afHealth, Float afMagicka, Bool abToggle) global native
-        Function EndMinigameEffect          (Actor akActor)                     global native
-bool    Function IsMinigameEffectOn         (Actor akActor)                     global native
-        Function UpdateMinigameEffectMult   (Actor akActor, float afNewMult)    global native
-        Function ToggleMinigameEffect       (Actor akActor, bool abToggle)      global native ;abToggle = true -> enabled, abToggle = false -> disabled
-bool    Function MinigameStatsCheck         (Actor akActor, bool abStamina, bool abHealth, bool abMagicka)                      global native
-        Function MinigameEffectSetHealth    (Actor akActor, float afNewHealth)  global native
-        Function MinigameEffectSetStamina   (Actor akActor, float afNewStamina) global native
-        Function MinigameEffectSetMagicka   (Actor akActor, float afNewMagicka) global native
-        Function MinigameEffectUpdateHealth (Actor akActor, float afHealth)     global native
-        Function MinigameEffectUpdateStamina(Actor akActor, float afStamina)    global native
-        Function MinigameEffectUpdateMagicka(Actor akActor, float afMagicka)    global native
-
 ;===UTILITY===
 Form[]      Function RemoveDuplicateForms       (Form[] modifier_forms)                                         global native
 Int         Function CodeBit                    (int aiCodedMap,int aiValue,int aiSize,int aiIndex)             global native
@@ -41,30 +27,13 @@ String      Function GetStringParamString       (String asParam,Int aiIndex = 0,
 Armor       Function GetRandomDevice            (LeveledItem akDeviceList)                                      global native
 Bool        Function IsConcentrationSpell       (Spell akSpell)                                                 global native
 Bool        Function IsConcentrationEnch        (Enchantment akEnch)                                            global native
+String      Function GetJsonValue               (String asJson, String asKey, String asDef)                     global native
+String      Function SetJsonValue               (String asJson, String asKey, String asVal)                     global native
+String      Function DecompressString           (String asInput)                                                global native
 
 ;===UI===
 int         Function RemoveAllMeterEntries()                                                                    global native
             Function ToggleAllMeters            (bool abToggle)                                                 global native
-
-;iWantWidget meters
-            Function AddMeterEntryIWW           (string asPath, int aiId, string asName, int aiFormula, float afBase, float afRate, bool abShow)   global native
-            Function RemoveMeterEntryIWW        (int aiId)                                                      global native
-            Function ToggleMeterIWW             (int aiId, bool abToggle)                                       global native
-            Function SetMeterRateIWW            (int aiId, float afNewRate)                                     global native
-            Function SetMeterMultIWW            (int aiId, float afNewMult)                                     global native
-            Function SetMeterValueIWW           (int aiId, float afNewValue)                                    global native
-Float       Function UpdateMeterValueIWW        (int aiId, float afDiffValue)                                   global native
-Float       Function GetMeterValueIWW           (int aiId)                                                      global native
-
-;SkyUi meters
-            Function AddMeterEntrySkyUi         (string asPath, string asName, int aiFormula, float afBase, float afRate, bool abShow)             global native
-            Function RemoveMeterEntrySkyUi      (string asPath)                                                 global native
-            Function ToggleMeterSkyUi           (string asPath, bool abToggle)                                  global native
-            Function SetMeterRateSkyUi          (string asPath, float afNewRate)                                global native
-            Function SetMeterMultSkyUi          (string asPath, float afNewMult)                                global native
-            Function SetMeterValueSkyUi         (string asPath, float afNewValue)                               global native
-Float       Function UpdateMeterValueSkyUi      (string asPath, float afDiffValue)                              global native
-Float       Function GetMeterValueSkyUi         (string asPath)                                                 global native
 
 ;===Inventory===
 Armor[]     Function GetInventoryDevices        (Actor akActor, bool abWorn)                                    global native
@@ -125,6 +94,7 @@ Int         Function SendRemoveRenderDeviceEvent(Actor akActor, Armor akRenderDe
 Int         Function SetBitMapData(Int aiHandle1,Int aiHandle2,Armor akRenDev,String asName,Int aiValue, Int aiSize, Int aiOff) global native
             Function UpdateVMHandles() global native
 Bool        Function GetDeviceScript(Actor akActor, Armor akDeviceRendered, String asScript, String asVariable) global native
+ObjectReference  Function GetDeviceScript2(Actor akActor, Armor akID, Armor akRD) global native
 Bool        Function GetInventoryDeviceScript(Actor akActor, Armor akDeviceInventory, String asScript, String asVariable) global native
 
 ; ===Materials===
@@ -179,3 +149,24 @@ Quest[]   Function GetDependantModules(Quest akModule)      global native
 Quest[]   Function GetModulesByScript (String asScript)     global native
 Alias[]   Function GetModulesAliasesByScript(String asScript) global native
           Function ResetAllModuleS    ()                    global native
+
+; === UI ===
+Bool      Function IsDeviceMenuOpen     () global native
+Bool      Function ShowDeviceMenu       (Actor akWearer, Actor akHelper, String[] aasCallbacks) global native
+Bool      Function ShowDeviceMenuSingle (Armor akID, Armor akRD, Actor akWearer, Actor akHelper, String[] aasCallbacks) global native
+          Function ReloadHudConfigs     () global native
+
+; === Minigame Manager ===
+String[]  Function GetListOfMinigames (Actor akWearer, Armor akId)                      global native
+Bool      Function StopMinigame       (Actor akActor)                                   global native
+String[]  Function GetMinigameConfigs ()                                                global native
+String[]  Function GetMinigameExports (int aiIndx)                                      global native
+Bool      Function SetMinigameVariable(int aiIndx, String asConfig, String asValue)     global native
+String    Function GetMinigameVariable(int aiIndx, String asConfig, String asDefValue)  global native
+          Function ReloadMinigameConfigs()                                              global native
+; === Device Manager ===
+Float     Function GetDeviceAccessibility(Actor akWearer, Actor akHelper, Armor akRenderDevice) global native
+
+; === Save Manager ===
+          Function SetSave(String asData, Bool abDecode)    global native
+String    Function GetSave(Bool abEncode)                   global native

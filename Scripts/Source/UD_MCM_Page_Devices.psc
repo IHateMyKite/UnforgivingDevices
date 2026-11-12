@@ -30,11 +30,6 @@ Function PageUpdate()
     difficultyList[0] = "$Easy"
     difficultyList[1] = "$Normal"
     difficultyList[2] = "$Hard"
-    
-    criteffectList = new string[3]
-    criteffectList[0] = "HUD"
-    criteffectList[1] = "$Body shader"
-    criteffectList[2] = "$HUD + Body shader"
 EndFunction
 
 int UD_ActionKey_K
@@ -44,8 +39,6 @@ int UD_CHB_Stamina_meter_Keycode_K
 int UD_CHB_Magicka_meter_Keycode_K
 int UDCD_SpecialKey_Keycode_K
 int UD_UseDDdifficulty_T
-int UD_AutoCrit_T
-int UD_AutoCritChance_S
 int UD_StruggleDifficulty_M
 int UD_hardcore_swimming_T
 int UD_hardcore_swimming_difficulty_M
@@ -56,7 +49,6 @@ int UD_LockpickMinigameNum_S
 int UD_BaseDeviceSkillIncrease_S
 Int UD_SkillEfficiency_S
 int UD_CooldownMultiplier_S
-string[] criteffectList
 int UD_CritEffect_M
 int UD_HardcoreMode_T
 int UD_AllowArmTie_T
@@ -68,8 +60,6 @@ Int UD_DeviceLvlHealth_S
 Int UD_DeviceLvlLockpick_S
 Int UD_DeviceLvlLocks_S
 Int UD_PreventMasterLock_T
-Int UD_MandatoryCrit_T
-Int UD_CritDurationAdjust_S
 Int UD_MinigameDrainMult_S
 Int UD_InitialDrainDelay_S
 Int UD_KeyDurability_S
@@ -140,18 +130,6 @@ Function PageReset(Bool abLockMenu)
     UD_hardcore_swimming_T = addToggleOption("$UD_HARDCORESWIMMING", UDSS.UD_hardcore_swimming,FlagSwitch(!abLockMenu))    
     UD_hardcore_swimming_difficulty_M = AddMenuOption("$UD_HARDCORESWIMMINGDIFFICULTY", difficultyList[UDSS.UD_hardcore_swimming_difficulty],FlagSwitchOr(UD_Swimming_flag,FlagSwitch(!abLockMenu)))
     
-    ;CRITS
-    AddHeaderOption("$UD_H_DEVICECRITS")
-    AddEmptyOption()
-    UD_CritEffect_M     = AddMenuOption("$UD_CRITEFFECT", criteffectList[UDCDmain.UD_CritEffect],FlagNegate(FlagSwitch(UDCDmain.UD_AutoCrit)))
-    UD_MandatoryCrit_T  = addToggleOption("$UD_MANDATORYCRIT", UDCDmain.UD_MandatoryCrit,FlagSwitchOr(FlagNegate(FlagSwitch(UDCDmain.UD_AutoCrit)),FlagSwitch(!abLockMenu)))
-    
-    UD_AutoCrit_T       = addToggleOption("$UD_AUTOCRIT", UDCDmain.UD_AutoCrit,FlagSwitch(!abLockMenu))
-    UD_AutoCritChance_S = addSliderOption("$UD_AUTOCRITCHANCE",UDCDmain.UD_AutoCritChance, "{0} %",FlagSwitchOr(FlagSwitch(UDCDmain.UD_AutoCrit),FlagSwitch(!abLockMenu)))
-    
-    UD_CritDurationAdjust_S = addSliderOption("$UD_CRITDURATIONADJUST",UDCDmain.UD_CritDurationAdjust, "${2} s",FlagSwitchOr(FlagNegate(FlagSwitch(UDCDmain.UD_AutoCrit)),FlagSwitch(!abLockMenu)))
-    AddEmptyOption()
-    
     ;DEVICE LEVEL scaling
     AddHeaderOption("$UD_H_LEVELSCALING")
     AddEmptyOption()
@@ -187,10 +165,6 @@ Function PageOptionSelect(Int aiOption)
     elseif(aiOption == UD_UseDDdifficulty_T)
         UDCDmain.UD_UseDDdifficulty = !UDCDmain.UD_UseDDdifficulty
         SetToggleOptionValue(UD_UseDDdifficulty_T, UDCDmain.UD_UseDDdifficulty)
-    elseif aiOption == UD_AutoCrit_T
-        UDCDmain.UD_AutoCrit = !UDCDmain.UD_AutoCrit
-        SetToggleOptionValue(UD_AutoCrit_T, UDCDmain.UD_AutoCrit)
-        forcePageReset()
     elseif aiOption == UD_HardcoreMode_T
         UDCDmain.UD_HardcoreMode = !UDCDmain.UD_HardcoreMode
         UDCDmain.RegisterForSingleUpdate(0.01)
@@ -203,10 +177,7 @@ Function PageOptionSelect(Int aiOption)
         SetToggleOptionValue(UD_AllowLegTie_T, UDCDmain.UD_AllowLegTie)
     elseif aiOption == UD_PreventMasterLock_T
         UDCDmain.UD_PreventMasterLock = !UDCDmain.UD_PreventMasterLock
-        SetToggleOptionValue(UD_PreventMasterLock_T, UDCDmain.UD_PreventMasterLock)  
-    elseif aiOption == UD_MandatoryCrit_T
-        UDCDmain.UD_MandatoryCrit = !UDCDmain.UD_MandatoryCrit
-        SetToggleOptionValue(UD_MandatoryCrit_T, UDCDmain.UD_MandatoryCrit)
+        SetToggleOptionValue(UD_PreventMasterLock_T, UDCDmain.UD_PreventMasterLock)
     elseif aiOption == UD_HardcoreAccess_T
         UDCDmain.UD_HardcoreAccess = !UDCDmain.UD_HardcoreAccess
         SetToggleOptionValue(UD_HardcoreAccess_T, UDCDmain.UD_HardcoreAccess)
@@ -228,11 +199,6 @@ Function PageOptionSliderOpen(Int aiOption)
         SetSliderDialogStartValue(UDCDmain.UD_LockpicksPerMinigame)
         SetSliderDialogDefaultValue(2.0)
         SetSliderDialogRange(1.0, 50.0)
-        SetSliderDialogInterval(1.0)
-    elseif (aiOption == UD_AutoCritChance_S)
-        SetSliderDialogStartValue(UDCDmain.UD_AutoCritChance)
-        SetSliderDialogDefaultValue(80.0)
-        SetSliderDialogRange(1.0, 100.0)
         SetSliderDialogInterval(1.0)
     elseif aiOption == UD_GagPhonemModifier_S
         SetSliderDialogStartValue(UDCDmain.UD_GagPhonemModifier)
@@ -269,11 +235,6 @@ Function PageOptionSliderOpen(Int aiOption)
         SetSliderDialogDefaultValue(5.0)
         SetSliderDialogRange(0.0, 20.0)
         SetSliderDialogInterval(1.0)
-    elseif aiOption == UD_CritDurationAdjust_S
-        SetSliderDialogStartValue(UDCDmain.UD_CritDurationAdjust)
-        SetSliderDialogDefaultValue(0.0)
-        SetSliderDialogRange(-0.5, 0.5)
-        SetSliderDialogInterval(0.05)
     elseif aiOption == UD_KeyDurability_S
         SetSliderDialogStartValue(UDCDmain.UD_KeyDurability)
         SetSliderDialogDefaultValue(5.0)
@@ -327,9 +288,6 @@ Function PageOptionSliderAccept(Int aiOption, Float afValue)
     elseif (aiOption == UD_LockpickMinigameNum_S)
         UDCDmain.UD_LockpicksPerMinigame = Round(afValue)
         SetSliderOptionValue(UD_LockpickMinigameNum_S, UDCDmain.UD_LockpicksPerMinigame, "{0}")
-    elseif (aiOption == UD_AutoCritChance_S)
-        UDCDmain.UD_AutoCritChance = round(afValue)
-        SetSliderOptionValue(UD_AutoCritChance_S, UDCDmain.UD_AutoCritChance, "{0} %")
     elseif aiOption == UD_GagPhonemModifier_S
         UDCDmain.UD_GagPhonemModifier = round(afValue)
         SetSliderOptionValue(UD_GagPhonemModifier_S, UDCDmain.UD_GagPhonemModifier, "{0}")
@@ -351,9 +309,6 @@ Function PageOptionSliderAccept(Int aiOption, Float afValue)
     elseif aiOption == UD_DeviceLvlLocks_S
         UDCDmain.UD_DeviceLvlLocks = Round(afValue)
         SetSliderOptionValue(UD_DeviceLvlLocks_S, UDCDmain.UD_DeviceLvlLocks, "{0} LVLs")
-    elseif aiOption == UD_CritDurationAdjust_S
-        UDCDmain.UD_CritDurationAdjust = afValue
-        SetSliderOptionValue(UD_CritDurationAdjust_S, UDCDmain.UD_CritDurationAdjust, "{2} s")
     elseif aiOption == UD_KeyDurability_S
         UDCDmain.UD_KeyDurability = Round(afValue)
         SetSliderOptionValue(UD_KeyDurability_S, UDCDmain.UD_KeyDurability, "{0}")
@@ -422,10 +377,6 @@ Function PageOptionMenuOpen(int aiOption)
         SetMenuDialogOptions(difficultyList)
         SetMenuDialogStartIndex(UDCDmain.UD_StruggleDifficulty)
         SetMenuDialogDefaultIndex(1)
-    elseif aiOption == UD_CritEffect_M
-        SetMenuDialogOptions(criteffectList)
-        SetMenuDialogStartIndex(UDCDmain.UD_CritEffect)
-        SetMenuDialogDefaultIndex(2)
     endif
 EndFunction
 Function PageOptionMenuAccept(int aiOption, int aiIndex)
@@ -435,10 +386,6 @@ Function PageOptionMenuAccept(int aiOption, int aiIndex)
     elseif (aiOption == UD_StruggleDifficulty_M)
         UDCDmain.UD_StruggleDifficulty = aiIndex
         SetMenuOptionValue(UD_StruggleDifficulty_M, difficultyList[UDCDmain.UD_StruggleDifficulty])
-        forcePageReset()
-    elseif aiOption == UD_CritEffect_M
-        UDCDmain.UD_CritEffect = aiIndex
-        SetMenuOptionValue(UD_CritEffect_M, criteffectList[UDCDmain.UD_CritEffect])
         forcePageReset()
     endif
 EndFunction
@@ -494,10 +441,6 @@ Function PageInfo(int aiOption)
         SetInfoText("$UD_HARDCORESWIMMINGDIFFICULTY_INFO")
     elseif aiOption == UD_LockpickMinigameNum_S
         SetInfoText("$UD_LOCKPICKMINIGAMENUM_INFO")
-    elseif aiOption == UD_AutoCrit_T
-        SetInfoText("$UD_AUTOCRIT_INFO")
-    elseif aiOption == UD_AutoCritChance_S
-        SetInfoText("$UD_AUTOCRITCHANCE_INFO")
     elseif aiOption == UD_CritEffect_M
         SetInfoText("$UD_CRITEFFECT_INFO")
     elseif aiOption == UD_CooldownMultiplier_S
@@ -524,10 +467,6 @@ Function PageInfo(int aiOption)
         SetInfoText("$UD_PREVENTMASTERLOCK_INFO")
     elseif aiOption == UD_DeviceLvlLocks_S
         SetInfoText("$UD_DEVICELVLLOCKS_INFO")
-    elseif aiOption == UD_MandatoryCrit_T
-        SetInfoText("$UD_WMANDATORYCRIT_INFO")
-    elseif aiOption == UD_CritDurationAdjust_S
-        SetInfoText("$UD_CRITDURATIONADJUST_INFO")
     elseif aiOption == UD_KeyDurability_S
         SetInfoText("$UD_KEYDURABILITY_INFO")
     elseif aiOption == UD_HardcoreAccess_T

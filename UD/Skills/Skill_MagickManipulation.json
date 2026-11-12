@@ -1,0 +1,18 @@
+{
+    "name": "Magick Manipulation",
+    "alias": "MAGKMAN",
+    "description": "Skill based on magick manipulation",
+    "priority": 1,
+    "multiplier": 1.0,
+    "skills":
+    [
+        {
+            "name":"Enchanting",
+            "weigth": 2
+        },
+        {
+            "name":"Illusion",
+            "weigth": 1
+        }
+    ]
+}

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>UnforgivingDevices</title>
+        <link rel="stylesheet" href="../../Styles/Global.css">
+        <link rel="stylesheet" href="../../Styles/Meters.css">
+        <link rel="stylesheet" href="../../Styles/Actions.css">
+        <link rel="stylesheet" href="styles.css">
+    </head>
+    <style>
+        :root {
+            --minigame-offset-x: 50%;
+            --minigame-offset-y: 50%;
+            --scale: 1.0;
+            --zone-scale: 1.0;
+            --cursor-scale: 1.0;
+        }
+    </style>
+    <body id="main">
+        <div id="mg_base">
+            <div id="mg_minigame">
+                <div id="mg_minigamezone1"></div>
+                <div id="mg_minigamezone2"></div>
+                <div id="mg_cursor"></div>
+                <div id="mg_bar_focus" class="mg_bar_base" style="top:105%;width:100%;margin-left:0%;margin-top:0%;height:10%;">
+                    <div id="mg_focus_over" class="mg_bar mg_bar_over" style="font-size:calc(30px*var(--scale));">focus</div>
+                    <img id="mg_focus_bor" class="mg_bar mg_bar_border"></img>
+                    <div id="mg_focus" class="mg_bar_fill"></div>
+                    <div id="mg_focus_bcg" class="mg_bar_fill mg_bar_background"></div>
+                </div>
+                <div class="mg_actions" style="width:125%;top:calc(115%);margin-left:-12.5%;margin-top:0%;height:15%;">
+                    <table style="height:100%;width:100%;">
+                        <tr id="mg_actions_table">
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <script src="../../Scripts/Global.js"></script>
+        <script src="../../Scripts/Meters.js"></script>
+        <script src="../../Scripts/Actions.js"></script>
+        <script src="script.js"></script>
+    </body>
+</html>
