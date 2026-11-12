@@ -5,9 +5,9 @@
 
 -- Logs message to native skse log
 function Log(msg)
-    if StrToBool(GetSaveConfig("Lua.Logging","false")) then
+    --if StrToBool(GetSaveConfig("Lua.Logging","false")) then
         Host_Log(tostring(msg))
-    end
+    --end
 end
 
 function Echo(msg)

@@ -1,7 +1,17 @@
 var devices = []
 var selected_device = -1
 
+function handleKeyDown(e) {
+    console.log(e)
+    if (e.key == "Escape" || e.key == "Tab")
+    {
+        _Exit(1)
+    }
+}
+
 window.InitDeviceList = (values) => {
+    window.addEventListener("keydown", handleKeyDown, { capture: true });
+    
     devices = [];
     selected_device = -1;
 
@@ -92,6 +102,8 @@ window.InitDeviceListSingle = (values) => {
     if (devices.length != 0) _DeviceDetails(0);
     
     _SelectTab(document.getElementById('dm_tabdetailsbutton'),"dm_tabdetails");
+    
+    window.addEventListener("keydown", handleKeyDown, { capture: true });
 };
 
 function _HoverDeviceOver(event,arg)
@@ -426,6 +438,7 @@ function _InitValueLocks(arg)
 // 2 -> Device menu Single
 function _Exit(arg) {
     console.log("Exit called")
+    window.removeEventListener("keydown", handleKeyDown, { capture: true });
     window.ExitMenu(arg);
 };
 

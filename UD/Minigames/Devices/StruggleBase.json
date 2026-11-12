@@ -2,7 +2,7 @@
     "name": "StruggleBase",
     "description": "Base",
     "script":"UD\\Minigames\\Devices\\Scripts\\Struggle.lua",
-    "uiobject":"UD/Minigames/CursorZones/index.html",
+    "uiobject":"Minigames/CursorZones/index.html",
     "base":"DeviceMinigameBase",
     "abstract": true,
     "priority": 0,

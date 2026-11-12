@@ -5,7 +5,7 @@ function Precondition(C)
     --Log("Precondition(Lockpick.lua) called")
     local loc_res = _Precondition(C)
     if loc_res then
-        local loc_locks = json.iparse(GetVariableValue(C,"thisdevice::UD_LocksJson(A)"))
+        local loc_locks = GetLocks(C)
         local loc_count = tonumber(loc_locks['n'])
         if loc_count and loc_count > 0 then
             for i = 0, loc_count-1, 1
@@ -25,7 +25,6 @@ end
 local _Condition = Condition -- Save previous function
 function Condition(C)
     local loc_res = _Condition(C) and GetDeviceAccessibility(C,false) > 0.0
-    -- Additional logic
     local loc_lockpick = GetGameForm(0x0000000A,"Skyrim.esm")
     loc_res = loc_res and (GetItemCount(C['Wearer'],loc_lockpick) > 0)
     return loc_res

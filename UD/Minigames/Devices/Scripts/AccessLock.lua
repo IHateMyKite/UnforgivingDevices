@@ -1,12 +1,23 @@
 
+local _Precondition = Precondition -- Save previous function
+function Precondition(C)
+    local loc_res = _Precondition(C)
+    if loc_res then
+        local loc_locks = GetLocks(C)
+        -- Check if there are any locks on device
+        loc_res = loc_locks['n'] ~= nil and tonumber(loc_locks['n']) > 0
+    end
+    return loc_res
+end
+
 local _Condition = Condition -- Save previous function
 function Condition(C)
-    return _Condition(C) and (ActorFreeHands(C['Wearer'],true,true) or (UseHelper(C) and ActorFreeHands(C['Helper'],true,true)))
+    return _Condition(C) and (ActorFreeHands(C['Wearer'],true,true) or (UseHelperCond(C) and ActorFreeHands(C['Helper'],true,true))) and IsAnyLockAccessible(C)
 end
 
 function GetContext(C)
     local loc_res = ""
-    local loc_locks = json.iparse(GetVariableValue(C,"thisdevice::UD_LocksJson(A)"))
+    local loc_locks = GetLocks(C)
     local loc_count = tonumber(loc_locks['n'])
     if loc_count > 0 then
         loc_res = "["
@@ -197,7 +208,7 @@ function ProcessMinigame(C,delta)
 end
 
 function GetSelectedLock(C)
-    local loc_locks = json.iparse(GetVariableValue(C,"thisdevice::UD_LocksJson(A)"))
+    local loc_locks = GetLocks(C)
     local loc_lock = loc_locks[tostring(C['Context'])]
     return loc_lock
 end

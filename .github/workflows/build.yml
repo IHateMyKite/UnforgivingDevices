@@ -40,6 +40,9 @@ jobs:
         with:
           path: PAPYRUS
         
+      - name: Ready UI
+        run: ./BUILD_UI.bat
+        
       - name: Ready FOMOD
         run: |
           cd ..
