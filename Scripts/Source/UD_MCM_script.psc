@@ -239,6 +239,10 @@ Function SaveToJSON(string strFile)
         loc_indx += 1
     endwhile
     
+    ; Save SKSE data
+    String loc_save = UD_Native.GetSave(false)
+    JsonUtil.SetStringValue(strFile, "sksedata", loc_save)
+    
     ; TODO: Move to CONF
     ;ABADON
     JsonUtil.SetIntValue(strFile, "AbadonForceSet", AbadonQuest.final_finisher_set as Int)
@@ -285,6 +289,11 @@ Function LoadFromJSON(string strFile)
         endif
         loc_indx += 1
     endwhile
+
+    ; Load SKSE data
+    String loc_data = JsonUtil.GetStringValue(strFile, "sksedata", "{}")
+    UD_Native.SetSave(loc_data,false)
+    UD_Native.ReloadMinigameConfigs()
 
     ; TODO: Move to CONF
     ;ABADON

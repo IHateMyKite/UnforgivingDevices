@@ -305,12 +305,12 @@ EndEvent
 ;device menu that pops up when Wearer click on this device in inventory
 Function DeviceMenu(Int msgChoice = 0)
     if UDmain.IsEnabled()
-        if UDmain.TraceAllowed()    
+        if UDmain.TraceAllowed()
             UDmain.Log("DeviceMenu("+MakeDeviceHeader(UDmain.Player,deviceInventory)+")",1)
         endif
         UD_CustomDevice_RenderScript device = UDCDmain.getDeviceByInventory(UDmain.Player,deviceInventory)
         if device
-            UDCDmain.getDeviceByInventory(UDmain.Player,deviceInventory).DeviceMenu(new Bool[30])
+            device.DeviceMenu(new Bool[30])
         else
             UDCDmain.getDeviceScriptByRender(UDmain.Player,deviceRendered).DeviceMenu(new Bool[30])
         endif

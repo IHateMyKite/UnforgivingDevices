@@ -1,0 +1,18 @@
+{
+    "name": "OrgasmMeter",
+    "description": "Orgasm Meter",
+    "script":"",
+    "priority": 100,
+    "base": "MeterBase",
+    "config":
+    {
+        "posX": "83%",
+        "posY": "calc(90% - var(--meter-height)*0)",
+        "color_fill":"rgba(255, 15, 255, 1)",
+        "minigame": true,
+        "value": "OS[16]",
+        "maxvalue": "1.0",
+        "thd_min": "0.2",
+        "thd_max": "1.0"
+    }
+}

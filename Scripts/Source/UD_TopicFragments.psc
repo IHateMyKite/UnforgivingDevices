@@ -171,7 +171,7 @@ Function ChooseDeviceAndCheck(ObjectReference akSpeakerRef)
     Actor akHelper = akSpeakerRef as Actor
     UD_CustomDevice_NPCSlot loc_slot = UDCDmain.getNPCSlot(Game.GetPlayer())
     if loc_slot
-        UD_CustomDevice_RenderScript loc_device = loc_slot.GetUserSelectedDevice()
+        UD_CustomDevice_RenderScript loc_device; = loc_slot.GetUserSelectedDevice()
         if loc_device
             UDCDmain.UDDmain.SelectedDevice = loc_device
             ValidDevice.Value = 0 ;Player choose device

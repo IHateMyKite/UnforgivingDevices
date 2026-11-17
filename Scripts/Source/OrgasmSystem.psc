@@ -7,26 +7,29 @@ Scriptname OrgasmSystem hidden
      enum OrgasmVariable : uint8_t
      {
          vNone                       =  0,
-     
+        
          vOrgasmRate                 =  1,
          vOrgasmRateMult             =  2,
          vOrgasmResistence           =  3,
          vOrgasmResistenceMult       =  4,
          vOrgasmCapacity             =  5,
          vOrgasmForcing              =  6,
-     
+        
          vElapsedTime                =  7, //orgasm change only! UpdateOrgasmChangeVar and GetOrgasmChangeVar only
-     
+        
          vArousal                    =  8, //no orgasm change! GetOrgasmVariable only
          vArousalRate                =  9,
          vArousalRateMult            = 10,
-     
+        
          vEdgeDuration               = 11, //orgasm change only! UpdateOrgasmChangeVar and GetOrgasmChangeVar only
          vEdgeRemDuration            = 12, //orgasm change only! UpdateOrgasmChangeVar and GetOrgasmChangeVar only
          vEdgeThreashold             = 13, //orgasm change only! UpdateOrgasmChangeVar and GetOrgasmChangeVar only
-     
-         vBaseDistance               = 14,
-     
+        
+         vHornyLevel                 = 14,
+         
+         vOrgasmProgress             = 15, //no orgasm change! GetOrgasmVariable only
+         vOrgasmProgress2            = 16, //no orgasm change! GetOrgasmVariable only
+         
          vLast
      }
      ---
