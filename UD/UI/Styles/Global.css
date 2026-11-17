@@ -110,6 +110,9 @@
 html { 
     overflow-y: hidden;
     overflow-x: hidden;
+    font-size: calc(
+        1600vh / 1080
+    ); /* default 16px on 1080p monitors, scaling with monitor size */
 }
 
 #main {
