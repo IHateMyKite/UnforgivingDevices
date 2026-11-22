@@ -5,7 +5,7 @@ function Condition(C)
     local loc_thdmax    = GetHudValue(C,GetConfigVar(C,"thd_max","1.0"))
     local loc_val       = GetHudValue(C,GetConfigVar(C,"value","0.0"))
     local loc_valmax    = GetHudValue(C,GetConfigVar(C,"maxvalue","1.0"))
-    local loc_val_p     = loc_val/loc_valmax
+    local loc_val_p     = Clamp(loc_val/loc_valmax,0.0,1.0)
     return loc_val_p >= loc_thdmin and loc_val_p <= loc_thdmax
 end
 

@@ -12,7 +12,7 @@ end
 
 local _Condition = Condition -- Save previous function
 function Condition(C)
-    return _Condition(C) and (ActorFreeHands(C['Wearer'],true,true) or (UseHelperCond(C) and ActorFreeHands(C['Helper'],true,true))) and IsAnyLockAccessible(C)
+    return _Condition(C) and (ActorFreeHands(C['Actor'],true,true) or (UseHelperCond(C) and ActorFreeHands(C['Helper'],true,true))) and IsAnyLockAccessible(C)
 end
 
 function GetContext(C)
@@ -61,7 +61,7 @@ function OnStart(C)
     local loc_devacc = GetDeviceAccessibility(C,true)
     local loc_locacc = GetLockAccesibility(C,loc_lock)
     
-    if WornHasKeyword(C['Wearer'],"zad_DeviousBlindfold") and (not UseHelper(C) or WornHasKeyword(C['Helper'],"zad_DeviousBlindfold")) then
+    if WornHasKeyword(C['Actor'],"zad_DeviousBlindfold") and (not UseHelper(C) or WornHasKeyword(C['Helper'],"zad_DeviousBlindfold")) then
         Log("OnStart(AccessLock.lua) - Wearer uses blindfold, reducing accessibility")
         loc_locacc = loc_locacc*0.5
     end

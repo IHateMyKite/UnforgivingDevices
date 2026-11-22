@@ -31,14 +31,21 @@ tbody {
 
 /* Table Styles */
 #dm_table {
-  height: 95%;
+  height: 100%;
   width: 100%;
   border-collapse: collapse;
   overflow: hidden;
 }
 
 #dm_table_container {
-  height: 93%;
+  height: 90%;
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid white;
+}
+
+#dm_actormenu {
+  height: 90%;
   width: 100%;
   overflow: hidden;
   border: 1px solid white;
@@ -151,8 +158,24 @@ button:hover {
   /* border: 1px solid var(--color-red-50); */
   /* color: var(--color-red-50); */
 }
-
 #dm_minigames .dm_entry_enabled {
+  /* color: var(--color-green); */
+  border-color: var(--color-green);
+}
+
+#dm_actorminigames .dm_entry_selected {
+  /* color: var(--color-green); */
+  border-color: var(--color-green);
+}
+#dm_actorminigames .dm_entry_disabled {
+  /* color: var(--color-red); */
+  border-color: var(--color-red);
+}
+#dm_actorminigames .dm_entry_disabled:hover {
+  /* border: 1px solid var(--color-red-50); */
+  /* color: var(--color-red-50); */
+}
+#dm_actorminigames .dm_entry_enabled {
   /* color: var(--color-green); */
   border-color: var(--color-green);
 }
@@ -254,6 +277,7 @@ button:hover {
 #dm_line1 { height: 45%; }
 #dm_line2 { height: 5%; }
 #dm_line3 { height: 45%; }
+#dm_linerem { height: 95%; }
 
 #dm_stats {
   height: 3.5%;
@@ -330,6 +354,10 @@ button:hover {
 }
 
 .dm_tabcontent {
+  display: none;
+}
+
+.dm_tabcontent2 {
   display: none;
 }
 

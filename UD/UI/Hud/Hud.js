@@ -79,3 +79,12 @@ window.RemoveMeter = (arg) =>
         meter.remove();
     }
 }
+
+// Remove all elements
+window.Clear = (arg) =>
+{
+    var loc_elements = document.getElementsByName("main");
+    while (loc_elements.hasChildNodes()) {
+        loc_elements.removeChild(loc_elements.firstChild);
+    }
+}

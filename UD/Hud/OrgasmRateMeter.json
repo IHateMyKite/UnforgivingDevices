@@ -11,7 +11,7 @@
         "color_fill":"rgba(111, 251, 163, 1)",
         "minigame": true,
         "value": "OS[1]",
-        "maxvalue": "15.0",
+        "maxvalue": "40.0",
         "thd_min": "0.1",
         "thd_max": "1.0"
     }

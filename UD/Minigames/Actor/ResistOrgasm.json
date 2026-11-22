@@ -1,0 +1,20 @@
+{
+    "name": "Resist Orgasm",
+    "description": "Try to resist the pleasure",
+    "script":"UD\\Minigames\\Actor\\Scripts\\ResistOrgasm.lua",
+    "base":"ActorMinigameZoneSlide",
+    "priority": 100,
+    "skill": "MAGKMAN",
+    "includes":
+    [
+        "UD\\OrgasmSystem.lua"
+    ],
+    "config": 
+    {
+        "minStamina":   "0.5",
+        "StaminaDrain": "5.0",
+        "HoldingZoneSpeedMult": "0.15",
+        "ColorRelease": "rgba(255, 15, 255, 1)",
+        "SkillGain":    "0.0"
+    }
+}

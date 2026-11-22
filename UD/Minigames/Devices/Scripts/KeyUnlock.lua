@@ -21,7 +21,7 @@ function Condition(C)
     local loc_res = _Condition(C) and GetDeviceAccessibility(C,false) > 0.0
     -- Additional logic
     local loc_key = GetVariableValue(C,"thisdevice::zad_deviceKey(A)")
-    loc_res = loc_res and (GetItemCount(C['Wearer'],loc_key) > 0)
+    loc_res = loc_res and (GetItemCount(C['Actor'],loc_key) > 0)
     return loc_res
 end
 

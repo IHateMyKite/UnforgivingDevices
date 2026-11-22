@@ -1,4 +1,5 @@
 var devices = []
+var minigames = []
 var selected_device = -1
 
 function handleKeyDown(e) {
@@ -13,9 +14,12 @@ window.InitDeviceList = (values) => {
     window.addEventListener("keydown", handleKeyDown, { capture: true });
     
     devices = [];
+    minigames = [];
     selected_device = -1;
 
     devices = values.devices;
+    minigames = values.minigames;
+    
     document.getElementById('dm_wearer').textContent = values.wearer;
     document.getElementById('dm_helper').textContent = values.helper;
 
@@ -24,9 +28,14 @@ window.InitDeviceList = (values) => {
         buttons.removeChild(buttons.firstChild);
     }
 
-    var minigames = document.getElementById('dm_minigames');
-    while (minigames.hasChildNodes()) {
-        minigames.removeChild(minigames.firstChild);
+    var dminigames = document.getElementById('dm_minigames');
+    while (dminigames.hasChildNodes()) {
+        dminigames.removeChild(dminigames.firstChild);
+    }
+
+    var aminigames = document.getElementById('dm_actorminigames');
+    while (aminigames.hasChildNodes()) {
+        aminigames.removeChild(aminigames.firstChild);
     }
 
     let loc_detailvalues = document.getElementById('dm_detailtable')
@@ -65,7 +74,10 @@ window.InitDeviceList = (values) => {
         buttons.appendChild(button1);
     }
     
+    _ActorDetails();
+    
     _SelectTab(document.getElementById('dm_tabdetailsbutton'),"dm_tabdetails");
+    _SelectTab2(document.getElementById('dm_tabdevicesbutton'),"dm_table_container");
     
     var main = document.getElementById('main');
     main.style = 'display: visible;';
@@ -73,15 +85,23 @@ window.InitDeviceList = (values) => {
 
 window.InitDeviceListSingle = (values) => {
     devices = [];
+    minigames = [];
     selected_device = 0;
 
     devices = values.devices;
+    minigames = values.minigames;
+    
     document.getElementById('dm_wearer').textContent = values.wearer;
     document.getElementById('dm_helper').textContent = values.helper;
 
-    var minigames = document.getElementById('dm_minigames');
-    while (minigames.hasChildNodes()) {
-        minigames.removeChild(minigames.firstChild);
+    var dminigames = document.getElementById('dm_minigames');
+    while (dminigames.hasChildNodes()) {
+        dminigames.removeChild(dminigames.firstChild);
+    }
+
+    var aminigames = document.getElementById('dm_actorminigames');
+    while (aminigames.hasChildNodes()) {
+        aminigames.removeChild(aminigames.firstChild);
     }
 
     let context = document.getElementById('dm_Context');
@@ -101,7 +121,10 @@ window.InitDeviceListSingle = (values) => {
     
     if (devices.length != 0) _DeviceDetails(0);
     
+    _ActorDetails();
+    
     _SelectTab(document.getElementById('dm_tabdetailsbutton'),"dm_tabdetails");
+    _SelectTab2(document.getElementById('dm_tabdevicesbutton'),"dm_table_container");
     
     window.addEventListener("keydown", handleKeyDown, { capture: true });
 };
@@ -176,13 +199,34 @@ function _DeviceDetails(arg) {
         else loc_button.className = "dm_entry_disabled"
         loc_button.setAttribute("onmouseover","ShowDetailsOrContext(event,"+JSON.stringify(devices[arg])+","+JSON.stringify(devices[arg].minigames[i])+")")
         loc_button.setAttribute("onmouseout","HideDetailsOrContext(event,"+JSON.stringify(devices[arg])+","+JSON.stringify(devices[arg].minigames[i])+")")
-        //loc_button.setAttribute("onclick","_StartMinigame("+arg+","+i+",\"\")")
         loc_button.setAttribute("onclick","StartMinigameOrContext(event,"+JSON.stringify(devices[arg])+","+JSON.stringify(devices[arg].minigames[i])+","+arg+","+i+",\"\")")
         loc_minigames.appendChild(loc_button);
     }
 };
 
-function ShowDetailsOrContext(event,dev,min)
+function _ActorDetails() {
+    // TODO
+    //_InitValueDetails(arg)
+    
+    let loc_minigames = document.getElementById('dm_actorminigames')
+    while (loc_minigames.hasChildNodes()) {
+      loc_minigames.removeChild(loc_minigames.firstChild);
+    }
+    for (let i = 0; i < minigames.length; i++)
+    {
+        var loc_button = document.createElement("button");
+        loc_button.textContent = minigames[i].name;
+        if (minigames[i].state == 1) loc_button.className = "dm_entry_enabled"
+        else loc_button.className = "dm_entry_disabled"
+        loc_button.setAttribute("onmouseover","ShowDetailsOrContext(event,"+JSON.stringify(minigames[i])+")")
+        loc_button.setAttribute("onmouseout","HideDetailsOrContext(event,"+JSON.stringify(minigames[i])+")")
+        loc_button.setAttribute("onclick","StartMinigameOrContext(event,null,"+JSON.stringify(minigames[i])+",-1,"+i+",\"\")")
+        loc_minigames.appendChild(loc_button);
+    }
+};
+
+
+function ShowDetailsOrContext(event,min)
 {
     ShowDetails(event,min.desc)
 }
@@ -235,34 +279,39 @@ function ShowContext(event,dev,min)
     c.style.setProperty("top",event.clientY-c.clientHeight/2+"px")
     c.style.setProperty("left",event.clientX-c.clientWidth/2+"px")
     
-    c.setAttribute("onmouseover","ContextEntered(event,"+JSON.stringify(dev)+","+JSON.stringify(min)+")")
-    c.setAttribute("onmouseout","ContextLeft(event,"+JSON.stringify(dev)+","+JSON.stringify(min)+")")
+    c.setAttribute("onmouseover","ContextEntered(event,"+JSON.stringify(min)+")")
+    c.setAttribute("onmouseout","ContextLeft(event,"+JSON.stringify(min)+")")
     
     InContext = true;
 }
 
 InContext = false
-function ContextEntered(event,dev,min)
+function ContextEntered(event,min)
 {
     if (MouseOverContext(event) && !InContext)
     {
         InContext = true
     }
 }
-function ContextLeft(event,dev,min)
+function ContextLeft(event,min)
 {
     if (!MouseOverContext(event) && InContext)
     {
         InContext = false
-        HideContext(event,dev,min)
+        HideContext(event,min)
     }
 }
 function ContextSelected(event,dev,min,cntx)
 {
     if (cntx.state == 1)
     {
-        let loc_devindx = devices.map(e => JSON.stringify(e)).indexOf(JSON.stringify(dev))
-        let loc_minindx = dev.minigames.map(e => JSON.stringify(e)).indexOf(JSON.stringify(min))
+        let loc_devindx = dev != null ? devices.map(e => JSON.stringify(e)).indexOf(JSON.stringify(dev)) : -1;
+        let loc_minindx = 0
+        
+        if (dev != null)
+            loc_minindx = dev.minigames.map(e => JSON.stringify(e)).indexOf(JSON.stringify(min))
+        else
+            loc_minindx = minigames.map(e => JSON.stringify(e)).indexOf(JSON.stringify(min))
         
         console.log(cntx)
         console.log(loc_devindx + "," + loc_minindx)
@@ -287,13 +336,13 @@ function MouseOverContext(event)
     return false;
 }
 
-function HideDetailsOrContext(event,dev,min)
+function HideDetailsOrContext(event,min)
 {
     if (min.context)
     {
         if (!InContext)
         {
-            HideContext(event,dev,min)
+            HideContext(event,min)
         }
     }
     else
@@ -309,7 +358,7 @@ function HideDetails(event)
     d.style.setProperty("display","none")
 }
 
-function HideContext(event,dev,min)
+function HideContext(event,min)
 {
     //console.log("HideContext")
     c = document.getElementById('dm_Context');
@@ -444,7 +493,11 @@ function _Exit(arg) {
 
 function _StartMinigame(dev,min,cntx)
 {
-    if (devices[dev].minigames[min].state == 1) StartMinigame(dev+","+devices[dev].minigames[min].id+","+cntx)
+    if (dev == -1)
+    {
+        StartMinigame("-1,"+minigames[min].id+","+cntx)
+    }
+    else if (devices[dev].minigames[min].state == 1) StartMinigame(dev+","+devices[dev].minigames[min].id+","+cntx)
 }
 
 function SelectTab(evt, tabName) {
@@ -471,6 +524,38 @@ function _SelectTab(butt, tabName) {
   }
   
   tablinks = document.getElementsByClassName("dm_tablinks");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
+  }
+  
+  document.getElementById(tabName).style.display = "block";
+  butt.className += " active";
+}
+
+function SelectTab2(evt, tabName) {
+  var i, tabcontent, tablinks;
+  tabcontent = document.getElementsByClassName("dm_tabcontent2");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+  }
+  
+  tablinks = document.getElementsByClassName("dm_tablinks2");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
+  }
+  
+  document.getElementById(tabName).style.display = "block";
+  evt.currentTarget.className += " active";
+}
+
+function _SelectTab2(butt, tabName) {
+  var i, tabcontent, tablinks;
+  tabcontent = document.getElementsByClassName("dm_tabcontent2");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+  }
+  
+  tablinks = document.getElementsByClassName("dm_tablinks2");
   for (i = 0; i < tablinks.length; i++) {
     tablinks[i].className = tablinks[i].className.replace(" active", "");
   }

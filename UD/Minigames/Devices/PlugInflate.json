@@ -2,7 +2,7 @@
     "name": "Inflate plug",
     "description": "Try to inflate the plug using its pump",
     "script":"UD\\Minigames\\Devices\\Scripts\\PlugInflateDeflate.lua",
-    "base":"MinigameZoneSlide",
+    "base":"DeviceMinigameZoneSlide",
     "priority": 80,
     "skill": "Agility",
     "config":

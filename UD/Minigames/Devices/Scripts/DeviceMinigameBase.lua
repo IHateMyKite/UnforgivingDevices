@@ -6,28 +6,14 @@ end
 
 -- Check if actor can struggle or if other conditions are met
 function Condition(C)
-    return CheckMinStatsWearer(C) and (not UseHelperCond(C) or CheckMinStatsHelper(C)) and (not StrToBool(GetConfigVar(C,"CheckAccessibility","true")) or GetDeviceAccessibility(C,true) > 0.0)
-end
-
-function CheckMinStatsWearer(C)
-    local loc_stamina = GetVariableValue(C,"wearer::stamina(R)") > tonumber(GetConfigVar(C,"minStamina","0.0"))
-    local loc_magicka = GetVariableValue(C,"wearer::magicka(R)") > tonumber(GetConfigVar(C,"minMagicka","0.0"))
-    local loc_health  = GetVariableValue(C,"wearer::health(R)")  > tonumber(GetConfigVar(C,"minHealth","0.0"))
-    return loc_stamina and loc_magicka and loc_health
-end
-
-function CheckMinStatsHelper(C)
-    local loc_stamina = GetVariableValue(C,"helper::stamina(R)") > tonumber(GetConfigVar(C,"minStamina","0.0"))
-    local loc_magicka = GetVariableValue(C,"helper::magicka(R)") > tonumber(GetConfigVar(C,"minMagicka","0.0"))
-    local loc_health  = GetVariableValue(C,"helper::health(R)")  > tonumber(GetConfigVar(C,"minHealth","0.0"))
-    return loc_stamina and loc_magicka and loc_health
+    return CheckMinStatsActor(C) and (not UseHelperCond(C) or CheckMinStatsHelper(C)) and (not StrToBool(GetConfigVar(C,"CheckAccessibility","true")) or GetDeviceAccessibility(C,true) > 0.0)
 end
 
 function GetContext(C)
     local loc_res = ""
     if ActorIsPlayer(C['Helper']) then
         -- TODO: Check if NPC can be commanded
-        local loc_wearer = CheckMinStatsWearer(C)
+        local loc_wearer = CheckMinStatsActor(C)
         local loc_helper = CheckMinStatsHelper(C)
         
         loc_res = loc_res.."["
@@ -165,10 +151,10 @@ function OnUpdate(C,delta)
     if loc_time <= 0.0 then
         SetMinigameVar(C,'TimerExpr',5.0)
         if UseHelper(C) then
-            CallPapyrusFunction(C,"MINM::UpdateMinigameExpression","",{"object",C['DeviceObj']},{"actor",C['Helper']})
+            CallPapyrusFunction(C,"MINM::UpdateMinigameExpression","",{"actor",C['Actor']},{"actor",C['Helper']})
         else
             --Log("Updating expression")
-            CallPapyrusFunction(C,"MINM::UpdateMinigameExpression","",{"object",C['DeviceObj']},{"actor",nil})
+            CallPapyrusFunction(C,"MINM::UpdateMinigameExpression","",{"actor",C['Actor']},{"actor",nil})
         end
     end
 end
@@ -243,14 +229,6 @@ function StopDeviceMinigame(C,eventtype)
     StopMinigame(C)
 end
 
-function PlayerInMinigame(C)
-    if ActorIsPlayer(C['Wearer']) or (ActorIsPlayer(C['Helper'])) then
-        return true
-    else
-        return false
-    end
-end
-
 function UpdateSkill(C,delta)
     local loc_skillgain = GetMinigameVar(C,"SkillGain")
     if loc_skillgain > 0 then
@@ -302,11 +280,11 @@ end
 
 function PlayShader(C,color)
     if color == "green" then
-        CallPapyrusFunction(C,"MINM::PlayGreenShader","",{"actor",C['Wearer']},{"actor",C['Helper']})
+        CallPapyrusFunction(C,"MINM::PlayGreenShader","",{"actor",C['Actor']},{"actor",C['Helper']})
     elseif color == "red" then
-        CallPapyrusFunction(C,"MINM::PlayRedShader","",{"actor",C['Wearer']},{"actor",C['Helper']})
+        CallPapyrusFunction(C,"MINM::PlayRedShader","",{"actor",C['Actor']},{"actor",C['Helper']})
     elseif color == "blue" then
-        CallPapyrusFunction(C,"MINM::PlayBlueShader","",{"actor",C['Wearer']},{"actor",C['Helper']})
+        CallPapyrusFunction(C,"MINM::PlayBlueShader","",{"actor",C['Actor']},{"actor",C['Helper']})
     end
 end
 

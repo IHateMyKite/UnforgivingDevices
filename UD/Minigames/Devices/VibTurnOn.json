@@ -2,7 +2,7 @@
     "name": "Turn on",
     "description": "Try to turn on the toy",
     "script":"UD\\Minigames\\Devices\\Scripts\\VibTurnOnOff.lua",
-    "base":"MinigameZoneSlide",
+    "base":"DeviceMinigameZoneSlide",
     "priority": 74,
     "skill": "MAGKMAN",
     "config":

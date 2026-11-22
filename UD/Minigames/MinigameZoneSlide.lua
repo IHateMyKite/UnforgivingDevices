@@ -27,7 +27,10 @@ function OnStart(C)
     SetMinigameVar(C,"ColorHold",GetConfigVar(C,"ColorHold","green"))
     
     SetMinigameVar(C,"HoldingZone",false)
-    SetMinigameVar(C,"HoldingZoneSpeedMult",tonumber(GetConfigVar(C,"HoldingZoneSpeedMult","0.5")))
+    SetMinigameVar(C,"HoldingZoneSpeedMult",tonumber(GetConfigVar(C,"HoldingZoneSpeedMult","0.1")))
+    SetMinigameVar(C,"InZone",false)
+    
+    
 end
 
 local _OnUIOpen = OnUIOpen
@@ -84,6 +87,18 @@ end
 function ProcessMinigame(C,delta)
     --Log("ProcessMinigame(Cutting.lua) called")
     
+    if CheckZone(C) then
+        if not GetMinigameVar(C,"InZone") then
+            SetMinigameVar(C,"InZone",true)
+            OnZoneEntered(C)
+        end
+    elseif GetMinigameVar(C,"InZone") then
+        SetMinigameVar(C,"InZone",false)
+        OnZoneExited(C)
+    else
+        OnZoneOutside(C)
+    end
+    
     -- Check if cursor is in zone and zone is pressed
     if GetMinigameVar(C,"HoldingZone") then
         if CheckZone(C) then
@@ -92,6 +107,7 @@ function ProcessMinigame(C,delta)
             ReleaseZone(C)
         end
     end
+    
     
     UpdateCursor(C,delta)
     
@@ -174,7 +190,7 @@ end
 function UpdateZone(C,delta)
     if GetMinigameVar(C,"HoldingZone") then
         if CheckZone(C) then
-            delta = delta*(GetMinigameVar(C,"HoldingZoneSpeedMult")/5.0)
+            delta = delta*(GetMinigameVar(C,"HoldingZoneSpeedMult"))
         end
     end
 
@@ -226,6 +242,15 @@ function OnHoldingZone(C,delta)
 end
 
 function OnReleasingZone(C)
+end
+
+function OnZoneEntered(C)
+end
+
+function OnZoneExited(C)
+end
+
+function OnZoneOutside(C)
 end
 
 function GetUIUpdate(C,input)

@@ -23,7 +23,11 @@
                     </tr>
                 </table>
             </div>
-            <div id="dm_table_container" class="background-gray">
+            <div class="dm_tab">
+              <button id="dm_tabdevicesbutton" class="dm_tablinks2" onclick="SelectTab2(event, 'dm_table_container')">Devices</button>
+              <button id="dm_tabactorbutton"class="dm_tablinks2" onclick="SelectTab2(event, 'dm_actormenu')">Actor</button>
+            </div>
+            <div id="dm_table_container" class="background-gray dm_tabcontent2">
                 <table id="dm_table">
                     <tr id="dm_line0" class="heading-row">
                         <th style="width:33%;"> Device list </th>
@@ -62,6 +66,23 @@
                     <tr id="dm_line3">
                         <th class="background-light devicemenu_info">
                             <div id="dm_modifiers" class="dm_scrollable">
+                            </div>
+                        </th>
+                    </tr>
+                </table>
+            </div>
+            <div id="dm_actormenu" class="background-gray dm_tabcontent2">
+                <table id="dm_table">
+                    <tr id="dm_line0" class="heading-row">
+                        <th style="width:50%;"> Details </th>
+                        <th style="width:50%;"> Actions </th>
+                    </tr>
+                    <tr id="dm_linerem">
+                        <th class="background-light ">
+
+                        </th>
+                        <th class="background-light devicemenu_info">
+                            <div id="dm_actorminigames" class="dm_scrollable">
                             </div>
                         </th>
                     </tr>

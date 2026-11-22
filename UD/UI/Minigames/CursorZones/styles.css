@@ -1,3 +1,9 @@
+
+#main{
+    user-select: none;
+    pointer-events: none;
+}
+
 #mg_base{
   width:calc(var(--scale)*100%);
   height:calc(var(--scale)*100%);

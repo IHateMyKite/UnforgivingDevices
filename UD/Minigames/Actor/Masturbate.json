@@ -1,0 +1,114 @@
+{
+    "name": "Masturbate",
+    "description": "Masturbate. Masturbating with locked hands or chastity belt is much less effective",
+    "script":"UD\\Minigames\\Actor\\Scripts\\Masturbate.lua",
+    "base":"ActorMinigameZoneSlide",
+    "priority": 90,
+    "skill": "Agility",
+    "includes":
+    [
+        "UD\\OrgasmSystem.lua"
+    ],
+    "config": 
+    {
+        "minStamina":   "0.15",
+        "StaminaDrain": "4.0",
+        "HoldingZoneSpeedMult": "0.3",
+        "ColorRelease": "rgba(255, 15, 255, 1)",
+        "SpeedMult": "1.0050",
+        "SkillGain":    "0.0"
+    },
+    "export":
+    {
+        "GenitalBaseRate":
+        {
+            "name": "Genital Rate",
+            "description": "Rate of masturbation using genitals",
+            "default": "15.0",
+            "priority": "49",
+            "mcm":
+            {
+                "min": "0.0",
+                "max": "100.0",
+                "precision": "2.5",
+                "format": "{1} /s",
+                "mult": "1.0"
+            }
+        },
+        "AnalBaseRate":
+        {
+            "name": "Anal Rate",
+            "description": "Rate of masturbation using anal",
+            "default": "7.5",
+            "priority": "48",
+            "mcm":
+            {
+                "min": "0.0",
+                "max": "100.0",
+                "precision": "2.5",
+                "format": "{1} /s",
+                "mult": "1.0"
+            }
+        },
+        "NippleBaseRate":
+        {
+            "name": "Nipple Rate",
+            "description": "Rate of masturbation using nipples",
+            "default": "4.0",
+            "priority": "47",
+            "mcm":
+            {
+                "min": "0.0",
+                "max": "100.0",
+                "precision": "2.5",
+                "format": "{1} /s",
+                "mult": "1.0"
+            }
+        },
+        "GenitalPlugInc":
+        {
+            "name": "Genital Plug Rate",
+            "description": "How much will masturbation rate increase when wearing Genital plug. Also works when belted",
+            "default": "2.5",
+            "priority": "46",
+            "mcm":
+            {
+                "min": "0.0",
+                "max": "25.0",
+                "precision": "0.5",
+                "format": "{1} /s",
+                "mult": "1.0"
+            }
+        },
+        "AnalPlugInc":
+        {
+            "name": "Anal Plug Rate",
+            "description": "How much will masturbation rate increase when wearing Anal plug. Also works when belted",
+            "default": "1.5",
+            "priority": "45",
+            "mcm":
+            {
+                "min": "0.0",
+                "max": "25.0",
+                "precision": "0.5",
+                "format": "{1} /s",
+                "mult": "1.0"
+            }
+        },
+        "BeltedEffectivenes":
+        {
+            "name": "Belted effectivenes",
+            "description": "How effective will be masturbation when belted. If actor is belted, base rate is always set to 0. This value is only used when actor is plugged",
+            "default": "1.0",
+            "priority": "44",
+            "mcm":
+            {
+                "min": "0.0",
+                "max": "1.0",
+                "precision": "0.01",
+                "format": "{0} %",
+                "mult": "100.0"
+            }
+        }
+    }
+}

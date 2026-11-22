@@ -30,7 +30,7 @@ function OnStart(C)
     SetMinigameVar(C,"CutPower",tonumber(GetVariableValue(C,"thisdevice::UD_CutChance(A)")))
     SetMinigameVar(C,"ConditionDamageBase",tonumber(GetConfigVar(C,"ConditionDamageBase","15.0")))
     
-    local loc_weaponpower = GetSharpestWeaponPower(C['Wearer'])
+    local loc_weaponpower = GetSharpestWeaponPower(C['Actor'])
     if UseHelper(C) then
         loc_weaponpower = loc_weaponpower + GetSharpestWeaponPower(C['Helper'])
     end

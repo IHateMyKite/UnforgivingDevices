@@ -1,12 +1,14 @@
 {
-    "name": "Minigame",
-    "description": "Base",
+    "name": "DeviceMinigame",
+    "description": "Device Minigame Base",
     "uiobject":"",
     "script":"UD\\Minigames\\Devices\\Scripts\\DeviceMinigameBase.lua",
     "priority": 100,
     "abstract": true,
+    "type": "device",
     "includes":
     [
+        "UD\\Minigames\\Global.lua",
         "UD\\Minigames\\Devices\\Scripts\\Utils\\MinigameUtils.lua",
         "UD\\Minigames\\Devices\\Scripts\\Utils\\Locks.lua"
     ],

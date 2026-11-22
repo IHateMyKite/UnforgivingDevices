@@ -43,7 +43,7 @@ window.Init = (arg) =>
     if (!('mcurvis' in arg) || arg.mcurvis)
     {
         document.getElementById('mg_bar_cursor').style.display = 'inherit';
-        document.getElementById('mg_cursor').style.transition = "left " + UpdateTime + "ms";
+        //document.getElementById('mg_cursor').style.transition = "left " + UpdateTime + "ms";
     }
     
     var loc_bars = 0
@@ -53,7 +53,7 @@ window.Init = (arg) =>
         var loc_barover = document.getElementById('mg_durability_over');
         
         loc_bar.style.display = 'inherit';
-        loc_bar.style.transition = "mask-size " + UpdateTime + "ms";
+        //loc_bar.style.transition = "mask-size " + UpdateTime + "ms";
         if (!loc_hints) loc_barover.style.display = "none";
         
         loc_bars++;
@@ -66,7 +66,7 @@ window.Init = (arg) =>
         var loc_barover = document.getElementById('mg_condition_over');
         
         loc_bar.style.display = 'inherit';
-        loc_bar.style.transition = "mask-size " + UpdateTime + "ms";
+        //loc_bar.style.transition = "mask-size " + UpdateTime + "ms";
         if (!loc_hints) loc_barover.style.display = "none";
         
         loc_bars++;
@@ -79,7 +79,7 @@ window.Init = (arg) =>
         var loc_barover = document.getElementById('mg_progress_over');
         
         loc_bar.style.display = 'inherit';
-        loc_bar.style.transition = "mask-size " + UpdateTime + "ms";
+        //loc_bar.style.transition = "mask-size " + UpdateTime + "ms";
         if (!loc_hints) loc_barover.style.display = "none";
         
         loc_bars++;
@@ -182,3 +182,42 @@ function UpdateCursor(pos)
     let loc_cursor = document.getElementById("mg_cursor")
     loc_cursor.style.setProperty("left",String(pos*100.0)+"%")
 }
+
+SimSpeed = 1.0
+SimInterval = 1000.0/60.0
+SimPos = 0.0
+SimDirection = 0
+function Simulate(speed,fps)
+{
+    SimSpeed = speed
+    SimInterval = 1000.0/fps
+    Init({fps:fps})
+    setInterval(SimUpdate, SimInterval);
+}
+
+function SimUpdate()
+{
+    if (SimDirection == 0)
+    {
+        SimPos += SimSpeed*(SimInterval/1000.0);
+    }
+    else if (SimDirection == 1)
+    {
+        SimPos -= SimSpeed*(SimInterval/1000.0);
+    }
+    
+    
+    if (SimPos >= 0.975)
+    {
+        SimPos = 0.975
+        SimDirection = 1;
+    }
+    else if (SimPos <= 0.0)
+    {
+        SimPos = 0.0
+        SimDirection = 0;
+    }
+    
+    Update({pos:SimPos})
+}
+
