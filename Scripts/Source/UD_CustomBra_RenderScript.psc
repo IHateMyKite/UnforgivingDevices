@@ -38,11 +38,11 @@ Function activateDevice()
 
         if (loc_piercings as UD_CustomVibratorBase_RenderScript)
             UD_CustomVibratorBase_RenderScript loc_vibrator = loc_piercings as UD_CustomVibratorBase_RenderScript
-            if WearerIsPlayer() && (!loc_vibrator.canVibrate() || !UDMain.UDWC.UD_FilterVibNotifications)
-                UDmain.Print(getDeviceName() + " activates your nipple piercings!")
-            elseif UDmain.ActorInCloseRange(getWearer())
-                UDmain.Print(getWearerName() + "'s "+ getDeviceName() +" activates their nipple piercings!")
-            endif
+            ;if WearerIsPlayer() && (!loc_vibrator.canVibrate() || !UDMain.UDWC.UD_FilterVibNotifications)
+            ;    UDmain.Print(getDeviceName() + " activates your nipple piercings!")
+            ;elseif UDmain.ActorInCloseRange(getWearer())
+            ;    UDmain.Print(getWearerName() + "'s "+ getDeviceName() +" activates their nipple piercings!")
+            ;endif
             if loc_vibrator.canVibrate()
                 if !loc_vibrator.isVibrating()
                     loc_vibrator.ForceModDuration(1.5)
@@ -74,12 +74,6 @@ EndFunction
 Function OnMendPost(float mult) ;called on device mend (regain durability). Only called if OnMendPre returns true
     parent.OnMendPost(mult)
 EndFunction
-bool Function OnCritDevicePre() ;called on minigame crit
-    return parent.OnCritDevicePre()
-EndFunction
-Function OnCritDevicePost() ;called on minigame crit. Is only called if OnCritDevicePre returns true 
-    parent.OnCritDevicePost()
-EndFunction
 bool Function OnOrgasmPre(bool sexlab = false) ;called on wearer orgasm. Is only called if wearer is registered
     return parent.OnOrgasmPre(sexlab)
 EndFunction
@@ -97,18 +91,6 @@ Function OnMinigameStart() ;called when minigame start
 EndFunction
 Function OnMinigameEnd() ;called when minigame end
     parent.OnMinigameEnd()
-EndFunction
-Function OnMinigameTick(Float abUpdateTime) ;called every on every tick of minigame. Uses MCM performance setting
-    parent.OnMinigameTick(abUpdateTime)
-EndFunction
-Function OnMinigameTick1() ;called every 1s of minigame
-    parent.OnMinigameTick1()
-EndFunction
-Function OnMinigameTick3() ;called every 3s of minigame
-    parent.OnMinigameTick3()
-EndFunction
-Function OnCritFailure() ;called on crit failure (wrong key pressed)
-    parent.OnCritFailure()
 EndFunction
 float Function getAccesibility() ;return accesibility of device in range 0.0 - 1.0
     return parent.getAccesibility()
@@ -170,12 +152,6 @@ EndFunction
 Function onLockUnlocked(bool lockpick = false)
     parent.onLockUnlocked(lockpick)
 EndFunction
-Function onSpecialButtonPressed(float fMult)
-    parent.onSpecialButtonPressed(fMult)
-EndFunction
-Function onSpecialButtonReleased(Float fHoldTime)
-    parent.onSpecialButtonReleased(fHoldTime)
-EndFunction
 bool Function onWeaponHitPre(Weapon source, Float afDamage = -1.0)
     return parent.onWeaponHitPre(source, afDamage)
 EndFunction
@@ -190,12 +166,6 @@ Function onSpellHitPost(Form source, Float afDamage = -1.0)
 EndFunction
 string Function addInfoString(string str = "")
     return parent.addInfoString(str)
-EndFunction
-Function updateWidget(bool force = false)
-    parent.updateWidget(force)
-EndFunction
-Function updateWidgetColor()
-    parent.updateWidgetColor()
 EndFunction
 Float[] Function GetCurrentMinigameExpression()
 	return parent.GetCurrentMinigameExpression()

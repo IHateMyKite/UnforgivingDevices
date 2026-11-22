@@ -1,0 +1,19 @@
+{
+    "name": "ArousalMeter",
+    "description": "Arousal Meter",
+    "script":"",
+    "priority": 100,
+    "base": "MeterBase",
+    "disabled": true,
+    "config":
+    {
+        "posX": "83%",
+        "posY": "calc(90% - var(--meter-height)*2)",
+        "color_fill":"rgba(255, 0, 163, 1)",
+        "minigame": true,
+        "value": "OS[8]",
+        "maxvalue": "100.0",
+        "thd_min": "0.1",
+        "thd_max": "1.0"
+    }
+}

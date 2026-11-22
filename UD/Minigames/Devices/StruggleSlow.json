@@ -1,0 +1,15 @@
+{
+    "name": "Play with device",
+    "description": "Play with the device indefinitely. Deals no damage to device",
+    "uiobject":"",
+    "base":"StruggleBase",
+    "priority": 94,
+    "config":
+    {
+        "minStamina":   "0.0",
+        "StaminaDrain": "0.0",
+        "DamageBase":   "0.0",
+        "SkillGain":    "0.0",
+        "UseNoUI":      "true"
+    }
+}

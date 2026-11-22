@@ -1,0 +1,42 @@
+
+
+.hud_meter {
+  user-select: none;
+  pointer-events: none;
+  position: absolute;
+  left:0px;
+  top:0px;
+  width: 100%;
+  height: 100%;
+  background-color: green;
+}
+
+.hud_meter_base {
+  user-select: none;
+  pointer-events: none;
+  position: absolute;
+  left:var(--border-size-small);
+  top:var(--border-size-small);
+  width: calc(100% - var(--border-size-small)*2);
+  height: calc(100% - var(--border-size-small)*2);
+  background-color: transparent;
+}
+
+.hud_meter_border {
+  user-select: none;
+  pointer-events: none;
+  width: 20%;
+  height: 4%;
+  top: 0;
+  left: 0;
+  /* border: var(--border-size-small) solid var(--color-white); */
+  box-shadow:
+    inset 0 0 0 var(--border-size-small) var(--color-black),
+    inset 0 0 0 var(--border-size-small) var(--color-white);
+  /* border-radius: var(--border-radius-small); */
+  background-color: var(--color-red-80);
+  /* margin-bottom: 4%; */
+  position: absolute;
+  z-index: 1100;
+}
+
